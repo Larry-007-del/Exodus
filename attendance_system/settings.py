@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'openpyxl',
     'drf_yasg',
     'corsheaders',  # CORS Headers
+    'frontend',  # HTMX Frontend App
 ]
 
 MIDDLEWARE = [
@@ -69,7 +70,7 @@ ROOT_URLCONF = 'attendance_system.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -158,3 +159,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",  # Localhost IP for development (adjust port as needed)
     "http://localhost:8000",  # If using another local environment
 ]
+
+# Media files (uploaded images)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+
+# Login URLs
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'dashboard'
+LOGOUT_REDIRECT_URL = 'login'

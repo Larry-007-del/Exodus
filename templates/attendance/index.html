@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance - Attendance System{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Attendance</h1>
+        <p class="text-gray-600 mt-1">Manage attendance sessions</p>
+    </div>
+    <div class="mt-4 md:mt-0 flex gap-2">
+        <a href="{% url 'frontend:attendance_take' %}" class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
+            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Take Attendance
+        </a>
+        <a href="{% url 'frontend:attendance_mark' %}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            Mark Attendance
+        </a>
+    </div>
+</div>
+
+<!-- Today's Stats -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-sm font-medium text-gray-500">Today's Date</h3>
+        <p class="text-2xl font-bold text-gray-900 mt-2">{{ today }}</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-sm font-medium text-gray-500">Today's Sessions</h3>
+        <p class="text-2xl font-bold text-gray-900 mt-2">{{ attendances|length }}</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-sm font-medium text-gray-500">Active Tokens</h3>
+        <p class="text-2xl font-bold text-gray-900 mt-2">{{ active_tokens|length }}</p>
+    </div>
+</div>
+
+<!-- Active Tokens -->
+{% if active_tokens %}
+<div class="bg-white rounded-lg shadow mb-8">
+    <div class="p-6 border-b border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-900">Active Attendance Sessions</h2>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for token in active_tokens %}
+            <div class="border border-yellow-200 bg-yellow-50 rounded-lg p-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="font-semibold text-gray-900">{{ token.course.name }}</p>
+                        <p class="text-sm text-gray-500">{{ token.course.course_code }}</p>
+                    </div>
+                    <span class="px-2 py-1 bg-yellow-200 text-yellow-800 text-xs rounded">Active</span>
+                </div>
+                <div class="mt-4">
+                    <p class="text-xs text-gray-500">Token: <span class="font-mono font-bold text-lg">{{ token.token }}</span></p>
+                    <p class="text-xs text-gray-500">Expires: {{ token.expires_at|time:"H:i" }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Today's Sessions -->
+<div class="bg-white rounded-lg shadow">
+    <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+        <h2 class="text-lg font-semibold text-gray-900">Today's Sessions</h2>
+        <a href="{% url 'frontend:attendance_history' %}" class="text-sm text-indigo-600 hover:text-indigo-800">View History</a>
+    </div>
+    <div class="p-6">
+        {% if attendances %}
+        <div class="space-y-4">
+            {% for attendance in attendances %}
+            <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                <div>
+                    <p class="font-medium text-gray-900">{{ attendance.course.name }}</p>
+                    <p class="text-sm text-gray-500">{{ attendance.date }}</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                        {{ attendance.present_students.count }} Present
+                    </span>
+                    <a href="{% url 'frontend:attendance_detail' attendance.id %}" class="text-indigo-600 hover:text-indigo-800">View</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500 text-center py-4">No attendance sessions today</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

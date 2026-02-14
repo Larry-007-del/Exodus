@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit {{ student.name }} - Attendance System{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'frontend:student_detail' student.id %}" class="text-indigo-600 hover:text-indigo-800 flex items-center mb-4">
+        <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        Back to Student
+    </a>
+    <h1 class="text-2xl font-bold text-gray-900">Edit Student</h1>
+</div>
+
+<div class="bg-white rounded-lg shadow">
+    <form method="post" class="p-6 space-y-6">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="md:col-span-2">
+                <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                <input type="text" name="name" id="name" value="{{ student.name }}" required
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+            </div>
+            
+            <div>
+                <label for="programme_of_study" class="block text-sm font-medium text-gray-700">Programme of Study</label>
+                <input type="text" name="programme_of_study" id="programme_of_study" value="{{ student.programme_of_study|default:'' }}"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+            </div>
+            
+            <div>
+                <label for="year" class="block text-sm font-medium text-gray-700">Year</label>
+                <input type="text" name="year" id="year" value="{{ student.year|default:'' }}"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+            </div>
+            
+            <div>
+                <label for="phone_number" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                <input type="text" name="phone_number" id="phone_number" value="{{ student.phone_number|default:'' }}"
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500">
+            </div>
+        </div>
+        
+        <div class="flex justify-end gap-4 pt-4 border-t border-gray-200">
+            <a href="{% url 'frontend:student_detail' student.id %}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</a>
+            <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Save Changes</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
