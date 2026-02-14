@@ -21,17 +21,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-+76jshpcgfuy%+((^n57ev)t6du*qxo5z0@d_nxt$(wc@)s*2*')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-local-dev-key-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
 # Allowed hosts
-ALLOWED_HOSTS = [
-    'attendance-system-6a30.onrender.com',  # Your deployment host
-    'localhost',
-    '127.0.0.1'
-]
+ALLOWED_HOSTS = ['*']
+
+# CSRF Trusted Origins for production (Render)
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_EXTERNAL_HOSTNAME}']
 
 # Security Settings for Production
 if not DEBUG:
@@ -61,6 +62,7 @@ INSTALLED_APPS = [
     'attendance_system',
     'openpyxl',
     'drf_yasg',
+    'drf_spectacular',
     'corsheaders',  # CORS Headers
     'frontend',  # HTMX Frontend App
 ]
@@ -101,7 +103,11 @@ WSGI_APPLICATION = 'attendance_system.wsgi.application'
 # Database
 import dj_database_url
 DATABASES = {
-    'default': dj_database_url.config(default='sqlite:///db.sqlite3')
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3',
+        conn_max_age=600,
+        ssl_require=False
+    )
 }
 
 
@@ -148,7 +154,8 @@ REST_FRAMEWORK = {
         'anon': '10/minute',
         'user': '1000/day',
         'burst': '60/minute',
-    }
+    },
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 # GIS and other settings

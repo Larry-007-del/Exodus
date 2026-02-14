@@ -72,8 +72,22 @@
         </div>
     </div>
     {% empty %}
-    <div class="col-span-full text-center py-8 text-gray-500">
-        No courses found. {% if query or active_filter %}Try different filters.{% else %}Add your first course!{% endif %}
+    <div class="col-span-full">
+        <div class="text-center py-12 bg-white rounded-lg shadow-sm border-2 border-dashed border-gray-300">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No courses yet</h3>
+            <p class="mt-1 text-sm text-gray-500">Get started by creating your first course.</p>
+            <div class="mt-6">
+                <a href="{% url 'frontend:course_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Create New Course
+                </a>
+            </div>
+        </div>
     </div>
     {% endfor %}
 </div>

@@ -69,8 +69,9 @@ class CourseViewSet(viewsets.ModelViewSet):
         if not token_value or not latitude or not longitude:
             return Response({'error': 'Token, latitude, and longitude are required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create/Update the Attendance record with coordinates
-        attendance, _ = Attendance.objects.get_or_create(
+        # CRITICAL FIX: Create/Update the Attendance record immediately so students can find it
+        # We use get_or_create to prevent duplicates if the button is clicked twice
+        attendance, created = Attendance.objects.get_or_create(
             course=course,
             date=timezone.now().date(),
             defaults={
@@ -80,24 +81,30 @@ class CourseViewSet(viewsets.ModelViewSet):
                 'created_by': request.user
             }
         )
-        
-        # If it already existed, update the coords to the new location
-        attendance.lecturer_latitude = latitude
-        attendance.lecturer_longitude = longitude
-        attendance.is_active = True
-        attendance.save()
 
-        # Create the attendance token
-        token = AttendanceToken.objects.create(
+        # If it already existed, update the location and ensure it is active
+        if not created:
+            attendance.lecturer_latitude = latitude
+            attendance.lecturer_longitude = longitude
+            attendance.is_active = True
+            attendance.save()
+
+        # Now create the token
+        AttendanceToken.objects.create(
             course=course,
             token=token_value,
             generated_at=timezone.now(),
-            expires_at=timezone.now() + timezone.timedelta(hours=4),
+            expires_at=timezone.now() + timezone.timedelta(hours=4), # Auto-expire in 4 hours
             is_active=True
         )
 
-        serializer = AttendanceTokenSerializer(token)
-        return Response(serializer.data)
+        # Optional: Update the lecturer's profile location
+        if hasattr(course.lecturer, 'lecturer_profile'):
+             course.lecturer.lecturer_profile.latitude = latitude
+             course.lecturer.lecturer_profile.longitude = longitude
+             course.lecturer.lecturer_profile.save()
+
+        return Response({'status': 'Token generated and session started', 'token': token_value})
 
     @action(detail=False, methods=['post'])
     def take_attendance(self, request):
