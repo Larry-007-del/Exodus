@@ -36,6 +36,12 @@ class Student(models.Model):
     year = models.CharField(max_length=2, blank=True, null=True)  # Added field
     phone_number = models.CharField(max_length=15, blank=True, null=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['student_id']),
+            models.Index(fields=['programme_of_study']),
+        ]
+
     def __str__(self):
         return f"{self.name} ({self.student_id})"
 
@@ -78,6 +84,13 @@ class Attendance(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ['-date', '-created_at']
+        indexes = [
+            models.Index(fields=['course', 'date']),
+            models.Index(fields=['is_active']),
+        ]
+
     def __str__(self):
         return f"{self.course.name} - {self.date} (Active: {self.is_active})"
 
@@ -112,6 +125,22 @@ class Attendance(models.Model):
         student_coords = (student_lat, student_lon)
         distance = geodesic(lecturer_coords, student_coords).meters
         return distance <= radius_meters
+
+
+# M2M Signal for Attendance Audit Logging
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
+
+@receiver(m2m_changed, sender=Attendance.present_students.through)
+def log_attendance_change(sender, instance, action, pk_set, **kwargs):
+    """
+    Logs when a student is manually added/removed from attendance.
+    """
+    if action in ["post_add", "post_remove"]:
+        verb = "Added" if action == "post_add" else "Removed"
+        students = ", ".join([str(pk) for pk in pk_set])
+        print(f"AUDIT LOG: Students {students} were {verb} from Attendance ID {instance.id}")
+
 
 class AttendanceToken(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)

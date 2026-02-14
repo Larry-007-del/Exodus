@@ -263,9 +263,13 @@ class LogoutView(generics.GenericAPIView):
         return Response(status=status.HTTP_200_OK)
 
 # Location-based Attendance View
+from rest_framework.throttling import ScopedRateThrottle
+
 class SubmitLocationView(generics.GenericAPIView):
     serializer_class = SubmitLocationSerializer
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'burst'
 
     def post(self, request, *args, **kwargs):
         latitude = request.data.get('latitude')
