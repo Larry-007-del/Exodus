@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,10 +21,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+76jshpcgfuy%+((^n57ev)t6du*qxo5z0@d_nxt$(wc@)s*2*'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-+76jshpcgfuy%+((^n57ev)t6du*qxo5z0@d_nxt$(wc@)s*2*')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
 # Allowed hosts
 ALLOWED_HOSTS = [
@@ -32,6 +32,16 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1'
 ]
+
+# Security Settings for Production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    # Create a proxy for the 'https' protocol header (Render handles SSL termination)
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
@@ -44,6 +54,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',  # Django REST Framework
     'rest_framework.authtoken',  # Token Authentication for DRF
+    'cloudinary_storage',
+    'cloudinary',
     'attendance',  # Your app name
     'django_cleanup',  # Automatically deletes old files from ImageField when updating
     'attendance_system',
@@ -87,11 +99,9 @@ WSGI_APPLICATION = 'attendance_system.wsgi.application'
 
 
 # Database
+import dj_database_url
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(default='sqlite:///db.sqlite3')
 }
 
 
@@ -114,6 +124,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 # Default primary key field type
@@ -134,6 +145,7 @@ REST_FRAMEWORK = {
 GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH', 'C:\\GDAL\\bin\\gdal304.dll')
 
 AUTHENTICATION_BACKENDS = (
+    'attendance.authentication_backends.EmailBackend',
     'attendance.authentication_backends.StudentBackend',
     'attendance.authentication_backends.StaffBackend',
     'django.contrib.auth.backends.ModelBackend',  # Default backend
@@ -153,16 +165,27 @@ SWAGGER_SETTINGS = {
 }
 
 # CORS settings
-CORS_ALLOWED_ORIGINS = [
-    "https://attendance-system-6a30.onrender.com",  # Your deployed backend
-    "http://localhost:3000",  # Localhost for development (adjust port as needed)
-    "http://127.0.0.1:3000",  # Localhost IP for development (adjust port as needed)
-    "http://localhost:8000",  # If using another local environment
-]
+CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins for development
+
+# For production, use specific origins:
+# CORS_ALLOWED_ORIGINS = [
+#     "https://attendance-system-6a30.onrender.com",
+#     "https://your-frontend-app.com",
+# ]
 
 # Media files (uploaded images)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Cloudinary Configuration
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME', ''),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY', ''),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET', ''),
+}
+
+# Use Cloudinary for media file storage (falls back to local storage if not configured)
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # HTMX settings
 HTMX_ENABLED = True

@@ -7,10 +7,16 @@ services:
     staticPublishPath: staticfiles
     envVars:
       - key: DJANGO_SECRET_KEY
-        value: django-insecure-+76jshpcgfuy%+((^n57ev)t6du*qxo5z0@d_nxt$(wc@)s*2*
+        sync: false
       - key: DJANGO_DEBUG
         value: "False"
       - key: DJANGO_ALLOWED_HOSTS
         value: "attendance-system-6a30.onrender.com,localhost,127.0.0.1"
       - key: GDAL_LIBRARY_PATH
-        value: YOUR_GDAL_LIBRARY_PATH
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

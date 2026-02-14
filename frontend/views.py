@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.db.models import Count, Q
+from django.db import transaction
 from datetime import timedelta
 import csv
 import openpyxl
@@ -27,6 +28,15 @@ def login_view(request):
         
         if user is not None:
             login(request, user)
+            # Redirect admins/superusers to Django admin
+            if user.is_superuser or user.is_staff:
+                return redirect('/admin/')
+            # Redirect lecturers and students to dashboard
+            if hasattr(user, 'lecturer'):
+                return redirect('dashboard')
+            elif hasattr(user, 'student'):
+                return redirect('dashboard')
+            # Default redirect
             next_url = request.GET.get('next', '/admin/dashboard/')
             if request.htmx:
                 return render(request, 'partials/login-success.html', {'next': next_url})
@@ -98,43 +108,46 @@ def lecturer_list(request):
 def lecturer_create(request):
     """Create new lecturer"""
     if request.method == 'POST':
-        # Get user data
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        
-        # Validate required fields
-        if not username or not password:
-            messages.error(request, 'Username and password are required')
-            return redirect('lecturer_create')
-        
-        # Check if username already exists
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'Username already exists')
-            return redirect('lecturer_create')
-        
-        user = User.objects.create_user(username=username, email=email, password=password)
-        
-        # Create lecturer profile
-        lecturer = Lecturer(
-            user=user,
-            staff_id=request.POST.get('staff_id'),
-            name=request.POST.get('name'),
-            department=request.POST.get('department'),
-            phone_number=request.POST.get('phone_number'),
-            latitude=request.POST.get('latitude') or None,
-            longitude=request.POST.get('longitude') or None,
-        )
-        
-        # Validate lecturer fields
-        form = LecturerForm(request.POST, instance=lecturer)
-        if form.is_valid():
-            form.save()
-            messages.success(request, f'Lecturer {lecturer.name} created successfully!')
-            return redirect('lecturer_list')
-        else:
-            # Delete user if lecturer validation fails
-            user.delete()
+        try:
+            with transaction.atomic():
+                # Get user data
+                username = request.POST.get('username')
+                email = request.POST.get('email')
+                password = request.POST.get('password')
+                
+                # Validate required fields
+                if not username or not password:
+                    messages.error(request, 'Username and password are required')
+                    return redirect('lecturer_create')
+                
+                # Check if username already exists
+                if User.objects.filter(username=username).exists():
+                    messages.error(request, 'Username already exists')
+                    return redirect('lecturer_create')
+                
+                user = User.objects.create_user(username=username, email=email, password=password)
+                
+                # Create lecturer profile
+                lecturer = Lecturer(
+                    user=user,
+                    staff_id=request.POST.get('staff_id'),
+                    name=request.POST.get('name'),
+                    department=request.POST.get('department'),
+                    phone_number=request.POST.get('phone_number'),
+                    latitude=request.POST.get('latitude') or None,
+                    longitude=request.POST.get('longitude') or None,
+                )
+                
+                # Validate lecturer fields
+                form = LecturerForm(request.POST, instance=lecturer)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, f'Lecturer {lecturer.name} created successfully!')
+                    return redirect('lecturer_list')
+                else:
+                    # Transaction will rollback automatically
+                    raise ValueError("Form Invalid")
+        except ValueError:
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f'{error}')
@@ -246,43 +259,47 @@ def student_list(request):
 def student_create(request):
     """Create new student"""
     if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        
-        # Validate required fields
-        if not username or not password:
-            messages.error(request, 'Username and password are required')
-            return redirect('student_create')
-        
-        # Check if username already exists
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'Username already exists')
-            return redirect('student_create')
-        
-        user = User.objects.create_user(username=username, email=email, password=password)
-        
-        student = Student(
-            user=user,
-            student_id=request.POST.get('student_id'),
-            name=request.POST.get('name'),
-            programme_of_study=request.POST.get('programme_of_study'),
-            year=request.POST.get('year'),
-            phone_number=request.POST.get('phone_number'),
-        )
-        
-        # Validate student fields
-        form = StudentForm(request.POST, instance=student)
-        if form.is_valid():
-            form.save()
-            messages.success(request, f'Student {student.name} created successfully!')
-            return redirect('student_list')
-        else:
-            user.delete()
+        try:
+            with transaction.atomic():
+                username = request.POST.get('username')
+                email = request.POST.get('email')
+                password = request.POST.get('password')
+                
+                # Validate required fields
+                if not username or not password:
+                    messages.error(request, 'Username and password are required')
+                    return redirect('student_create')
+                
+                # Check if username already exists
+                if User.objects.filter(username=username).exists():
+                    messages.error(request, 'Username already exists')
+                    return redirect('student_create')
+                
+                user = User.objects.create_user(username=username, email=email, password=password)
+                
+                student = Student(
+                    user=user,
+                    student_id=request.POST.get('student_id'),
+                    name=request.POST.get('name'),
+                    programme_of_study=request.POST.get('programme_of_study'),
+                    year=request.POST.get('year'),
+                    phone_number=request.POST.get('phone_number'),
+                )
+                
+                # Validate student fields
+                form = StudentForm(request.POST, instance=student)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, f'Student {student.name} created successfully!')
+                    return redirect('student_list')
+                else:
+                    # Transaction will rollback automatically
+                    raise ValueError("Form Invalid")
+        except ValueError:
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f'{error}')
-            return redirect('student_list')
+            return redirect('student_create')
     
     return render(request, 'students/create.html')
 
@@ -390,8 +407,11 @@ def course_create(request):
             
             # Enroll selected students
             student_ids = request.POST.getlist('students')
-            for student_id in student_ids:
-                CourseEnrollment.objects.get_or_create(course=course, student_id=student_id)
+            enrollments = [
+                CourseEnrollment(course=course, student_id=s_id) 
+                for s_id in student_ids
+            ]
+            CourseEnrollment.objects.bulk_create(enrollments, ignore_conflicts=True)
             
             messages.success(request, f'Course {course.name} created successfully!')
             return redirect('course_list')
@@ -440,8 +460,11 @@ def course_edit(request, pk):
         # Update enrollments
         student_ids = request.POST.getlist('students')
         CourseEnrollment.objects.filter(course=course).exclude(student_id__in=student_ids).delete()
-        for student_id in student_ids:
-            CourseEnrollment.objects.get_or_create(course=course, student_id=student_id)
+        enrollments = [
+            CourseEnrollment(course=course, student_id=s_id) 
+            for s_id in student_ids
+        ]
+        CourseEnrollment.objects.bulk_create(enrollments, ignore_conflicts=True)
         
         messages.success(request, f'Course {course.name} updated successfully!')
         return redirect('course_detail', pk=pk)
@@ -489,7 +512,7 @@ def ajax_search_courses(request):
 def attendance_index(request):
     """Attendance dashboard"""
     today = timezone.now().date()
-    attendances = Attendance.objects.filter(date=today).select_related('course')
+    attendances = Attendance.objects.filter(date=today).select_related('course').prefetch_related('present_students')
     active_tokens = AttendanceToken.objects.filter(is_active=True)
     
     context = {

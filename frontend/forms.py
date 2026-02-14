@@ -44,8 +44,12 @@ class StudentForm(forms.ModelForm):
     
     def clean_year(self):
         year = self.cleaned_data.get('year')
-        if year is not None and year < 1:
-            raise forms.ValidationError('Year must be at least 1')
+        if year:
+            try:
+                if int(year) < 1:
+                    raise forms.ValidationError('Year must be at least 1')
+            except ValueError:
+                raise forms.ValidationError('Year must be a number')
         return year
 
 

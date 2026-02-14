@@ -46,7 +46,7 @@ class Course(models.Model):
     name = models.CharField(max_length=100)
     course_code = models.CharField(max_length=10, unique=True)
     lecturer = models.ForeignKey(Lecturer, on_delete=models.CASCADE, related_name='courses')
-    students = models.ManyToManyField(Student, through='CourseEnrollment', related_name='courses')
+    students = models.ManyToManyField(Student, through='CourseEnrollment', related_name='enrolled_courses', blank=True)
     is_active = models.BooleanField(default=False)  # Added field
 
     def __str__(self):
@@ -92,6 +92,16 @@ class Attendance(models.Model):
 
     def is_open(self):
         return self.is_active and (self.ended_at is None or self.ended_at > timezone.now())
+
+    def is_within_radius(self, student_lat, student_lon, radius_meters=50):
+        """Check if student is within radius of lecturer's location"""
+        if not self.lecturer_latitude or not self.lecturer_longitude:
+            return True  # Fallback or deny depending on policy
+
+        lecturer_coords = (self.lecturer_latitude, self.lecturer_longitude)
+        student_coords = (student_lat, student_lon)
+        distance = geodesic(lecturer_coords, student_coords).meters
+        return distance <= radius_meters
 
 class AttendanceToken(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)

@@ -40,9 +40,18 @@ class LecturerViewSet(viewsets.ModelViewSet):
 
 # Student ViewSet
 class StudentViewSet(viewsets.ModelViewSet):
-    queryset = Student.objects.all()
     serializer_class = StudentSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        # Lecturers can see all students
+        if hasattr(user, 'lecturer'):
+            return Student.objects.all()
+        # Students can only see themselves
+        elif hasattr(user, 'student'):
+            return Student.objects.filter(user=user)
+        return Student.objects.none()
 
 # Course ViewSet
 class CourseViewSet(viewsets.ModelViewSet):
@@ -60,6 +69,24 @@ class CourseViewSet(viewsets.ModelViewSet):
         if not token_value or not latitude or not longitude:
             return Response({'error': 'Token, latitude, and longitude are required.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Create/Update the Attendance record with coordinates
+        attendance, _ = Attendance.objects.get_or_create(
+            course=course,
+            date=timezone.now().date(),
+            defaults={
+                'lecturer_latitude': latitude,
+                'lecturer_longitude': longitude,
+                'is_active': True,
+                'created_by': request.user
+            }
+        )
+        
+        # If it already existed, update the coords to the new location
+        attendance.lecturer_latitude = latitude
+        attendance.lecturer_longitude = longitude
+        attendance.is_active = True
+        attendance.save()
+
         # Create the attendance token
         token = AttendanceToken.objects.create(
             course=course,
@@ -68,12 +95,6 @@ class CourseViewSet(viewsets.ModelViewSet):
             expires_at=timezone.now() + timezone.timedelta(hours=4),
             is_active=True
         )
-
-        # Optionally update the lecturer's location
-        lecturer = course.lecturer
-        lecturer.latitude = latitude
-        lecturer.longitude = longitude
-        lecturer.save()
 
         serializer = AttendanceTokenSerializer(token)
         return Response(serializer.data)
