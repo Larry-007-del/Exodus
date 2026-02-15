@@ -31,9 +31,9 @@ def login_view(request):
             login(request, user)
             # Redirect lecturers and students to dashboard
             if hasattr(user, 'lecturer'):
-                return redirect('dashboard')
+                return redirect('frontend:dashboard')
             elif hasattr(user, 'student'):
-                return redirect('dashboard')
+                return redirect('frontend:dashboard')
             # Default redirect
             next_url = request.GET.get('next', '/dashboard/')
             if request.headers.get('HX-Request'):
@@ -50,7 +50,7 @@ def login_view(request):
 def logout_view(request):
     """Logout view"""
     logout(request)
-    return redirect('login')
+    return redirect('frontend:login')
 
 
 # ==================== Dashboard ====================
@@ -116,12 +116,12 @@ def lecturer_create(request):
                 # Validate required fields
                 if not username or not password:
                     messages.error(request, 'Username and password are required')
-                    return redirect('lecturer_create')
+                    return redirect('frontend:lecturer_create')
                 
                 # Check if username already exists
                 if User.objects.filter(username=username).exists():
                     messages.error(request, 'Username already exists')
-                    return redirect('lecturer_create')
+                    return redirect('frontend:lecturer_create')
                 
                 user = User.objects.create_user(username=username, email=email, password=password)
                 
@@ -141,7 +141,7 @@ def lecturer_create(request):
                 if form.is_valid():
                     form.save()
                     messages.success(request, f'Lecturer {lecturer.name} created successfully!')
-                    return redirect('lecturer_list')
+                    return redirect('frontend:lecturer_list')
                 else:
                     # Transaction will rollback automatically
                     raise ValueError("Form Invalid")
@@ -149,7 +149,7 @@ def lecturer_create(request):
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f'{error}')
-            return redirect('lecturer_create')
+            return redirect('frontend:lecturer_create')
     
     return render(request, 'lecturers/create.html')
 
@@ -190,7 +190,7 @@ def lecturer_edit(request, pk):
         
         lecturer.save()
         messages.success(request, f'Lecturer {lecturer.name} updated successfully!')
-        return redirect('lecturer_detail', pk=pk)
+        return redirect('frontend:lecturer_detail', pk=pk)
     
     context = {'lecturer': lecturer}
     return render(request, 'lecturers/edit.html', context)
@@ -206,7 +206,7 @@ def lecturer_delete(request, pk):
         lecturer.delete()
         user.delete()
         messages.success(request, 'Lecturer deleted successfully!')
-        return redirect('lecturer_list')
+        return redirect('frontend:lecturer_list')
     
     context = {'lecturer': lecturer}
     return render(request, 'lecturers/delete.html', context)
@@ -266,12 +266,12 @@ def student_create(request):
                 # Validate required fields
                 if not username or not password:
                     messages.error(request, 'Username and password are required')
-                    return redirect('student_create')
+                    return redirect('frontend:student_create')
                 
                 # Check if username already exists
                 if User.objects.filter(username=username).exists():
                     messages.error(request, 'Username already exists')
-                    return redirect('student_create')
+                    return redirect('frontend:student_create')
                 
                 user = User.objects.create_user(username=username, email=email, password=password)
                 
@@ -289,7 +289,7 @@ def student_create(request):
                 if form.is_valid():
                     form.save()
                     messages.success(request, f'Student {student.name} created successfully!')
-                    return redirect('student_list')
+                    return redirect('frontend:student_list')
                 else:
                     # Transaction will rollback automatically
                     raise ValueError("Form Invalid")
@@ -297,7 +297,7 @@ def student_create(request):
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f'{error}')
-            return redirect('student_create')
+            return redirect('frontend:student_create')
     
     return render(request, 'students/create.html')
 
@@ -373,7 +373,7 @@ def student_edit(request, pk):
         student.save()
         
         messages.success(request, f'Student {student.name} updated successfully!')
-        return redirect('student_detail', pk=pk)
+        return redirect('frontend:student_detail', pk=pk)
     
     context = {'student': student}
     return render(request, 'students/edit.html', context)
@@ -389,7 +389,7 @@ def student_delete(request, pk):
         student.delete()
         user.delete()
         messages.success(request, 'Student deleted successfully!')
-        return redirect('student_list')
+        return redirect('frontend:student_list')
     
     context = {'student': student}
     return render(request, 'students/delete.html', context)
@@ -455,12 +455,12 @@ def course_create(request):
             CourseEnrollment.objects.bulk_create(enrollments, ignore_conflicts=True)
             
             messages.success(request, f'Course {course.name} created successfully!')
-            return redirect('course_list')
+            return redirect('frontend:course_list')
         else:
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f'{error}')
-            return redirect('course_list')
+            return redirect('frontend:course_list')
     
     lecturers = Lecturer.objects.all()
     students = Student.objects.all()
@@ -508,7 +508,7 @@ def course_edit(request, pk):
         CourseEnrollment.objects.bulk_create(enrollments, ignore_conflicts=True)
         
         messages.success(request, f'Course {course.name} updated successfully!')
-        return redirect('course_detail', pk=pk)
+        return redirect('frontend:course_detail', pk=pk)
     
     lecturers = Lecturer.objects.all()
     students = Student.objects.all()
@@ -531,7 +531,7 @@ def course_delete(request, pk):
     if request.method == 'POST':
         course.delete()
         messages.success(request, 'Course deleted successfully!')
-        return redirect('course_list')
+        return redirect('frontend:course_list')
     
     context = {'course': course}
     return render(request, 'courses/delete.html', context)
@@ -597,7 +597,7 @@ def attendance_take(request):
         course.save()
         
         messages.success(request, f'Attendance session started for {course.name}!')
-        return redirect('attendance_detail', pk=attendance.pk)
+        return redirect('frontend:attendance_detail', pk=attendance.pk)
     
     # Get lecturer's courses
     try:
@@ -709,7 +709,7 @@ def manual_mark_present(request, attendance_id, student_id):
     # Add to ManyToMany field
     attendance.present_students.add(student)
     
-    return redirect('attendance_detail', pk=attendance_id)
+    return redirect('frontend:attendance_detail', pk=attendance_id)
 
 
 @login_required
