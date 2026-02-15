@@ -1,9 +1,13 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from . import views
 
 app_name = 'frontend'
 
 urlpatterns = [
+    # Redirect root to dashboard
+    path('', RedirectView.as_view(pattern_name='dashboard', permanent=False)),
+    
     # Authentication
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),

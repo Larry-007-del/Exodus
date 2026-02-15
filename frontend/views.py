@@ -37,7 +37,7 @@ def login_view(request):
             elif hasattr(user, 'student'):
                 return redirect('dashboard')
             # Default redirect
-            next_url = request.GET.get('next', '/admin/dashboard/')
+            next_url = request.GET.get('next', '/dashboard/')
             if request.htmx:
                 return render(request, 'partials/login-success.html', {'next': next_url})
             return redirect(next_url)
