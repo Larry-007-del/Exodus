@@ -209,9 +209,9 @@ HTMX_ENABLED = True
 HTMX_URLS = ['/admin/', '/api/']
 
 # Login URLs
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = 'frontend:login'
+LOGIN_REDIRECT_URL = 'frontend:dashboard'
+LOGOUT_REDIRECT_URL = 'frontend:login'
 
 # Sentry Error Tracking (Production only)
 import sentry_sdk
