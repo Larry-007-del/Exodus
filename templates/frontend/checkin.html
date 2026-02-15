@@ -31,14 +31,57 @@
         <span class="text-sm font-medium">GPS Signal: Strong (Accuracy: 5m)</span>
     </div>
 
+    <!-- Map showing student location and geofence -->
+    <div class="mt-8 w-full max-w-md">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 text-center">Your Location</h3>
+        <div id="map" class="h-64 w-full rounded-lg shadow-md z-0"></div>
+    </div>
+
 </div>
 
 <script>
     const form = document.getElementById('attendance-form');
     form.addEventListener('submit', (e) => {
-        // You can add a "Loading..." text change here to make it feel responsive
         const btnText = document.querySelector('button span.font-bold');
         btnText.innerText = "LOCATING...";
     });
+    
+    // Initialize Map
+    var map = L.map('map').setView([5.6037, -0.1870], 17); // Example: Accra coords
+
+    // Add OpenStreetMap Tiles
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // Draw the Classroom Zone (The Geofence)
+    var circle = L.circle([5.6037, -0.1870], {
+        color: 'green',
+        fillColor: '#22c55e',
+        fillOpacity: 0.2,
+        radius: 50 // 50 meters
+    }).addTo(map);
+
+    // Show the Student's Location (Blue Dot)
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var lat = position.coords.latitude;
+            var lng = position.coords.longitude;
+
+            L.marker([lat, lng]).addTo(map)
+                .bindPopup("You are here")
+                .openPopup();
+
+            // Auto-zoom to fit both
+            var group = new L.featureGroup([
+                L.marker([lat, lng]),
+                circle
+            ]);
+            map.fitBounds(group.getBounds());
+        }, function(error) {
+            console.log("Geolocation error: " + error.message);
+        });
+    }
 </script>
 {% endblock %}
