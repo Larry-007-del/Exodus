@@ -38,11 +38,11 @@ def login_view(request):
                 return redirect('dashboard')
             # Default redirect
             next_url = request.GET.get('next', '/dashboard/')
-            if request.htmx:
+            if request.headers.get('HX-Request'):
                 return render(request, 'partials/login-success.html', {'next': next_url})
             return redirect(next_url)
         else:
-            if request.htmx:
+            if request.headers.get('HX-Request'):
                 return render(request, 'partials/login-error.html', {'error': 'Invalid username or password'})
             messages.error(request, 'Invalid username or password')
     
