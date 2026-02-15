@@ -3,7 +3,7 @@ services:
     name: attendance-system
     env: python
     buildCommand: "./build.sh"
-    startCommand: gunicorn attendance_system.wsgi:application --bind 0.0.0.0:$PORT
+    startCommand: "./entrypoint.sh"
     staticPublishPath: staticfiles
     envVars:
       - key: PYTHON_VERSION
