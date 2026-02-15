@@ -8,12 +8,13 @@ from django.db.models import Count, Q
 from django.db import transaction
 from datetime import timedelta
 import csv
+import io
 import openpyxl
 from openpyxl import Workbook
 
 from attendance.models import Lecturer, Student, Course, Attendance, AttendanceToken, CourseEnrollment
 from django.contrib.auth.models import User
-from .forms import LecturerForm, StudentForm, CourseForm
+from .forms import LecturerForm, StudentForm, CourseForm, StudentUploadForm
 
 
 # ==================== Authentication ====================
@@ -306,6 +307,49 @@ def student_create(request):
             return redirect('student_create')
     
     return render(request, 'students/create.html')
+
+
+@login_required
+def upload_students(request):
+    """Bulk upload students from CSV file"""
+    if request.method == 'POST':
+        form = StudentUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            csv_file = request.FILES['file']
+            
+            # Decode the file
+            data_set = csv_file.read().decode('UTF-8')
+            io_string = io.StringIO(data_set)
+            next(io_string)  # Skip header row
+            
+            count = 0
+            for column in csv.reader(io_string, delimiter=',', quotechar='|'):
+                # Expecting CSV format: First Name, Last Name, Email, Student ID
+                first_name = column[0]
+                last_name = column[1]
+                email = column[2]
+                student_id = column[3]
+
+                # 1. Create User (Avoid duplicates)
+                if not User.objects.filter(username=student_id).exists():
+                    user = User.objects.create_user(
+                        username=student_id, 
+                        email=email, 
+                        password='password123',
+                        first_name=first_name,
+                        last_name=last_name
+                    )
+                    
+                    # 2. Create Student Profile
+                    Student.objects.create(user=user, student_id=student_id)
+                    count += 1
+            
+            messages.success(request, f'{count} students uploaded successfully!')
+            return redirect('frontend:dashboard')
+    else:
+        form = StudentUploadForm()
+    
+    return render(request, 'students/upload.html', {'form': form})
 
 
 @login_required

@@ -178,6 +178,33 @@ class AttendanceViewSet(viewsets.ModelViewSet):
         workbook.save(response)
         return response
 
+    @action(detail=False, methods=['get'], url_path='export_csv/(?P<course_id>[^/.]+)')
+    def export_attendance_csv(self, request, course_id=None):
+        """Export attendance as CSV for a specific course"""
+        from django.http import HttpResponse
+        import csv
+        
+        course = Course.objects.get(id=course_id)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="{course.course_code}_attendance.csv"'
+
+        writer = csv.writer(response)
+        # Header Row
+        writer.writerow(['Date', 'Student ID', 'Student Name', 'Status', 'Time Marked'])
+
+        # Data Rows
+        attendances = Attendance.objects.filter(course=course).select_related('student', 'student__user')
+        for att in attendances:
+            writer.writerow([
+                att.created_at.date() if att.created_at else '',
+                att.student.student_id if att.student else '',
+                f"{att.student.user.first_name} {att.student.user.last_name}" if att.student and att.student.user else '',
+                'Present',
+                att.created_at.strftime("%H:%M:%S") if att.created_at else '',
+            ])
+
+        return response
+
     @action(detail=False, methods=['post'], url_path='end_attendance')
     def end_attendance(self, request):
         course_id = request.data.get('course_id')

@@ -65,3 +65,8 @@ class CourseForm(forms.ModelForm):
             # Remove whitespace and convert to uppercase
             return code.upper().strip()
         return code
+
+
+class StudentUploadForm(forms.Form):
+    """Form for bulk uploading students via CSV"""
+    file = forms.FileField(label="Upload CSV File")
