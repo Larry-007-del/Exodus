@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.db.models import Count, Q
 from django.db import transaction
-from django.urls import reverse
 from datetime import timedelta
 import csv
 import io
@@ -16,40 +16,18 @@ from openpyxl import Workbook
 from attendance.models import Lecturer, Student, Course, Attendance, AttendanceToken, CourseEnrollment
 from django.contrib.auth.models import User
 from .forms import LecturerForm, StudentForm, CourseForm, StudentUploadForm
-
-
-# ==================== Authentication ====================
-
-def login_view(request):
-    """Login view with proper HTMX redirect handling"""
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        
-        user = authenticate(request, username=username, password=password)
-        
-        if user is not None:
+    if request.method == "POST":
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
             login(request, user)
-            
-            # Handle HTMX redirect properly
-            if request.headers.get('HX-Request'):
-                response = HttpResponse()
-                response['HX-Redirect'] = reverse('frontend:dashboard')
-                return response
-            
-            # Redirect lecturers and students to dashboard
-            if hasattr(user, 'lecturer'):
-                return redirect('frontend:dashboard')
-            elif hasattr(user, 'student'):
-                return redirect('frontend:dashboard')
-            
-            # Default redirect
-            next_url = request.GET.get('next', '/dashboard/')
-            return redirect(next_url)
+            return redirect('frontend:dashboard')
         else:
-            messages.error(request, 'Invalid username or password')
-    
-    return render(request, 'registration/login.html')
+            messages.error(request, "Invalid username or password.")
+    else:
+        form = AuthenticationForm()
+
+    return render(request, 'frontend/login.html', {'form': form})
 
 
 def logout_view(request):
