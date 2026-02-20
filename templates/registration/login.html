@@ -59,12 +59,22 @@
                 </div>
             </form>
             
-            <!-- Demo Credentials Info -->
-            <div class="mt-6 p-4 bg-gray-50 rounded-md">
-                <p class="text-sm text-gray-600 font-medium">Demo Credentials:</p>
-                <p class="text-xs text-gray-500 mt-1">Admin: admin / admin123</p>
-                <p class="text-xs text-gray-500">Create a superuser to access the dashboard</p>
-            </div>
+                <!-- Registration Link -->
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600">
+                        Don't have an account? 
+                        <a href="{% url 'frontend:register' %}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                            Create an account
+                        </a>
+                    </p>
+                </div>
+                
+                <!-- Demo Credentials Info -->
+                <div class="mt-6 p-4 bg-gray-50 rounded-md">
+                    <p class="text-sm text-gray-600 font-medium">Demo Credentials:</p>
+                    <p class="text-xs text-gray-500 mt-1">Admin: admin / admin123</p>
+                    <p class="text-xs text-gray-500">Create a superuser to access the dashboard</p>
+                </div>
         </div>
         
         <!-- Footer -->

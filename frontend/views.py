@@ -845,3 +845,65 @@ def reports_export(request):
             ])
         
         return response
+  
+
+
+def register_view(request):
+    """View for user registration"""
+    if request.method == "POST":
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        role = request.POST.get('role')
+        
+        # Validate passwords
+        if password1 != password2:
+            messages.error(request, "Passwords do not match")
+            return redirect('frontend:register')
+        
+        # Check if username or email exists
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists")
+            return redirect('frontend:register')
+            
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email already exists")
+            return redirect('frontend:register')
+            
+        try:
+            with transaction.atomic():
+                # Create user
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password1
+                )
+                
+                # Create profile based on role
+                if role == 'lecturer':
+                    Lecturer.objects.create(
+                        user=user,
+                        staff_id=request.POST.get('staff_id'),
+                        name=request.POST.get('name'),
+                        department=request.POST.get('department'),
+                        phone_number=request.POST.get('phone_number')
+                    )
+                elif role == 'student':
+                    Student.objects.create(
+                        user=user,
+                        student_id=request.POST.get('student_id'),
+                        name=request.POST.get('name'),
+                        programme_of_study=request.POST.get('programme_of_study'),
+                        year=request.POST.get('year'),
+                        phone_number=request.POST.get('phone_number')
+                    )
+                
+                messages.success(request, "Registration successful! Please login.")
+                return redirect('frontend:login')
+                
+        except Exception as e:
+            messages.error(request, f"Registration failed: {str(e)}")
+            return redirect('frontend:register')
+            
+    return render(request, 'frontend/register.html')
