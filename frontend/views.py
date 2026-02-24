@@ -36,15 +36,18 @@ def login_view(request):
     return render(request, 'frontend/login.html', {'form': form})
 
 
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 
+@ensure_csrf_cookie
 @csrf_protect
 def logout_view(request):
-    """View for user logout - handles both GET and POST"""
+    """View for user logout - handles both GET and POST with proper CSRF handling"""
+    if request.method == 'POST':
+        logout(request)
+        return redirect('frontend:login')
+    # For GET requests, still log out and redirect
     logout(request)
-    # Force a hard redirect to login page
-    from django.http import HttpResponseRedirect
-    return HttpResponseRedirect('/login/')
+    return redirect('frontend:login')
 
 
 # ==================== Dashboard ====================
