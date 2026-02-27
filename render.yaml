@@ -8,8 +8,8 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: "3.11.6"
-      - key: DJANGO_SETTINGS_MODULE
-        value: larry_007_del_exodus.settings
+       - key: DJANGO_SETTINGS_MODULE
+         value: attendance_system.settings
       - key: DJANGO_SECRET_KEY
         sync: false
       - key: DJANGO_DEBUG
