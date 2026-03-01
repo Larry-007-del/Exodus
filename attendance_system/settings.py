@@ -222,6 +222,25 @@ LOGIN_URL = 'frontend:login'
 LOGIN_REDIRECT_URL = 'frontend:dashboard'
 LOGOUT_REDIRECT_URL = 'frontend:login'
 
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@example.com')
+
+# SMS Configuration
+# Twilio
+TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID', '')
+TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN', '')
+TWILIO_PHONE_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER', '')
+
+# Africa's Talking (for African countries)
+AFRICAS_TALKING_USERNAME = os.environ.get('AFRICAS_TALKING_USERNAME', '')
+AFRICAS_TALKING_API_KEY = os.environ.get('AFRICAS_TALKING_API_KEY', '')
+
 # Sentry Error Tracking (Production only)
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration

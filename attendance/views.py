@@ -104,6 +104,14 @@ class CourseViewSet(viewsets.ModelViewSet):
              course.lecturer.lecturer_profile.longitude = longitude
              course.lecturer.lecturer_profile.save()
 
+        # Send notifications to students
+        from .notification_service import send_attendance_started_notifications
+        send_attendance_started_notifications(attendance, token_value)
+
+        # Schedule expiration reminder (15 minutes before expiry)
+        from .tasks import schedule_attendance_expiration_reminder
+        schedule_attendance_expiration_reminder(attendance, token_value)
+
         return Response({'status': 'Token generated and session started', 'token': token_value})
 
     @action(detail=False, methods=['post'])
@@ -220,6 +228,11 @@ class AttendanceViewSet(viewsets.ModelViewSet):
         attendance.is_active = False
         attendance.ended_at = timezone.now()
         attendance.save()
+        
+        # Send notifications to students who missed the session
+        from .tasks import send_missed_attendance_notifications
+        send_missed_attendance_notifications(attendance)
+
         return Response({'status': 'Attendance session ended successfully'}, status=status.HTTP_200_OK)
     
 
@@ -328,8 +341,15 @@ class SubmitLocationView(generics.GenericAPIView):
             if hasattr(user, 'student'):
                 student = user.student
                 if student in token.course.students.all():
-                    attendance.present_students.add(student)
-                    attendance.save()
+                    # Add student to attendance with location coordinates
+                    AttendanceStudent.objects.get_or_create(
+                        attendance=attendance,
+                        student=student,
+                        defaults={
+                            'latitude': latitude,
+                            'longitude': longitude
+                        }
+                    )
                     return Response({'status': 'Attendance marked successfully'}, status=status.HTTP_200_OK)
             return Response({'error': 'Student not enrolled in this course'}, status=status.HTTP_400_BAD_REQUEST)
 

@@ -5,18 +5,39 @@
     
     <div class="text-center mb-10">
         <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Mark Attendance</h2>
-        <p class="text-gray-500 mt-2">Ensure you are within the classroom geofence.</p>
+        <p class="text-gray-500 mt-2">Ensure you are within the classroom geofence. Scan the QR code or enter token manually.</p>
     </div>
 
-    <div class="relative group cursor-pointer">
-        <form method="post" id="attendance-form">
+    <!-- QR Code Scanner -->
+    <div class="mb-8">
+        <button id="scan-qr-btn" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors mb-4">
+            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Scan QR Code
+        </button>
+        
+        <div id="qr-scanner" class="hidden mb-4">
+            <video id="video" class="w-64 h-64 border-2 border-gray-300 rounded-lg"></video>
+            <canvas id="canvas" class="hidden"></canvas>
+        </div>
+    </div>
+
+    <!-- Manual Token Entry -->
+    <div class="mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Or Enter Token Manually</h3>
+        <form method="post" id="attendance-form" class="flex flex-col items-center">
             {% csrf_token %}
-            <button type="submit" class="relative flex items-center justify-center w-48 h-48 bg-blue-600 rounded-full shadow-lg transition-transform transform group-hover:scale-105 active:scale-95 focus:outline-none">
-                
+            <input type="text" id="attendance-token" name="token" placeholder="Enter 6-digit token" 
+                   class="w-64 px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center font-mono"
+                   maxlength="6" minlength="6">
+            <button type="submit" class="relative flex items-center justify-center w-48 h-48 bg-blue-600 rounded-full shadow-lg transition-transform transform hover:scale-105 active:scale-95 focus:outline-none">
                 <span class="absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75 animate-ping"></span>
-                
                 <div class="relative z-10 text-white flex flex-col items-center">
-                    <svg class="w-16 h-16 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <svg class="w-16 h-16 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
                     <span class="font-bold text-lg">CHECK IN</span>
                 </div>
             </button>
@@ -39,13 +60,117 @@
 
 </div>
 
+<script src="https://unpkg.com/@zxing/library@latest"></script>
 <script>
+    // QR Code Scanner Functionality
+    const scanQrBtn = document.getElementById('scan-qr-btn');
+    const qrScanner = document.getElementById('qr-scanner');
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const tokenInput = document.getElementById('attendance-token');
     const form = document.getElementById('attendance-form');
+
+    let codeReader;
+    let scanning = false;
+
+    scanQrBtn.addEventListener('click', async () => {
+        if (scanning) {
+            // Stop scanning
+            scanning = false;
+            qrScanner.classList.add('hidden');
+            scanQrBtn.textContent = 'Scan QR Code';
+            if (codeReader) {
+                codeReader.reset();
+            }
+        } else {
+            // Start scanning
+            try {
+                codeReader = new ZXing.BrowserQRCodeReader();
+                const result = await codeReader.decodeFromVideoElement(video, (result, err) => {
+                    if (result) {
+                        const token = result.text.replace('attendance_token:', '');
+                        tokenInput.value = token;
+                        scanning = false;
+                        qrScanner.classList.add('hidden');
+                        scanQrBtn.textContent = 'Scan QR Code';
+                        if (codeReader) {
+                            codeReader.reset();
+                        }
+                        // Auto-submit form
+                        form.submit();
+                    }
+                });
+                qrScanner.classList.remove('hidden');
+                scanQrBtn.textContent = 'Stop Scanning';
+                scanning = true;
+            } catch (error) {
+                console.error('QR Scanner Error:', error);
+                alert('Unable to access camera. Please check permissions.');
+            }
+        }
+    });
+
+    // Form submission
     form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const token = tokenInput.value.trim();
+        
+        if (!token) {
+            alert('Please enter an attendance token or scan a QR code');
+            return;
+        }
+
         const btnText = document.querySelector('button span.font-bold');
         btnText.innerText = "LOCATING...";
+        
+        // Get current location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    // Submit form with location data
+                    const formData = new FormData(form);
+                    formData.append('latitude', position.coords.latitude);
+                    formData.append('longitude', position.coords.longitude);
+                    
+                    fetch('{% url "submit_location" %}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'Attendance marked successfully') {
+                            btnText.innerText = "SUCCESS!";
+                            setTimeout(() => {
+                                btnText.innerText = "CHECK IN";
+                                tokenInput.value = '';
+                            }, 2000);
+                        } else {
+                            alert(data.error || 'Failed to mark attendance');
+                            btnText.innerText = "CHECK IN";
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Network error. Please try again.');
+                        btnText.innerText = "CHECK IN";
+                    });
+                },
+                (error) => {
+                    console.error('Geolocation Error:', error);
+                    alert('Unable to get location. Please enable GPS.');
+                    btnText.innerText = "CHECK IN";
+                }
+            );
+        } else {
+            alert('Geolocation not supported');
+            btnText.innerText = "CHECK IN";
+        }
     });
-    
+
     // Initialize Map
     var map = L.map('map').setView([5.6037, -0.1870], 17); // Example: Accra coords
 

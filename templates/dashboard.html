@@ -29,11 +29,56 @@
     </div>
 </div>
 
+{% if is_student and enrolled_courses %}
+<div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mb-6">
+    <h5 class="mb-4 text-xl font-bold tracking-tight text-gray-900 dark:text-white">Enrolled Courses</h5>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for course in enrolled_courses %}
+        <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <h6 class="font-semibold text-gray-900 dark:text-white">{{ course.name }}</h6>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ course.course_code }}</p>
+            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                {{ course.lecturer.name }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if is_lecturer and taught_courses %}
+<div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mb-6">
+    <h5 class="mb-4 text-xl font-bold tracking-tight text-gray-900 dark:text-white">Courses Taught</h5>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for course in taught_courses %}
+        <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <h6 class="font-semibold text-gray-900 dark:text-white">{{ course.name }}</h6>
+            <p class="text-sm text-gray-600 dark:text-gray-400">{{ course.course_code }}</p>
+            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-2">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                {{ course.enrolled_count }} students enrolled
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
     <h5 class="mb-4 text-xl font-bold tracking-tight text-gray-900 dark:text-white">Quick Actions</h5>
     <div class="flex gap-4">
         {% if is_student %}
-        <a href="#" class="px-5 py-2.5 text-white bg-blue-700 hover:bg-blue-800 rounded-lg text-center">Check In</a>
+        <a href="{% url 'frontend:checkin' %}" class="px-5 py-2.5 text-white bg-blue-700 hover:bg-blue-800 rounded-lg text-center">Check In</a>
+        {% endif %}
+        
+        {% if is_lecturer %}
+        <a href="{% url 'frontend:attendance_take' %}" class="px-5 py-2.5 text-white bg-green-700 hover:bg-green-800 rounded-lg text-center">Take Attendance</a>
         {% endif %}
         
         {% if is_admin %}

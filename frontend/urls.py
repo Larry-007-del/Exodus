@@ -22,6 +22,7 @@ urlpatterns = [
     path('lecturers/<int:pk>/', views.lecturer_detail, name='lecturer_detail'),
     path('lecturers/<int:pk>/edit/', views.lecturer_edit, name='lecturer_edit'),
     path('lecturers/<int:pk>/delete/', views.lecturer_delete, name='lecturer_delete'),
+    path('lecturers/<int:pk>/two-factor-settings/', views.lecturer_two_factor_settings, name='lecturer_two_factor_settings'),
     
     # Students
     path('students/', views.student_list, name='student_list'),
@@ -45,6 +46,7 @@ urlpatterns = [
     path('attendance/history/', views.attendance_history, name='attendance_history'),
     path('attendance/mark/', views.attendance_mark, name='attendance_mark'),
     path('attendance/<int:pk>/', views.attendance_detail, name='attendance_detail'),
+    path('attendance/end/', views.end_attendance, name='end_attendance'),
     
     # Reports
     path('reports/', views.reports_index, name='reports_index'),

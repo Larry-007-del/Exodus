@@ -20,6 +20,9 @@ class Lecturer(models.Model):
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    require_two_factor_auth = models.BooleanField(default=False)  # 2FA setting
+    two_factor_secret = models.CharField(max_length=100, blank=True, null=True)
+    is_two_factor_enabled = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.name} ({self.staff_id})"
@@ -41,6 +44,19 @@ class Student(models.Model):
     programme_of_study = models.CharField(max_length=255, blank=True, null=True)  # Added field
     year = models.CharField(max_length=2, blank=True, null=True)  # Added field
     phone_number = models.CharField(max_length=15, blank=True, null=True)
+    
+    NOTIFICATION_CHOICES = [
+        ('email', 'Email'),
+        ('sms', 'SMS'),
+        ('both', 'Both Email and SMS'),
+        ('none', 'None')
+    ]
+    notification_preference = models.CharField(
+        max_length=10,
+        choices=NOTIFICATION_CHOICES,
+        default='both'
+    )
+    is_notifications_enabled = models.BooleanField(default=True)
 
     class Meta:
         indexes = [
@@ -53,6 +69,14 @@ class Student(models.Model):
 
     def get_full_name(self):
         return f"{self.name} ({self.student_id})"
+    
+    def should_send_email_notifications(self):
+        """Check if student should receive email notifications"""
+        return self.is_notifications_enabled and (self.notification_preference in ['email', 'both'])
+    
+    def should_send_sms_notifications(self):
+        """Check if student should receive SMS notifications"""
+        return self.is_notifications_enabled and (self.notification_preference in ['sms', 'both']) and self.phone_number
 
 class Course(models.Model):
     name = models.CharField(max_length=100)
@@ -60,6 +84,7 @@ class Course(models.Model):
     lecturer = models.ForeignKey(Lecturer, on_delete=models.CASCADE, related_name='courses')
     students = models.ManyToManyField(Student, through='CourseEnrollment', related_name='enrolled_courses', blank=True)
     is_active = models.BooleanField(default=False)  # Added field
+    require_two_factor_auth = models.BooleanField(default=False)  # Course-specific 2FA setting
 
     def __str__(self):
         return f"{self.name} ({self.course_code})"
@@ -77,6 +102,41 @@ class CourseEnrollment(models.Model):
     class Meta:
         unique_together = ('course', 'student')
 
+class AttendanceStudent(models.Model):
+    attendance = models.ForeignKey('Attendance', on_delete=models.CASCADE, db_index=True)
+    student = models.ForeignKey('Student', on_delete=models.CASCADE, db_index=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    marked_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('attendance', 'student')
+        indexes = [
+            models.Index(fields=['attendance', 'student']),
+        ]
+    
+    def is_within_valid_perimeter(self, radius_meters=50):
+        """Check if student's location is within valid radius of lecturer's location"""
+        if self.latitude is None or self.longitude is None or \
+           self.attendance.lecturer_latitude is None or self.attendance.lecturer_longitude is None:
+            return False
+        
+        lecturer_coords = (self.attendance.lecturer_latitude, self.attendance.lecturer_longitude)
+        student_coords = (self.latitude, self.longitude)
+        distance = geodesic(lecturer_coords, student_coords).meters
+        return distance <= radius_meters
+    
+    def get_distance_from_lecturer(self):
+        """Get distance between student and lecturer in meters"""
+        if self.latitude is None or self.longitude is None or \
+           self.attendance.lecturer_latitude is None or self.attendance.lecturer_longitude is None:
+            return None
+        
+        lecturer_coords = (self.attendance.lecturer_latitude, self.attendance.lecturer_longitude)
+        student_coords = (self.latitude, self.longitude)
+        return geodesic(lecturer_coords, student_coords).meters
+
+
 class Attendance(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     date = models.DateField()
@@ -89,6 +149,7 @@ class Attendance(models.Model):
     updated_by = models.ForeignKey(User, related_name='updated_attendances', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    require_two_factor_auth = models.BooleanField(default=False)  # Whether 2FA was required for this session
 
     class Meta:
         ordering = ['-date', '-created_at']

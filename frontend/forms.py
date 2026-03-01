@@ -40,7 +40,8 @@ class StudentForm(forms.ModelForm):
     
     class Meta:
         model = Student
-        fields = ['student_id', 'name', 'programme_of_study', 'year', 'phone_number']
+        fields = ['student_id', 'name', 'programme_of_study', 'year', 'phone_number', 
+                 'notification_preference', 'is_notifications_enabled']
     
     def clean_year(self):
         year = self.cleaned_data.get('year')

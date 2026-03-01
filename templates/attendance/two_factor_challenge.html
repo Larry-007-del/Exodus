@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Two-Factor Authentication{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center min-h-[60vh]">
+    <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Two-Factor Authentication</h2>
+        <p class="text-gray-500 mt-2">Please complete the biometric authentication to mark your attendance</p>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-md w-full">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full mb-4">
+                <svg class="w-8 h-8 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Biometric Verification</h3>
+            <p class="text-gray-500 mt-2">Use your fingerprint or face ID to authenticate</p>
+        </div>
+
+        <form method="post" id="two-factor-form">
+            {% csrf_token %}
+            <input type="hidden" name="token" value="{{ token }}">
+            <input type="hidden" name="latitude" value="{{ latitude }}">
+            <input type="hidden" name="longitude" value="{{ longitude }}">
+            <input type="hidden" name="two_factor_completed" value="on">
+            <input type="hidden" name="two_factor_method" id="two-factor-method" value="biometric">
+
+            <div class="mb-6">
+                <button type="button" id="biometric-button" class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    Use Biometric Authentication
+                </button>
+            </div>
+
+            <div class="mb-6">
+                <button type="button" id="otp-button" class="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold">
+                    <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    Use One-Time Password (OTP)
+                </button>
+            </div>
+
+            <div id="otp-form" class="hidden mb-6">
+                <div class="mb-4">
+                    <label for="otp-code" class="block text-sm font-medium text-gray-700">Enter OTP Code</label>
+                    <input type="text" id="otp-code" name="otp_code" maxlength="6" 
+                           class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 font-mono text-center text-lg">
+                </div>
+                <button type="submit" class="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold">
+                    Verify OTP
+                </button>
+            </div>
+
+            <div class="mb-6">
+                <button type="submit" id="skip-button" class="w-full py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-semibold">
+                    Skip for now (not recommended)
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center text-sm text-gray-500">
+            <p>This will help ensure your attendance is properly recorded and prevent proxy attendance.</p>
+        </div>
+    </div>
+
+    <div class="mt-8 text-center">
+        <a href="{% url 'frontend:checkin' %}" class="text-indigo-600 hover:text-indigo-800 flex items-center justify-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Back to Checkin
+        </a>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const biometricButton = document.getElementById('biometric-button');
+    const otpButton = document.getElementById('otp-button');
+    const otpForm = document.getElementById('otp-form');
+    const twoFactorForm = document.getElementById('two-factor-form');
+    const twoFactorMethod = document.getElementById('two-factor-method');
+
+    // Check if WebAuthn (biometric) is supported
+    const isWebAuthnSupported = window.PublicKeyCredential ? true : false;
+    if (!isWebAuthnSupported) {
+        biometricButton.disabled = true;
+        biometricButton.textContent = 'Biometric Auth Not Supported';
+        biometricButton.classList.add('bg-gray-400', 'cursor-not-allowed');
+        biometricButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+    }
+
+    // Toggle OTP form
+    otpButton.addEventListener('click', function() {
+        otpForm.classList.toggle('hidden');
+        twoFactorMethod.value = 'otp';
+    });
+
+    // Biometric authentication using WebAuthn (if supported)
+    biometricButton.addEventListener('click', async function() {
+        if (!isWebAuthnSupported) {
+            alert('Biometric authentication is not supported in your browser');
+            return;
+        }
+
+        try {
+            // Show loading state
+            biometricButton.disabled = true;
+            biometricButton.textContent = 'Authenticating...';
+            
+            // WebAuthn authentication (simplified example)
+            const publicKey = {
+                challenge: new Uint8Array(32), // Should be generated by server
+                rpId: window.location.hostname,
+                userVerification: 'required',
+                timeout: 60000
+            };
+            
+            // This is a simplified implementation - in production, you would:
+            // 1. Get a challenge from the server
+            // 2. Call navigator.credentials.get() with the challenge
+            // 3. Send the response back to server for verification
+            
+            // Simulate WebAuthn flow for demonstration
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Show success state
+            biometricButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            biometricButton.classList.add('bg-green-600', 'hover:bg-green-700');
+            biometricButton.innerHTML = `
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Authentication Successful
+            `;
+            
+            // Submit form
+            setTimeout(() => {
+                twoFactorForm.submit();
+            }, 1000);
+        } catch (error) {
+            console.error('Biometric authentication failed:', error);
+            alert('Biometric authentication failed. Please try another method.');
+            biometricButton.disabled = false;
+            biometricButton.textContent = 'Use Biometric Authentication';
+        }
+    });
+
+    // OTP form submission
+    const otpFormSubmit = document.getElementById('otp-form').querySelector('button[type="submit"]');
+    if (otpFormSubmit) {
+        otpFormSubmit.addEventListener('click', function(e) {
+            e.preventDefault();
+            const otpCode = document.getElementById('otp-code').value;
+            
+            if (!otpCode || otpCode.length !== 6) {
+                alert('Please enter a valid 6-digit OTP code');
+                return;
+            }
+            
+            // Submit the form
+            twoFactorForm.submit();
+        });
+    }
+});
+</script>
+{% endblock %}

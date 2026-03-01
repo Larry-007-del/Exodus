@@ -25,6 +25,9 @@
                 <dd>{% if attendance.is_active %}<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">Active</span>{% else %}<span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">Ended</span>{% endif %}</dd>
             </div>
             <div><dt class="text-sm font-medium text-gray-500">Present</dt><dd class="text-gray-900">{{ attendance.present_students.count }} students</dd></div>
+            <div><dt class="text-sm font-medium text-gray-500">2FA Required</dt>
+                <dd>{% if require_two_factor_auth %}<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Yes</span>{% else %}<span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">No</span>{% endif %}</dd>
+            </div>
             {% if token %}
             <div>
                 <dt class="text-sm font-medium text-gray-500">Attendance Token</dt>
@@ -43,30 +46,72 @@
     </div>
     
     <div class="bg-white rounded-lg shadow p-6 lg:col-span-2">
-        <h2 class="text-lg font-semibold text-gray-900 mb-4">Present Students ({{ all_students.count }})</h2>
-        {% if all_students %}
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Present Students ({{ present_students_with_location|length }})</h2>
+        {% if present_students_with_location %}
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50"><tr><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Student</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">ID</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Status</th></tr></thead>
-                <tbody class="divide-y divide-gray-200">
-                    {% for student in all_students %}
+                <thead class="bg-gray-50">
                     <tr>
-                        <td class="px-4 py-2 text-sm text-gray-900">{{ student.name }}</td>
-                        <td class="px-4 py-2 text-sm text-gray-500">{{ student.student_id }}</td>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Student</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">ID</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Location Status</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Distance</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Time Marked</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for item in present_students_with_location %}
+                    <tr>
+                        <td class="px-4 py-2 text-sm text-gray-900">{{ item.student.name }}</td>
+                        <td class="px-4 py-2 text-sm text-gray-500">{{ item.student.student_id }}</td>
                         <td class="px-4 py-2">
-                            {% if student.id in present_ids %}
-                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Present</span>
+                            {% if item.is_within_perimeter %}
+                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Valid Location</span>
                             {% else %}
-                            <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Absent</span>
+                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">Invalid Location</span>
                             {% endif %}
                         </td>
+                        <td class="px-4 py-2 text-sm text-gray-500">
+                            {% if item.distance %}
+                            {{ item.distance|floatformat:1 }} meters
+                            {% else %}
+                            N/A
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2 text-sm text-gray-500">{{ item.marked_at|time:"H:i" }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        
+        <!-- Absent Students -->
+        {% if absent_students %}
+        <div class="mt-6">
+            <h3 class="text-md font-semibold text-gray-900 mb-3">Absent Students ({{ absent_students|length }})</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Student</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">ID</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for student in absent_students %}
+                        <tr>
+                            <td class="px-4 py-2 text-sm text-gray-900">{{ student.name }}</td>
+                            <td class="px-4 py-2 text-sm text-gray-500">{{ student.student_id }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        
         {% else %}
-        <p class="text-gray-500 text-center py-4">No students enrolled</p>
+        <p class="text-gray-500 text-center py-4">No students have marked attendance yet</p>
         {% endif %}
     </div>
 </div>

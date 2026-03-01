@@ -72,6 +72,10 @@ def dashboard(request):
             if request.user.lecturer:
                 context['is_lecturer'] = True
                 context['role_label'] = 'Lecturer'
+                # Get courses taught by lecturer with enrollment count
+                context['taught_courses'] = Course.objects.filter(lecturer=request.user.lecturer).annotate(
+                    enrolled_count=Count('students')
+                )
         except Exception:
             pass
     elif hasattr(request.user, 'student'):
@@ -81,6 +85,8 @@ def dashboard(request):
                 context['role_label'] = 'Student'
                 # Get attendance rate with fallback
                 context['attendance_rate'] = getattr(request.user.student, 'attendance_rate', 0)
+                # Get enrolled courses with lecturer information
+                context['enrolled_courses'] = Course.objects.filter(students=request.user.student).select_related('lecturer')
         except Exception:
             pass
 
@@ -188,6 +194,23 @@ def lecturer_detail(request, pk):
         'courses': courses,
     }
     return render(request, 'lecturers/detail.html', context)
+
+
+@login_required
+def lecturer_two_factor_settings(request, pk):
+    """Manage lecturer 2FA settings"""
+    lecturer = get_object_or_404(Lecturer, pk=pk)
+    
+    if request.method == 'POST':
+        lecturer.require_two_factor_auth = request.POST.get('require_two_factor_auth') == 'on'
+        lecturer.save()
+        messages.success(request, '2FA settings updated successfully!')
+        return redirect('frontend:lecturer_detail', pk=pk)
+    
+    context = {
+        'lecturer': lecturer,
+    }
+    return render(request, 'lecturers/two_factor_settings.html', context)
 
 
 @login_required
@@ -393,6 +416,8 @@ def student_edit(request, pk):
         student.programme_of_study = request.POST.get('programme_of_study')
         student.year = request.POST.get('year')
         student.phone_number = request.POST.get('phone_number')
+        student.notification_preference = request.POST.get('notification_preference', 'both')
+        student.is_notifications_enabled = request.POST.get('is_notifications_enabled') == 'on'
         student.save()
         
         messages.success(request, f'Student {student.name} updated successfully!')
@@ -436,7 +461,9 @@ def course_list(request):
     query = request.GET.get('q')
     active_filter = request.GET.get('active')
     
-    courses = Course.objects.all().select_related('lecturer')
+    courses = Course.objects.all().select_related('lecturer').annotate(
+        enrolled_count=Count('students')
+    )
     
     if query:
         courses = courses.filter(
@@ -505,6 +532,7 @@ def course_detail(request, pk):
         'course': course,
         'enrollments': enrollments,
         'attendances': attendances,
+        'enrolled_count': enrollments.count(),
     }
     return render(request, 'courses/detail.html', context)
 
@@ -590,13 +618,40 @@ def attendance_index(request):
 @login_required
 def attendance_take(request):
     """Take attendance - generate token"""
-    if request.method == 'POST':
+    # Get active attendance session if it exists
+    active_session = None
+    try:
+        lecturer = Lecturer.objects.get(user=request.user)
+        active_attendance = Attendance.objects.filter(
+            course__lecturer=lecturer,
+            date=timezone.now().date(),
+            is_active=True
+        ).first()
+        
+        if active_attendance:
+            active_session = AttendanceToken.objects.filter(
+                course__lecturer=lecturer,
+                is_active=True
+            ).first()
+    except Lecturer.DoesNotExist:
+        pass
+    
+    if request.method == 'POST' and not active_session:
         course_id = request.POST.get('course')
         token_value = request.POST.get('token')
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
+        require_two_factor_auth = request.POST.get('require_two_factor_auth') == 'on'
         
         course = get_object_or_404(Course, pk=course_id)
+        
+        # Check if lecturer has global 2FA setting enabled
+        try:
+            lecturer = Lecturer.objects.get(user=request.user)
+            if lecturer.require_two_factor_auth and not require_two_factor_auth:
+                require_two_factor_auth = True
+        except Lecturer.DoesNotExist:
+            pass
         
         # Create attendance session
         attendance = Attendance.objects.create(
@@ -606,6 +661,7 @@ def attendance_take(request):
             lecturer_longitude=longitude or None,
             is_active=True,
             created_by=request.user,
+            require_two_factor_auth=require_two_factor_auth,
         )
         
         # Generate token
@@ -626,7 +682,7 @@ def attendance_take(request):
         course.save()
         
         messages.success(request, f'Attendance session started for {course.name}!')
-        return redirect('frontend:attendance_detail', pk=attendance.pk)
+        return redirect('frontend:attendance_take')
     
     # Get lecturer's courses
     try:
@@ -635,8 +691,51 @@ def attendance_take(request):
     except Lecturer.DoesNotExist:
         courses = Course.objects.all()
     
-    context = {'courses': courses}
+    context = {
+        'courses': courses,
+        'active_session': active_session,
+        'lecturer': Lecturer.objects.get(user=request.user) if hasattr(request.user, 'lecturer') else None
+    }
     return render(request, 'attendance/take.html', context)
+
+
+@login_required
+def end_attendance(request):
+    """End active attendance session"""
+    if request.method == 'POST':
+        course_id = request.POST.get('course_id')
+        
+        try:
+            # Find active attendance for the course
+            attendance = Attendance.objects.get(
+                course_id=course_id,
+                date=timezone.now().date(),
+                is_active=True
+            )
+            
+            # End attendance
+            attendance.is_active = False
+            attendance.ended_at = timezone.now()
+            attendance.save()
+            
+            # Deactivate token
+            AttendanceToken.objects.filter(
+                course_id=course_id,
+                is_active=True
+            ).update(is_active=False)
+            
+            # Update course status
+            course = attendance.course
+            course.is_active = False
+            course.save()
+            
+            messages.success(request, 'Attendance session ended successfully!')
+        except Attendance.DoesNotExist:
+            messages.error(request, 'No active attendance session found!')
+        except Exception as e:
+            messages.error(request, f'Error ending attendance session: {str(e)}')
+    
+    return redirect('frontend:attendance_take')
 
 
 @login_required
@@ -644,6 +743,8 @@ def attendance_mark(request):
     """Mark attendance - student view"""
     if request.method == 'POST':
         token = request.POST.get('token')
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
         
         try:
             att_token = AttendanceToken.objects.get(token=token, is_active=True)
@@ -656,12 +757,45 @@ def attendance_mark(request):
                     messages.error(request, 'You are not enrolled in this course!')
                     return render(request, 'attendance/mark.html')
                 
-                # Mark attendance
+                # Get attendance session
                 attendance, created = Attendance.objects.get_or_create(
                     course=course,
                     date=timezone.now().date()
                 )
-                attendance.present_students.add(student)
+                
+                # Check if 2FA is required
+                if attendance.require_two_factor_auth:
+                    # Check if student has completed 2FA
+                    has_completed_two_factor = request.POST.get('two_factor_completed') == 'on'
+                    
+                    if not has_completed_two_factor:
+                        # Render 2FA challenge page
+                        context = {
+                            'token': token,
+                            'course': course,
+                            'latitude': latitude,
+                            'longitude': longitude
+                        }
+                        return render(request, 'attendance/two_factor_challenge.html', context)
+                    else:
+                        # Verify 2FA method
+                        two_factor_method = request.POST.get('two_factor_method', 'biometric')
+                        if two_factor_method == 'otp':
+                            # Verify OTP code (simplified example - should check against real OTP system)
+                            otp_code = request.POST.get('otp_code', '')
+                            if len(otp_code) != 6 or not otp_code.isdigit():
+                                messages.error(request, 'Invalid OTP code')
+                                return render(request, 'attendance/two_factor_challenge.html', context)
+                
+                # Mark attendance with location coordinates
+                AttendanceStudent.objects.get_or_create(
+                    attendance=attendance,
+                    student=student,
+                    defaults={
+                        'latitude': latitude,
+                        'longitude': longitude
+                    }
+                )
                 
                 messages.success(request, f'Attendance marked for {course.name}!')
             except Student.DoesNotExist:
@@ -679,7 +813,21 @@ def attendance_detail(request, pk):
     attendance = get_object_or_404(Attendance, pk=pk)
     course = attendance.course
     all_students = course.students.all()
-    present_ids = attendance.present_students.values_list('id', flat=True)
+    
+    # Get present students with their location information
+    attendance_students = AttendanceStudent.objects.filter(attendance=attendance).select_related('student')
+    present_students_with_location = []
+    for as_obj in attendance_students:
+        present_students_with_location.append({
+            'student': as_obj.student,
+            'is_within_perimeter': as_obj.is_within_valid_perimeter(),
+            'distance': as_obj.get_distance_from_lecturer(),
+            'marked_at': as_obj.marked_at
+        })
+    
+    # Get all students and prepare present/absent data
+    present_ids = [as_obj['student'].id for as_obj in present_students_with_location]
+    absent_students = [student for student in all_students if student.id not in present_ids]
     
     # Get attendance token for this course and date
     token = None
@@ -700,9 +848,12 @@ def attendance_detail(request, pk):
         'attendance': attendance,
         'course': course,
         'all_students': all_students,
-        'present_ids': list(present_ids),
+        'present_students_with_location': present_students_with_location,
+        'absent_students': absent_students,
+        'present_ids': present_ids,
         'token': token,
         'qr_code': qr_code,
+        'require_two_factor_auth': attendance.require_two_factor_auth,
     }
     return render(request, 'attendance/detail.html', context)
 
