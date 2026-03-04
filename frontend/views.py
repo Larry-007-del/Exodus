@@ -206,6 +206,39 @@ def profile_view(request):
 
 
 @login_required
+def change_password(request):
+    """Change the logged-in user's password"""
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password', '')
+        new_password = request.POST.get('new_password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+
+        if not request.user.check_password(current_password):
+            messages.error(request, 'Current password is incorrect.')
+            return redirect('frontend:change_password')
+
+        if len(new_password) < 8:
+            messages.error(request, 'New password must be at least 8 characters.')
+            return redirect('frontend:change_password')
+
+        if new_password != confirm_password:
+            messages.error(request, 'New passwords do not match.')
+            return redirect('frontend:change_password')
+
+        request.user.set_password(new_password)
+        request.user.save()
+
+        # Keep the user logged in after password change
+        from django.contrib.auth import update_session_auth_hash
+        update_session_auth_hash(request, request.user)
+
+        messages.success(request, 'Password changed successfully!')
+        return redirect('frontend:profile')
+
+    return render(request, 'frontend/change_password.html')
+
+
+@login_required
 def ajax_dashboard_stats(request):
     """HTMX endpoint for dashboard statistics"""
     stats = {
@@ -1472,3 +1505,15 @@ def register_view(request):
             return redirect('frontend:register')
             
     return render(request, 'frontend/register.html')
+
+
+# ==================== Error Handlers ====================
+
+def error_404(request, exception):
+    """Custom 404 page"""
+    return render(request, 'errors/404.html', status=404)
+
+
+def error_500(request):
+    """Custom 500 page"""
+    return render(request, 'errors/500.html', status=500)

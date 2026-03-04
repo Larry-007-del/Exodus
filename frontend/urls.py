@@ -53,6 +53,7 @@ urlpatterns = [
     
     # Profile
     path('profile/', views.profile_view, name='profile'),
+    path('profile/password/', views.change_password, name='change_password'),
     
     # Reports
     path('reports/', views.reports_index, name='reports_index'),
