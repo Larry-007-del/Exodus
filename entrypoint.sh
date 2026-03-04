@@ -17,4 +17,9 @@ echo "👤 Creating Superuser..."
 python manage.py createsuperuser --no-input || echo "⚠️ Superuser creation skipped (already exists or missing variables)."
 
 echo "🔥 Starting Gunicorn..."
-exec gunicorn attendance_system.wsgi:application
+exec gunicorn attendance_system.wsgi:application \
+    --bind "0.0.0.0:${PORT:-10000}" \
+    --workers 2 \
+    --timeout 120 \
+    --access-logfile - \
+    --error-logfile -
