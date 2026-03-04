@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ course.name }} - Attendance System{% endblock %}
+{% block title %}{{ course.name }} - Exodus{% endblock %}
 
 {% block content %}
 <div class="mb-6">
@@ -16,7 +16,7 @@
             <p class="text-gray-600">{{ course.course_code }}</p>
         </div>
         <div class="mt-4 md:mt-0 flex gap-2">
-            <a href="{% url 'frontend:course_edit' course.id %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Edit</a>
+            <a href="{% url 'frontend:course_edit' course.id %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Edit</a>
             <a href="{% url 'frontend:course_delete' course.id %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Delete</a>
         </div>
     </div>

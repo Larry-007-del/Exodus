@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Mark Attendance - Attendance System{% endblock %}
+{% block title %}Mark Attendance - Exodus{% endblock %}
 
 {% block content %}
 <div class="min-h-[80vh] flex items-center justify-center">
@@ -18,8 +18,8 @@
         <div class="mb-6">
             <div class="flex justify-center items-center my-8" id="gps-radar">
                 <div class="relative flex justify-center items-center h-24 w-24">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-12 w-12 bg-blue-600 items-center justify-center text-white">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-12 w-12 bg-indigo-600 items-center justify-center text-white">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
                     </span>
                 </div>
@@ -42,7 +42,7 @@
             <!-- QR Code Scanner Button -->
             <div>
                 <button type="button" onclick="startQRScanner()" 
-                        class="w-full py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-lg flex items-center justify-center gap-2">
+                        class="w-full py-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold text-lg flex items-center justify-center gap-2">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                     </svg>
@@ -170,12 +170,12 @@
                             statusText.classList.add('text-green-600', 'font-medium');
                             
                             if(radarPing) {
-                                radarPing.classList.remove('bg-blue-400');
+                                radarPing.classList.remove('bg-indigo-400');
                                 radarPing.classList.add('bg-green-400');
                             }
-                            const radarCore = document.querySelector('#gps-radar .bg-blue-600');
+                            const radarCore = document.querySelector('#gps-radar .bg-indigo-600');
                             if(radarCore) {
-                                radarCore.classList.remove('bg-blue-600');
+                                radarCore.classList.remove('bg-indigo-600');
                                 radarCore.classList.add('bg-green-600');
                             }
 
@@ -190,13 +190,13 @@
                             statusText.classList.add('text-red-500', 'font-medium');
                             
                             if(radarPing) {
-                                radarPing.classList.remove('bg-blue-400');
+                                radarPing.classList.remove('bg-indigo-400');
                                 radarPing.classList.add('bg-red-400');
                                 radarPing.classList.remove('animate-ping');
                             }
-                            const radarCore = document.querySelector('#gps-radar .bg-blue-600');
+                            const radarCore = document.querySelector('#gps-radar .bg-indigo-600');
                             if(radarCore) {
-                                radarCore.classList.remove('bg-blue-600');
+                                radarCore.classList.remove('bg-indigo-600');
                                 radarCore.classList.add('bg-red-600');
                             }
                         },

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ lecturer.name }} - Attendance System{% endblock %}
+{% block title %}{{ lecturer.name }} - Exodus{% endblock %}
 
 {% block content %}
 <div class="mb-6">
@@ -21,10 +21,10 @@
             </div>
         </div>
         <div class="mt-4 md:mt-0 flex gap-2">
-            <a href="{% url 'frontend:lecturer_edit' lecturer.id %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <a href="{% url 'frontend:lecturer_edit' lecturer.id %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
                 Edit
             </a>
-            <a href="{% url 'frontend:lecturer_two_factor_settings' lecturer.id %}" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+            <a href="{% url 'frontend:lecturer_two_factor_settings' lecturer.id %}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
                 2FA Settings
             </a>
             <a href="{% url 'frontend:lecturer_delete' lecturer.id %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">

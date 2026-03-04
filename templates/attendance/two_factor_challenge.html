@@ -11,7 +11,7 @@
 
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 max-w-md w-full">
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full mb-4">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-indigo-100 dark:bg-blue-900 rounded-full mb-4">
                 <svg class="w-8 h-8 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                 </svg>
@@ -29,7 +29,7 @@
             <input type="hidden" name="two_factor_method" id="two-factor-method" value="biometric">
 
             <div class="mb-6">
-                <button type="button" id="biometric-button" class="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                <button type="button" id="biometric-button" class="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                     </svg>
@@ -38,7 +38,7 @@
             </div>
 
             <div class="mb-6">
-                <button type="button" id="otp-button" class="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold">
+                <button type="button" id="otp-button" class="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                     </svg>
@@ -52,7 +52,7 @@
                     <input type="text" id="otp-code" name="otp_code" maxlength="6" 
                            class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500 font-mono text-center text-lg">
                 </div>
-                <button type="submit" class="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-semibold">
+                <button type="submit" class="w-full py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-semibold">
                     Verify OTP
                 </button>
             </div>
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
         biometricButton.disabled = true;
         biometricButton.textContent = 'Biometric Auth Not Supported';
         biometricButton.classList.add('bg-gray-400', 'cursor-not-allowed');
-        biometricButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+        biometricButton.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
     }
 
     // Toggle OTP form
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
             await new Promise(resolve => setTimeout(resolve, 2000));
             
             // Show success state
-            biometricButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            biometricButton.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
             biometricButton.classList.add('bg-green-600', 'hover:bg-green-700');
             biometricButton.innerHTML = `
                 <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

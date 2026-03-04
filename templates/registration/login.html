@@ -3,90 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Attendance System</title>
+    <title>Login - Exodus</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%234f46e5'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='20' font-weight='bold'>E</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.14.0/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body class="bg-gradient-to-br from-indigo-500 to-purple-600 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
     
-    <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
-        <!-- Header -->
-        <div class="bg-indigo-600 py-6 px-8 text-center">
-            <h1 class="text-2xl font-bold text-white">Attendance System</h1>
-            <p class="text-indigo-200 mt-1">Admin Dashboard</p>
+    <div class="w-full max-w-md">
+        <div class="text-center mb-6">
+            <a href="{% url 'frontend:login' %}" class="inline-flex items-center text-2xl font-semibold text-gray-900">
+                <div class="bg-indigo-600 text-white p-2 rounded mr-2">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </div>
+                Exodus
+            </a>
         </div>
-        
-        <!-- Login Form -->
-        <div class="py-8 px-8">
-            <form method="post" action="{% url 'frontend:login' %}" 
-                  hx-post="{% url 'frontend:login' %}"
-                  hx-swap="outerHTML"
-                  class="space-y-6">
-                {% csrf_token %}
+
+        <div class="bg-white rounded-lg shadow dark:border sm:max-w-md dark:bg-gray-800 dark:border-gray-700">
+            <div class="p-6 space-y-4 sm:p-8">
+                <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
+                    Sign in to your account
+                </h1>
                 
-                <!-- Username -->
-                <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-                    <input type="text" name="username" id="username" required
-                           class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                           placeholder="Enter your username">
-                </div>
-                
-                <!-- Password -->
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" name="password" id="password" required
-                           class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                           placeholder="Enter your password">
-                </div>
-                
-                <!-- Remember Me -->
-                <div class="flex items-center">
-                    <input type="checkbox" name="remember" id="remember" 
-                           class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-                    <label for="remember" class="ml-2 block text-sm text-gray-700">Remember me</label>
-                </div>
-                
-                <!-- Submit Button -->
-                <button type="submit"
-                        class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    Sign In
-                </button>
-                
-                <!-- Loading Indicator -->
-                <div class="htmx-indicator text-center text-gray-500">
-                    Signing in...
-                </div>
-            </form>
-            
-                <!-- Registration Link -->
-                <div class="mt-6 text-center">
-                    <p class="text-sm text-gray-600">
-                        Don't have an account? 
-                        <a href="{% url 'frontend:register' %}" class="font-medium text-indigo-600 hover:text-indigo-500">
-                            Create an account
-                        </a>
-                    </p>
-                </div>
-                
-                <!-- Demo Credentials Info -->
-                <div class="mt-6 p-4 bg-gray-50 rounded-md">
-                    <p class="text-sm text-gray-600 font-medium">Demo Credentials:</p>
-                    <p class="text-xs text-gray-500 mt-1">Admin: admin / admin123</p>
-                    <p class="text-xs text-gray-500">Create a superuser to access the dashboard</p>
-                </div>
-        </div>
-        
-        <!-- Footer -->
-        <div class="bg-gray-50 py-4 px-8 text-center">
-            <p class="text-xs text-gray-500">Attendance Management System</p>
+                <form class="space-y-4" method="post" action="{% url 'frontend:login' %}">
+                    {% csrf_token %}
+                    
+                    <div>
+                        <label for="username" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
+                        <input type="text" name="username" id="username" autocomplete="username" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-indigo-600 focus:border-indigo-600 block w-full p-2.5" placeholder="Enter your username" required>
+                    </div>
+                    
+                    <div x-data="{ show: false }">
+                        <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
+                        <div class="relative">
+                            <input :type="show ? 'text' : 'password'" name="password" id="password" autocomplete="current-password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-indigo-600 focus:border-indigo-600 block w-full p-2.5 pr-16" required>
+                            <button type="button" @click="show = !show" class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm text-gray-500 hover:text-gray-700">
+                                <span x-text="show ? 'Hide' : 'Show'"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {% if form.errors %}
+                    <div class="p-4 text-sm text-red-800 rounded-lg bg-red-50" role="alert">
+                        Username or password incorrect.
+                    </div>
+                    {% endif %}
+
+                    <button type="submit" class="w-full text-white bg-indigo-600 hover:bg-indigo-700 focus:ring-4 focus:outline-none focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Sign in</button>
+                    
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600">
+                            Don't have an account? 
+                            <a href="{% url 'frontend:register' %}" class="font-medium text-indigo-600 hover:underline">Create an account</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-    
-    <script>
-        document.body.addEventListener('htmx:configRequest', (event) => {
-            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
-        });
-    </script>
 </body>
 </html>

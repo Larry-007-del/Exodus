@@ -1,16 +1,16 @@
 {% extends 'base.html' %}
 
-{% block title %}My Courses - Attendance System{% endblock %}
+{% block title %}My Courses - Exodus{% endblock %}
 
 {% block content %}
 <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
     <div>
         <h1 class="text-2xl font-bold text-gray-900">{{ page_title }}</h1>
-        <p class="text-gray-600 mt-1">View your {{ 'enrolled' if is_student else 'taught' }} courses</p>
+        <p class="text-gray-600 mt-1">View your {% if is_student %}enrolled{% else %}taught{% endif %} courses</p>
     </div>
     {% if not is_student %}
     <div class="mt-4 md:mt-0">
-        <a href="{% url 'frontend:course_create' %}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        <a href="{% url 'frontend:course_create' %}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
             <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
@@ -80,7 +80,7 @@
             </p>
             {% if not is_student %}
             <div class="mt-6">
-                <a href="{% url 'frontend:course_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                <a href="{% url 'frontend:course_create' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>

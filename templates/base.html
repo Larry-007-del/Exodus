@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exodus | Attendance System</title>
+    <title>{% block title %}Exodus | Attendance System{% endblock %}</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%234f46e5'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='20' font-weight='bold'>E</text></svg>">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.14.0/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet" />
-    
-    <!-- Leaflet Map CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
-    <!-- SweetAlert2 for beautiful notifications -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
+    
+    {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-gray-50 dark:bg-gray-900">
 
@@ -31,7 +31,7 @@
                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path></svg>
             </button>
             <a href="/" class="flex ms-2 md:me-24">
-              <div class="bg-blue-600 text-white p-1 rounded mr-2">
+              <div class="bg-indigo-600 text-white p-1 rounded mr-2">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
               </div>
               <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Exodus</span>
@@ -167,13 +167,13 @@
     </aside>
 
     <div class="p-4 sm:ml-64">
-       <div class="p-4 border-2 border-gray-200 border-dashed rounded-lg dark:border-gray-700 mt-14 min-h-screen">
+       <div class="p-4 mt-14 min-h-screen">
             {% if messages %}
             <div class="fixed top-5 right-5 z-50 space-y-3">
                 {% for message in messages %}
                 <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" 
                      x-transition.duration.500ms
-                     class="p-4 rounded-md shadow-lg text-white {% if message.tags == 'error' %}bg-red-500{% elif message.tags == 'success' %}bg-green-500{% else %}bg-blue-500{% endif %}">
+                     class="p-4 rounded-md shadow-lg text-white {% if message.tags == 'error' %}bg-red-500{% elif message.tags == 'success' %}bg-green-500{% else %}bg-indigo-500{% endif %}">
                     {{ message }}
                 </div>
                 {% endfor %}
@@ -187,8 +187,7 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
     
-    <!-- Leaflet Map JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    {% block extra_js %}{% endblock %}
     
     <!-- Mobile sidebar toggle fallback -->
     <script>
@@ -209,6 +208,29 @@
     })();
     </script>
     
+    <!-- Active sidebar highlighting -->
+    <script>
+    (function() {
+        var path = window.location.pathname;
+        var links = document.querySelectorAll('#logo-sidebar a[href]');
+        links.forEach(function(link) {
+            var href = link.getAttribute('href');
+            if (href && href !== '/' && path.startsWith(href)) {
+                link.classList.add('bg-gray-100', 'dark:bg-gray-700');
+                link.classList.remove('hover:bg-gray-100');
+                var svg = link.querySelector('svg');
+                if (svg) { svg.classList.add('text-indigo-600'); svg.classList.remove('text-gray-500'); }
+            }
+        });
+    })();
+    </script>
+
+    <!-- Footer -->
+    <div class="sm:ml-64 border-t border-gray-200 dark:border-gray-700 mt-8">
+        <div class="p-4 text-center text-xs text-gray-400">
+            &copy; {% now "Y" %} Exodus Attendance System. All rights reserved.
+        </div>
+    </div>
 
 </body>
 </html>

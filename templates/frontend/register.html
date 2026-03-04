@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Attendance System</title>
+    <title>Register - Exodus</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%234f46e5'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='20' font-weight='bold'>E</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.14.0/dist/cdn.min.js"></script>
 </head>
 <body class="bg-gradient-to-br from-indigo-500 to-purple-600 min-h-screen flex items-center justify-center p-4">
     
     <div class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
         <!-- Header -->
         <div class="bg-indigo-600 py-6 px-8 text-center">
-            <h1 class="text-2xl font-bold text-white">Attendance System</h1>
-            <p class="text-indigo-200 mt-1">Create Account</p>
+            <h1 class="text-2xl font-bold text-white">Exodus</h1>
+            <p class="text-indigo-200 mt-1">Create Your Account</p>
         </div>
         
         <!-- Registration Form -->
         <div class="py-8 px-8">
-            <form method="post" action="{% url 'frontend:register' %}" 
-                  hx-post="{% url 'frontend:register' %}"
-                  hx-swap="outerHTML"
+            <form method="post" action="{% url 'frontend:register' %}"
                   class="space-y-6">
                 {% csrf_token %}
                 
@@ -90,20 +89,20 @@
                                    placeholder="Your staff ID">
                         </div>
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
-                            <input type="text" name="name" id="name" 
+                            <label for="lecturer_name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                            <input type="text" name="name" id="lecturer_name" 
                                    class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                    placeholder="Your full name">
                         </div>
                         <div>
-                            <label for="department" class="block text-sm font-medium text-gray-700">Department</label>
-                            <input type="text" name="department" id="department" 
+                            <label for="lecturer_department" class="block text-sm font-medium text-gray-700">Department</label>
+                            <input type="text" name="department" id="lecturer_department" 
                                    class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                    placeholder="Your department">
                         </div>
                         <div>
-                            <label for="phone_number" class="block text-sm font-medium text-gray-700">Phone Number</label>
-                            <input type="tel" name="phone_number" id="phone_number" 
+                            <label for="lecturer_phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                            <input type="tel" name="phone_number" id="lecturer_phone" 
                                    class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                    placeholder="Your phone number">
                         </div>
@@ -119,8 +118,8 @@
                                placeholder="Your student ID">
                     </div>
                     <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
-                        <input type="text" name="name" id="name" 
+                        <label for="student_name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                        <input type="text" name="name" id="student_name" 
                                class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                placeholder="Your full name">
                     </div>
@@ -137,8 +136,8 @@
                                placeholder="Year (1-4)">
                     </div>
                     <div>
-                        <label for="phone_number" class="block text-sm font-medium text-gray-700">Phone Number</label>
-                        <input type="tel" name="phone_number" id="phone_number" 
+                        <label for="student_phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                        <input type="tel" name="phone_number" id="student_phone" 
                                class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                placeholder="Your phone number">
                     </div>
@@ -169,7 +168,7 @@
         
         <!-- Footer -->
         <div class="bg-gray-50 py-4 px-8 text-center">
-            <p class="text-xs text-gray-500">Attendance Management System</p>
+            <p class="text-xs text-gray-500">&copy; {% now "Y" %} Exodus Attendance System</p>
         </div>
     </div>
     

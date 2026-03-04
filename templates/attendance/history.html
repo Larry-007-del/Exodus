@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Attendance History - Attendance System{% endblock %}
+{% block title %}Attendance History - Exodus{% endblock %}
 
 {% block content %}
 <div class="mb-6">
@@ -30,7 +30,7 @@
             <input type="date" name="date_to" value="{{ date_to }}" 
                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
         </div>
-        <button type="submit" class="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900">Filter</button>
+        <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Filter</button>
         <a href="{% url 'frontend:attendance_history' %}" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Clear</a>
     </form>
 </div>

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Courses - Attendance System{% endblock %}
+{% block title %}Courses - Exodus{% endblock %}
 
 {% block content %}
 <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
@@ -8,7 +8,7 @@
         <h1 class="text-2xl font-bold text-gray-900">Courses</h1>
         <p class="text-gray-600 mt-1">Manage course offerings</p>
     </div>
-    <a href="{% url 'frontend:course_create' %}" class="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+    <a href="{% url 'frontend:course_create' %}" class="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
         <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
@@ -21,9 +21,9 @@
     <form method="get" class="flex flex-col md:flex-row gap-4">
         <div class="flex-1">
             <input type="text" name="q" value="{{ query }}" placeholder="Search by name or course code..."
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
         </div>
-        <select name="active" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+        <select name="active" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
             <option value="">All Status</option>
             <option value="true" {% if active_filter == 'true' %}selected{% endif %}>Active</option>
             <option value="false" {% if active_filter == 'false' %}selected{% endif %}>Inactive</option>
@@ -67,7 +67,7 @@
             
             <div class="mt-4 flex gap-2">
                 <a href="{% url 'frontend:course_detail' course.id %}" class="flex-1 text-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">View</a>
-                <a href="{% url 'frontend:course_edit' course.id %}" class="flex-1 text-center px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200">Edit</a>
+                <a href="{% url 'frontend:course_edit' course.id %}" class="flex-1 text-center px-4 py-2 bg-indigo-100 text-blue-700 rounded-lg hover:bg-blue-200">Edit</a>
                 <button hx-delete="{% url 'frontend:course_delete' course.id %}" 
                         hx-confirm="Are you sure you want to delete {{ course.course_code }}?" 
                         hx-target="#course-card-{{ course.id }}" 
