@@ -10,6 +10,7 @@ from django.db.models import Count, Q
 from django.db import transaction
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datetime import timedelta
 import csv
 import io
@@ -226,12 +227,21 @@ def lecturer_list(request):
     if query:
         lecturers = Lecturer.objects.select_related('user').filter(
             Q(name__icontains=query) | Q(staff_id__icontains=query) | Q(department__icontains=query)
-        )
+        ).order_by('name')
     else:
-        lecturers = Lecturer.objects.select_related('user').all()
+        lecturers = Lecturer.objects.select_related('user').all().order_by('name')
+    
+    paginator = Paginator(lecturers, 20)
+    page = request.GET.get('page')
+    try:
+        lecturers_page = paginator.page(page)
+    except PageNotAnInteger:
+        lecturers_page = paginator.page(1)
+    except EmptyPage:
+        lecturers_page = paginator.page(paginator.num_pages)
     
     context = {
-        'lecturers': lecturers,
+        'lecturers': lecturers_page,
         'query': query,
     }
     return render(request, 'lecturers/list.html', context)
@@ -387,7 +397,7 @@ def student_list(request):
     year_filter = request.GET.get('year')
     programme_filter = request.GET.get('programme')
     
-    students = Student.objects.select_related('user').all()
+    students = Student.objects.select_related('user').all().order_by('name')
     
     if query:
         students = students.filter(
@@ -398,8 +408,17 @@ def student_list(request):
     if programme_filter:
         students = students.filter(programme_of_study=programme_filter)
     
+    paginator = Paginator(students, 20)
+    page = request.GET.get('page')
+    try:
+        students_page = paginator.page(page)
+    except PageNotAnInteger:
+        students_page = paginator.page(1)
+    except EmptyPage:
+        students_page = paginator.page(paginator.num_pages)
+    
     context = {
-        'students': students,
+        'students': students_page,
         'query': query,
         'year_filter': year_filter,
         'programme_filter': programme_filter,
@@ -657,7 +676,7 @@ def course_list(request):
     
     courses = Course.objects.all().select_related('lecturer').annotate(
         enrolled_count=Count('students')
-    )
+    ).order_by('name')
     
     if query:
         courses = courses.filter(
@@ -666,8 +685,17 @@ def course_list(request):
     if active_filter is not None:
         courses = courses.filter(is_active=active_filter == 'true')
     
+    paginator = Paginator(courses, 12)
+    page = request.GET.get('page')
+    try:
+        courses_page = paginator.page(page)
+    except PageNotAnInteger:
+        courses_page = paginator.page(1)
+    except EmptyPage:
+        courses_page = paginator.page(paginator.num_pages)
+    
     context = {
-        'courses': courses,
+        'courses': courses_page,
         'query': query,
         'active_filter': active_filter,
     }
@@ -1209,8 +1237,17 @@ def attendance_history(request):
     
     courses = Course.objects.all()
     
+    paginator = Paginator(attendances.order_by('-date'), 25)
+    page = request.GET.get('page')
+    try:
+        attendances_page = paginator.page(page)
+    except PageNotAnInteger:
+        attendances_page = paginator.page(1)
+    except EmptyPage:
+        attendances_page = paginator.page(paginator.num_pages)
+    
     context = {
-        'attendances': attendances.order_by('-date'),
+        'attendances': attendances_page,
         'courses': courses,
         'course_filter': course_filter,
         'date_from': date_from,
@@ -1223,8 +1260,80 @@ def attendance_history(request):
 
 @login_required
 def reports_index(request):
-    """Reports dashboard"""
-    return render(request, 'reports/index.html')
+    """Reports dashboard with real analytics"""
+    from django.db.models import Avg, F
+    from collections import defaultdict
+    import json
+    
+    # ---- Role-scoped base querysets ----
+    if hasattr(request.user, 'lecturer'):
+        courses = Course.objects.filter(lecturer=request.user.lecturer)
+        attendances = Attendance.objects.filter(course__lecturer=request.user.lecturer)
+    elif hasattr(request.user, 'student'):
+        courses = Course.objects.filter(students=request.user.student)
+        attendances = Attendance.objects.filter(course__in=courses)
+    elif request.user.is_superuser:
+        courses = Course.objects.all()
+        attendances = Attendance.objects.all()
+    else:
+        courses = Course.objects.none()
+        attendances = Attendance.objects.none()
+    
+    attendances = attendances.select_related('course').prefetch_related('present_students')
+    
+    # ---- Summary stats ----
+    total_records = attendances.count()
+    total_courses = courses.count()
+    total_students = Student.objects.filter(enrolled_courses__in=courses).distinct().count()
+    active_sessions = attendances.filter(is_active=True).count()
+    
+    # ---- Per-course attendance rates ----
+    course_stats = []
+    for course in courses.select_related('lecturer').prefetch_related('students'):
+        enrolled = course.students.count()
+        sessions = attendances.filter(course=course)
+        session_count = sessions.count()
+        if session_count > 0 and enrolled > 0:
+            total_marks = sum(s.present_students.count() for s in sessions)
+            rate = round((total_marks / (session_count * enrolled)) * 100)
+        else:
+            rate = 0
+        course_stats.append({
+            'name': course.name,
+            'code': course.course_code,
+            'sessions': session_count,
+            'enrolled': enrolled,
+            'rate': rate,
+        })
+    course_stats.sort(key=lambda c: c['rate'], reverse=True)
+    
+    # ---- Weekly trend (last 8 weeks) ----
+    today = timezone.localdate()
+    week_labels = []
+    week_counts = []
+    for i in range(7, -1, -1):
+        start = today - timedelta(weeks=i+1)
+        end = today - timedelta(weeks=i)
+        label = end.strftime('%b %d')
+        count = attendances.filter(date__gte=start, date__lt=end).count()
+        week_labels.append(label)
+        week_counts.append(count)
+    
+    # ---- Recent sessions ----
+    recent_sessions = attendances.order_by('-date', '-created_at')[:10]
+    
+    context = {
+        'total_records': total_records,
+        'total_courses': total_courses,
+        'total_students': total_students,
+        'active_sessions': active_sessions,
+        'course_stats': course_stats,
+        'week_labels': json.dumps(week_labels),
+        'week_counts': json.dumps(week_counts),
+        'recent_sessions': recent_sessions,
+        'courses': courses,
+    }
+    return render(request, 'reports/index.html', context)
 
 
 @login_required
