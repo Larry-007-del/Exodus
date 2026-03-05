@@ -618,7 +618,7 @@ class SubmitLocationAPITest(APIAuthTestCase):
             course=self.course, token='LOC123', is_active=True
         )
         response = self.client.post(
-            '/api/api/submit-location/',
+            '/api/submit-location/',
             {'latitude': '5.650010', 'longitude': '-0.187010', 'attendance_token': 'LOC123'},
         )
         self.assertEqual(response.status_code, 200)
@@ -635,7 +635,7 @@ class SubmitLocationAPITest(APIAuthTestCase):
             course=self.course, token='LOC456', is_active=True
         )
         response = self.client.post(
-            '/api/api/submit-location/',
+            '/api/submit-location/',
             {'latitude': '6.500000', 'longitude': '1.500000', 'attendance_token': 'LOC456'},
         )
         self.assertEqual(response.status_code, 400)
@@ -643,7 +643,7 @@ class SubmitLocationAPITest(APIAuthTestCase):
     def test_submit_location_invalid_token(self):
         self.auth_as(self.stu_token)
         response = self.client.post(
-            '/api/api/submit-location/',
+            '/api/submit-location/',
             {'latitude': '5.650010', 'longitude': '-0.187010', 'attendance_token': 'INVALID'},
         )
         self.assertEqual(response.status_code, 400)
@@ -663,7 +663,7 @@ class StudentLoginAPITest(TestCase):
 
     def test_student_login_valid(self):
         response = self.client_api.post(
-            '/api/api/login/student/',
+            '/api/login/student/',
             {'username': 'stulogin', 'password': 'pass1234', 'student_id': 'SL01'},
         )
         self.assertEqual(response.status_code, 200)
@@ -671,14 +671,14 @@ class StudentLoginAPITest(TestCase):
 
     def test_student_login_wrong_student_id(self):
         response = self.client_api.post(
-            '/api/api/login/student/',
+            '/api/login/student/',
             {'username': 'stulogin', 'password': 'pass1234', 'student_id': 'WRONG'},
         )
         self.assertEqual(response.status_code, 400)
 
     def test_student_login_invalid_credentials(self):
         response = self.client_api.post(
-            '/api/api/login/student/',
+            '/api/login/student/',
             {'username': 'stulogin', 'password': 'wrongpass', 'student_id': 'SL01'},
         )
         self.assertEqual(response.status_code, 400)
@@ -698,7 +698,7 @@ class StaffLoginAPITest(TestCase):
 
     def test_staff_login_valid(self):
         response = self.client_api.post(
-            '/api/api/login/staff/',
+            '/api/login/staff/',
             {'username': 'leclogin', 'password': 'pass1234', 'staff_id': 'LL01'},
         )
         self.assertEqual(response.status_code, 200)
@@ -706,7 +706,7 @@ class StaffLoginAPITest(TestCase):
 
     def test_staff_login_wrong_staff_id(self):
         response = self.client_api.post(
-            '/api/api/login/staff/',
+            '/api/login/staff/',
             {'username': 'leclogin', 'password': 'pass1234', 'staff_id': 'WRONG'},
         )
         self.assertEqual(response.status_code, 400)
@@ -717,7 +717,7 @@ class LogoutAPITest(APIAuthTestCase):
 
     def test_logout_deletes_token(self):
         self.auth_as(self.admin_token)
-        response = self.client.post('/api/api/logout/')
+        response = self.client.post('/api/logout/')
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Token.objects.filter(user=self.admin_user).exists())
 
@@ -763,7 +763,7 @@ class StudentSerializerTest(TestCase):
 
     def test_serializer_contains_expected_fields(self):
         serializer = StudentSerializer(self.student)
-        expected = {'id', 'user', 'student_id', 'name',
+        expected = {'id', 'user', 'student_id', 'name', 'courses',
                     'profile_picture', 'programme_of_study', 'year', 'phone_number'}
         self.assertEqual(set(serializer.data.keys()), expected)
 

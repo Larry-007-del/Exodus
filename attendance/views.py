@@ -437,6 +437,7 @@ class LecturerAttendanceHistoryView(generics.GenericAPIView):
 # Lecturer Location View
 class LecturerLocationView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = SubmitLocationSerializer  # For drf_spectacular schema
 
     def post(self, request, *args, **kwargs):
         token_value = request.data.get('token')

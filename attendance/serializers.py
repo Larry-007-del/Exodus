@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
 from .models import Lecturer, Student, Course, CourseEnrollment, Attendance, AttendanceToken
 from django.contrib.auth.models import User
 
@@ -18,6 +19,7 @@ class LecturerSerializer(serializers.ModelSerializer):
         model = Lecturer
         fields = ['id', 'user', 'staff_id', 'name', 'profile_picture', 'courses', 'department', 'phone_number', 'latitude', 'longitude']
 
+    @extend_schema_field(serializers.URLField(allow_null=True))
     def get_profile_picture(self, obj):
         request = self.context.get('request')
         if obj.profile_picture and request:
@@ -27,13 +29,14 @@ class LecturerSerializer(serializers.ModelSerializer):
 # Student serializer
 class StudentSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
-    courses = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    courses = serializers.PrimaryKeyRelatedField(many=True, read_only=True, source='enrolled_courses')
     profile_picture = serializers.SerializerMethodField()  # Use SerializerMethodField
 
     class Meta:
         model = Student
         fields = ['id', 'user', 'student_id', 'name', 'courses', 'profile_picture', 'programme_of_study', 'year', 'phone_number']
 
+    @extend_schema_field(serializers.URLField(allow_null=True))
     def get_profile_picture(self, obj):
         request = self.context.get('request')
         if obj.profile_picture and request:
@@ -76,6 +79,7 @@ class AttendanceTokenSerializer(serializers.ModelSerializer):
         model = AttendanceToken
         fields = ['id', 'course', 'token', 'generated_at', 'expires_at', 'is_active', 'qr_code']
 
+    @extend_schema_field(serializers.URLField(allow_null=True))
     def get_qr_code(self, obj):
         request = self.context.get('request')
         if obj.qr_code and request:
