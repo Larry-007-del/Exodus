@@ -3,12 +3,14 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
 import secrets
+from functools import wraps
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.db.models import Count, Q
 from django.db import transaction
 from django.core.exceptions import ValidationError
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datetime import timedelta
@@ -22,18 +24,53 @@ from django.contrib.auth.models import User
 from .forms import LecturerForm, StudentForm, CourseForm, StudentUploadForm
 
 
+def admin_required(view_func):
+    """Restrict view to superusers only. Redirects others to dashboard with error."""
+    @wraps(view_func)
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_superuser:
+            messages.error(request, "You do not have permission to access this page.")
+            return redirect('frontend:dashboard')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
+def staff_required(view_func):
+    """Restrict view to superusers or lecturers. Redirects students to dashboard."""
+    @wraps(view_func)
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        if not (request.user.is_superuser or hasattr(request.user, 'lecturer')):
+            messages.error(request, "You do not have permission to access this page.")
+            return redirect('frontend:dashboard')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
 # ==================== Authentication ====================
 
 def login_view(request):
-    """View for user login"""
+    """View for user login with brute-force rate limiting"""
     if request.method == "POST":
+        # Rate limiting: max 5 attempts per IP per 5 minutes
+        ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', '')).split(',')[0].strip()
+        cache_key = f'login_attempts_{ip}'
+        attempts = cache.get(cache_key, 0)
+
+        if attempts >= 5:
+            messages.error(request, "Too many login attempts. Please try again in a few minutes.")
+            return render(request, 'frontend/login.html', {'form': AuthenticationForm()})
+
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
+            cache.delete(cache_key)  # Reset on successful login
             next_url = request.POST.get('next') or 'frontend:dashboard'
             return redirect(next_url)
         else:
+            cache.set(cache_key, attempts + 1, 300)  # 5-minute window
             messages.error(request, "Invalid username or password.")
     else:
         form = AuthenticationForm()
@@ -241,7 +278,6 @@ def change_password(request):
 @login_required
 def ajax_dashboard_stats(request):
     """HTMX endpoint for dashboard statistics (cached 60s)"""
-    from django.core.cache import cache
     cache_key = 'dashboard_stats'
     stats = cache.get(cache_key)
     if stats is None:
@@ -285,9 +321,9 @@ def lecturer_list(request):
     return render(request, 'lecturers/list.html', context)
 
 
-@login_required
+@admin_required
 def lecturer_create(request):
-    """Create new lecturer"""
+    """Create new lecturer (admin only)"""
     if request.method == 'POST':
         try:
             with transaction.atomic():
@@ -353,7 +389,7 @@ def lecturer_detail(request, pk):
     return render(request, 'lecturers/detail.html', context)
 
 
-@login_required
+@admin_required
 def lecturer_two_factor_settings(request, pk):
     """Manage lecturer 2FA settings"""
     lecturer = get_object_or_404(Lecturer, pk=pk)
@@ -370,9 +406,9 @@ def lecturer_two_factor_settings(request, pk):
     return render(request, 'lecturers/two_factor_settings.html', context)
 
 
-@login_required
+@admin_required
 def lecturer_edit(request, pk):
-    """Edit lecturer"""
+    """Edit lecturer (admin only)"""
     lecturer = get_object_or_404(Lecturer, pk=pk)
     
     if request.method == 'POST':
@@ -399,9 +435,9 @@ def lecturer_edit(request, pk):
     return render(request, 'lecturers/edit.html', context)
 
 
-@login_required
+@admin_required
 def lecturer_delete(request, pk):
-    """Delete lecturer"""
+    """Delete lecturer (admin only)"""
     lecturer = get_object_or_404(Lecturer, pk=pk)
     
     if request.method == 'POST':
@@ -466,9 +502,9 @@ def student_list(request):
     return render(request, 'students/list.html', context)
 
 
-@login_required
+@admin_required
 def student_create(request):
-    """Create new student"""
+    """Create new student (admin only)"""
     if request.method == 'POST':
         try:
             with transaction.atomic():
@@ -518,9 +554,9 @@ def student_create(request):
     return render(request, 'students/create.html', {'form': StudentForm()})
 
 
-@login_required
+@admin_required
 def upload_students(request):
-    """Bulk upload students from CSV file"""
+    """Bulk upload students from CSV file (admin only)"""
     if request.method == 'POST':
         form = StudentUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -606,9 +642,9 @@ def student_detail(request, pk):
     return render(request, 'students/detail.html', context)
 
 
-@login_required
+@admin_required
 def student_edit(request, pk):
-    """Edit student"""
+    """Edit student (admin only)"""
     student = get_object_or_404(Student, pk=pk)
     
     if request.method == 'POST':
@@ -740,9 +776,9 @@ def course_list(request):
     return render(request, 'courses/list.html', context)
 
 
-@login_required
+@staff_required
 def course_create(request):
-    """Create new course"""
+    """Create new course (admin or lecturer)"""
     if request.method == 'POST':
         course = Course(
             name=request.POST.get('name'),
@@ -798,9 +834,9 @@ def course_detail(request, pk):
     return render(request, 'courses/detail.html', context)
 
 
-@login_required
+@staff_required
 def course_edit(request, pk):
-    """Edit course"""
+    """Edit course (admin or lecturer)"""
     course = get_object_or_404(Course, pk=pk)
     
     if request.method == 'POST':

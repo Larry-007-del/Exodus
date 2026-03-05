@@ -53,6 +53,11 @@ else:
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
 
+# Session security
+SESSION_COOKIE_AGE = 86400  # 24 hours (default is 2 weeks)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_HTTPONLY = True
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -70,8 +75,6 @@ INSTALLED_APPS = [
     'attendance',  # Your app name
     'django_cleanup',  # Automatically deletes old files from ImageField when updating
     'attendance_system',
-    'openpyxl',
-    'drf_yasg',
     'drf_spectacular',
     'corsheaders',  # CORS Headers
     'frontend',  # HTMX Frontend App
@@ -150,11 +153,14 @@ WHITENOISE_MANIFEST_STRICT = False
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Cache Configuration
+# Cache Configuration (use DATABASE cache in production for multi-worker support)
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'attendance-cache',
+        'BACKEND': os.environ.get(
+            'CACHE_BACKEND',
+            'django.core.cache.backends.locmem.LocMemCache'
+        ),
+        'LOCATION': os.environ.get('CACHE_LOCATION', 'attendance-cache'),
         'TIMEOUT': 300,  # 5 minutes default
     }
 }
@@ -179,6 +185,8 @@ REST_FRAMEWORK = {
         'burst': '60/minute',
     },
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 50,
 }
 
 # Authentication Backends
@@ -192,20 +200,6 @@ AUTHENTICATION_BACKENDS = (
 # GIS and other settings
 GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH', 'C:\\GDAL\\bin\\gdal304.dll')
 
-
-
-# Swagger settings for API documentation
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'TokenAuth': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header',
-            'description': 'Token-based authentication using Bearer token',
-        }
-    },
-    'SECURITY': [{'TokenAuth': []}],
-}
 
 # CORS settings
 if DEBUG:
@@ -304,6 +298,6 @@ if not DEBUG:
     sentry_sdk.init(
         dsn=os.environ.get('SENTRY_DSN', ''),
         integrations=[DjangoIntegration()],
-        traces_sample_rate=1.0,
+        traces_sample_rate=0.2,  # Sample 20% of requests (reduce cost/overhead)
         send_default_pii=True
     )

@@ -497,14 +497,14 @@ class StudentAPITest(APIAuthTestCase):
         self.auth_as(self.lec_token)
         response = self.client.get('/api/students/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data['results']), 1)
 
     def test_list_students_as_student(self):
         self.auth_as(self.stu_token)
         response = self.client.get('/api/students/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['student_id'], 'AS01')
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['student_id'], 'AS01')
 
 
 class CourseAPITest(APIAuthTestCase):
@@ -514,7 +514,7 @@ class CourseAPITest(APIAuthTestCase):
         self.auth_as(self.admin_token)
         response = self.client.get('/api/courses/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data['results']), 1)
 
     def test_retrieve_course(self):
         self.auth_as(self.admin_token)
@@ -531,7 +531,7 @@ class AttendanceAPITest(APIAuthTestCase):
         Attendance.objects.create(course=self.course, date=timezone.localdate())
         response = self.client.get('/api/attendances/')
         self.assertEqual(response.status_code, 200)
-        self.assertGreaterEqual(len(response.data), 1)
+        self.assertGreaterEqual(len(response.data['results']), 1)
 
     @override_settings(DEFAULT_FILE_STORAGE='django.core.files.storage.InMemoryStorage')
     @patch('attendance.tasks.schedule_attendance_expiration_reminder')

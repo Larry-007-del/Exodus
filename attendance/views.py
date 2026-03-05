@@ -27,7 +27,7 @@ from .serializers import (
 
 # Lecturer ViewSet
 class LecturerViewSet(viewsets.ModelViewSet):
-    queryset = Lecturer.objects.select_related('user').all()
+    queryset = Lecturer.objects.select_related('user').all().order_by('name')
     serializer_class = LecturerSerializer
     permission_classes = [IsAuthenticated]
 
@@ -47,15 +47,15 @@ class StudentViewSet(viewsets.ModelViewSet):
         user = self.request.user
         # Lecturers can see all students
         if hasattr(user, 'lecturer'):
-            return Student.objects.select_related('user').all()
+            return Student.objects.select_related('user').all().order_by('name')
         # Students can only see themselves
         elif hasattr(user, 'student'):
-            return Student.objects.select_related('user').filter(user=user)
+            return Student.objects.select_related('user').filter(user=user).order_by('name')
         return Student.objects.none()
 
 # Course ViewSet
 class CourseViewSet(viewsets.ModelViewSet):
-    queryset = Course.objects.select_related('lecturer', 'lecturer__user').prefetch_related('students', 'students__user').all()
+    queryset = Course.objects.select_related('lecturer', 'lecturer__user').prefetch_related('students', 'students__user').all().order_by('name')
     serializer_class = CourseSerializer
     permission_classes = [IsAuthenticated]
 
@@ -147,7 +147,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         
 # Attendance ViewSet
 class AttendanceViewSet(viewsets.ModelViewSet):
-    queryset = Attendance.objects.select_related('course', 'course__lecturer', 'course__lecturer__user').prefetch_related('present_students', 'present_students__user', 'course__students', 'course__students__user').all()
+    queryset = Attendance.objects.select_related('course', 'course__lecturer', 'course__lecturer__user').prefetch_related('present_students', 'present_students__user', 'course__students', 'course__students__user').all().order_by('-date')
     serializer_class = AttendanceSerializer
     permission_classes = [IsAuthenticated]
 
@@ -258,7 +258,7 @@ class AttendanceViewSet(viewsets.ModelViewSet):
 
 # AttendanceToken ViewSet
 class AttendanceTokenViewSet(viewsets.ModelViewSet):
-    queryset = AttendanceToken.objects.select_related('course', 'course__lecturer', 'course__lecturer__user').all()
+    queryset = AttendanceToken.objects.select_related('course', 'course__lecturer', 'course__lecturer__user').all().order_by('-generated_at')
     serializer_class = AttendanceTokenSerializer
     permission_classes = [IsAuthenticated]
 
@@ -270,7 +270,7 @@ class StudentEnrolledCoursesView(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         student = get_object_or_404(Student, user=user)
-        return Course.objects.select_related('lecturer', 'lecturer__user').prefetch_related('students', 'students__user').filter(students=student)
+        return Course.objects.select_related('lecturer', 'lecturer__user').prefetch_related('students', 'students__user').filter(students=student).order_by('name')
 
 # Custom Login Views
 class StudentLoginView(ObtainAuthToken):

@@ -7,9 +7,9 @@ django-excel==0.0.13
 djangorestframework==3.16.1
 djangorestframework-gis==1.2.0
 djangorestframework-simplejwt==5.5.1
-drf-yasg==1.21.15
 django-cors-headers==4.9.0
 drf-spectacular
+coverage
 et-xmlfile==2.0.0
 gunicorn==25.1.0
 lml==0.2.0

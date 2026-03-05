@@ -43,8 +43,10 @@ jobs:
       - name: Run Django system checks
         run: python manage.py check
 
-      - name: Run tests
-        run: python manage.py test --verbosity=2
+      - name: Run tests with coverage
+        run: |
+          coverage run manage.py test --verbosity=2
+          coverage report --fail-under=70
 
       - name: Run deploy check (audit)
         run: python manage.py check --deploy 2>&1 || true

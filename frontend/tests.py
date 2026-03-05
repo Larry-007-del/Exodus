@@ -875,6 +875,118 @@ class AccessControlTest(FrontendViewsTestCase):
             )
 
 
+class AdminAuthorizationTest(FrontendViewsTestCase):
+    """Tests that admin-only views block students and lecturers"""
+
+    def test_student_cannot_create_lecturer(self):
+        self.client.login(username='teststudent', password='testpassword123')
+        response = self.client.get(reverse('frontend:lecturer_create'))
+        self.assertRedirects(response, reverse('frontend:dashboard'))
+
+    def test_student_cannot_edit_lecturer(self):
+        self.client.login(username='teststudent', password='testpassword123')
+        response = self.client.get(reverse('frontend:lecturer_edit', args=[self.lecturer.pk]))
+        self.assertRedirects(response, reverse('frontend:dashboard'))
+
+    def test_student_cannot_delete_lecturer(self):
+        self.client.login(username='teststudent', password='testpassword123')
+        response = self.client.post(reverse('frontend:lecturer_delete', args=[self.lecturer.pk]))
+        self.assertRedirects(response, reverse('frontend:dashboard'))
+        self.assertTrue(Lecturer.objects.filter(pk=self.lecturer.pk).exists())
+
+    def test_student_cannot_create_student(self):
+        self.client.login(username='teststudent', password='testpassword123')
+        response = self.client.get(reverse('frontend:student_create'))
+        self.assertRedirects(response, reverse('frontend:dashboard'))
+
+    def test_student_cannot_edit_student(self):
+        self.client.login(username='teststudent', password='testpassword123')
+        response = self.client.get(reverse('frontend:student_edit', args=[self.student.pk]))
+        self.assertRedirects(response, reverse('frontend:dashboard'))
+
+    def test_lecturer_cannot_create_lecturer(self):
+        self.client.login(username='testlecturer', password='testpassword123')
+        response = self.client.get(reverse('frontend:lecturer_create'))
+        self.assertRedirects(response, reverse('frontend:dashboard'))
+
+    def test_lecturer_cannot_create_student(self):
+        self.client.login(username='testlecturer', password='testpassword123')
+        response = self.client.get(reverse('frontend:student_create'))
+        self.assertRedirects(response, reverse('frontend:dashboard'))
+
+    def test_student_cannot_create_course(self):
+        self.client.login(username='teststudent', password='testpassword123')
+        response = self.client.get(reverse('frontend:course_create'))
+        self.assertRedirects(response, reverse('frontend:dashboard'))
+
+    def test_student_cannot_edit_course(self):
+        self.client.login(username='teststudent', password='testpassword123')
+        response = self.client.get(reverse('frontend:course_edit', args=[self.course.pk]))
+        self.assertRedirects(response, reverse('frontend:dashboard'))
+
+    def test_lecturer_can_create_course(self):
+        self.client.login(username='testlecturer', password='testpassword123')
+        response = self.client.get(reverse('frontend:course_create'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_lecturer_can_edit_course(self):
+        self.client.login(username='testlecturer', password='testpassword123')
+        response = self.client.get(reverse('frontend:course_edit', args=[self.course.pk]))
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_can_create_lecturer(self):
+        self.client.login(username='testadmin', password='testpassword123')
+        response = self.client.get(reverse('frontend:lecturer_create'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_admin_can_create_student(self):
+        self.client.login(username='testadmin', password='testpassword123')
+        response = self.client.get(reverse('frontend:student_create'))
+        self.assertEqual(response.status_code, 200)
+
+
+class LoginRateLimitTest(FrontendViewsTestCase):
+    """Tests for login brute-force rate limiting"""
+
+    def test_login_rate_limit_blocks_after_5_attempts(self):
+        from django.core.cache import cache
+        cache.clear()
+
+        # Make 5 failed attempts
+        for i in range(5):
+            self.client.post(reverse('frontend:login'), {
+                'username': 'nonexistent',
+                'password': 'wrongpassword',
+            })
+
+        # 6th attempt should be rate limited
+        response = self.client.post(reverse('frontend:login'), {
+            'username': 'testadmin',
+            'password': 'testpassword123',
+        })
+        # Should not redirect (login blocked), stays on login page
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Too many login attempts')
+
+    def test_successful_login_resets_counter(self):
+        from django.core.cache import cache
+        cache.clear()
+
+        # Make 3 failed attempts
+        for i in range(3):
+            self.client.post(reverse('frontend:login'), {
+                'username': 'nonexistent',
+                'password': 'wrongpassword',
+            })
+
+        # Successful login should reset counter
+        response = self.client.post(reverse('frontend:login'), {
+            'username': 'testadmin',
+            'password': 'testpassword123',
+        })
+        self.assertEqual(response.status_code, 302)  # Redirect = success
+
+
 if __name__ == '__main__':
     import unittest
     unittest.main()
