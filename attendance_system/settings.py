@@ -201,10 +201,10 @@ REST_FRAMEWORK = {
 
 # Authentication Backends
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',  # Default backend
     'attendance.authentication_backends.EmailBackend',
     'attendance.authentication_backends.StudentBackend',
     'attendance.authentication_backends.StaffBackend',
+    'django.contrib.auth.backends.ModelBackend',  # Fallback: username + password (for superusers)
 )
 
 # GIS and other settings

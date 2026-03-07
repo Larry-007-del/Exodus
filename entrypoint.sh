@@ -11,8 +11,11 @@ python manage.py migrate --no-input
 
 echo "� Collecting static files..."
 python manage.py collectstatic --no-input
-
-
+# Create superuser if env vars are set (no-op if user already exists)
+if [ -n "$DJANGO_SUPERUSER_USERNAME" ]; then
+  echo "👤 Ensuring superuser exists..."
+  python manage.py createsuperuser --no-input || true
+fi
 echo "�🔥 Starting Gunicorn..."
 exec gunicorn attendance_system.wsgi:application \
     --bind "0.0.0.0:${PORT:-10000}" \
