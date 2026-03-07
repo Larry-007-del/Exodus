@@ -3,8 +3,11 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# build.sh already handles collectstatic, migrate, and createsuperuser.
-# This script only starts the application server.
+# build.sh handles collectstatic, but migrations must also run at startup
+# in case the build step ran before DATABASE_URL was available.
+
+echo "🔄 Running migrations..."
+python manage.py migrate --no-input
 
 echo "🔥 Starting Gunicorn..."
 exec gunicorn attendance_system.wsgi:application \
