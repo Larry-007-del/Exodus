@@ -17,7 +17,7 @@ services:
       - key: DJANGO_DEBUG
         value: "False"
       - key: DJANGO_ALLOWED_HOSTS
-        sync: false
+        value: "exodus-nsji.onrender.com,localhost,127.0.0.1"
       - key: DATABASE_URL
         fromDatabase:
           name: attendance-db
