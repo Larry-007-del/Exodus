@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Lecturer, Student, Course, CourseEnrollment, Attendance, AttendanceToken, AttendanceStudent
+from .models import Lecturer, Student, Course, CourseEnrollment, Attendance, AttendanceToken, AttendanceStudent, WebAuthnCredential
 
 
 @admin.register(Lecturer)
@@ -69,3 +69,12 @@ class AttendanceTokenAdmin(admin.ModelAdmin):
     search_fields = ('course__name', 'course__course_code', 'token')
     list_filter = ('is_active', 'generated_at')
     readonly_fields = ('generated_at', 'qr_code')
+
+
+@admin.register(WebAuthnCredential)
+class WebAuthnCredentialAdmin(admin.ModelAdmin):
+    list_display = ('user', 'name', 'created_at')
+    search_fields = ('user__username', 'user__email', 'name')
+    list_filter = ('created_at',)
+    readonly_fields = ('credential_id', 'public_key', 'sign_count', 'created_at')
+    raw_id_fields = ('user',)

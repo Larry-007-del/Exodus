@@ -11,7 +11,6 @@ from django.http import HttpResponse
 from rest_framework.views import APIView
 import csv
 from openpyxl import Workbook
-from django.utils.dateparse import parse_date
 from collections import defaultdict
 
 from .models import Lecturer, Student, Course, Attendance, AttendanceToken, AttendanceStudent

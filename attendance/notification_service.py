@@ -88,6 +88,9 @@ def send_attendance_started_sms(student, course, token):
             # Fallback to simulation if no SMS service configured
             logger.info("Simulating SMS to %s: %s", phone_number, message)
         return True
+    except ImportError as e:
+        logger.warning("SMS package not installed (pip install twilio / africastalking): %s", e)
+        return False
     except Exception as e:
         logger.error("Failed to send SMS to %s: %s", phone_number, e)
         return False
@@ -171,6 +174,9 @@ def send_attendance_expiring_sms(student, course, token, attendance):
             # Fallback to simulation if no SMS service configured
             logger.info("Simulating SMS to %s: %s", phone_number, message)
         return True
+    except ImportError as e:
+        logger.warning("SMS package not installed (pip install twilio / africastalking): %s", e)
+        return False
     except Exception as e:
         logger.error("Failed to send SMS to %s: %s", phone_number, e)
         return False
@@ -250,6 +256,9 @@ def send_attendance_missed_sms(student, course, attendance):
             # Fallback to simulation if no SMS service configured
             logger.info("Simulating SMS to %s: %s", phone_number, message)
         return True
+    except ImportError as e:
+        logger.warning("SMS package not installed (pip install twilio / africastalking): %s", e)
+        return False
     except Exception as e:
         logger.error("Failed to send SMS to %s: %s", phone_number, e)
         return False

@@ -21,15 +21,17 @@ services:
         fromDatabase:
           name: attendance-db
           property: connectionString
-      - key: GDAL_LIBRARY_PATH
+      - key: DJANGO_SUPERUSER_USERNAME
+        sync: false
+      - key: DJANGO_SUPERUSER_PASSWORD
+        sync: false
+      - key: DJANGO_SUPERUSER_EMAIL
         sync: false
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY
         sync: false
       - key: CLOUDINARY_API_SECRET
-        sync: false
-      - key: DJANGO_SUPERUSER_EMAIL
         sync: false
 
 databases:

@@ -207,10 +207,6 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # Fallback: username + password (for superusers)
 )
 
-# GIS and other settings
-GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH', 'C:\\GDAL\\bin\\gdal304.dll')
-
-
 # CORS settings
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
@@ -236,10 +232,6 @@ CLOUDINARY_STORAGE = {
 }
 
 # Cloudinary is configured via STORAGES above
-
-# HTMX settings
-HTMX_ENABLED = True
-HTMX_URLS = ['/admin/', '/api/']
 
 # Login URLs
 LOGIN_URL = 'frontend:login'
