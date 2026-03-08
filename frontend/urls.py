@@ -64,4 +64,15 @@ urlpatterns = [
     path('api/search/lecturers/', views.ajax_search_lecturers, name='ajax_search_lecturers'),
     path('api/search/courses/', views.ajax_search_courses, name='ajax_search_courses'),
     path('api/dashboard/stats/', views.ajax_dashboard_stats, name='ajax_dashboard_stats'),
+    
+    # Two-Factor Authentication
+    path('2fa/setup/', views.student_setup_2fa, name='student_setup_2fa'),
+    path('2fa/webauthn/register/begin/', views.webauthn_register_begin, name='webauthn_register_begin'),
+    path('2fa/webauthn/register/complete/', views.webauthn_register_complete, name='webauthn_register_complete'),
+    path('2fa/webauthn/remove/', views.webauthn_remove, name='webauthn_remove'),
+    path('2fa/webauthn/auth/begin/', views.webauthn_auth_begin, name='webauthn_auth_begin'),
+    path('2fa/webauthn/auth/complete/', views.webauthn_auth_complete, name='webauthn_auth_complete'),
+    path('2fa/otp/setup/', views.student_setup_otp, name='student_setup_otp'),
+    path('2fa/otp/verify/', views.student_verify_otp, name='student_verify_otp'),
+    path('2fa/otp/disable/', views.student_disable_otp, name='student_disable_otp'),
 ]

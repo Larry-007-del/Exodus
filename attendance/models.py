@@ -81,6 +81,19 @@ class Student(models.Model):
 
     def get_full_name(self):
         return f"{self.name} ({self.student_id})"
+
+
+class WebAuthnCredential(models.Model):
+    """Stores WebAuthn (FIDO2) credentials for biometric authentication"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='webauthn_credentials')
+    credential_id = models.TextField(unique=True)    # base64url-encoded
+    public_key = models.TextField()                   # base64url-encoded
+    sign_count = models.IntegerField(default=0)
+    name = models.CharField(max_length=100, default='Fingerprint')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.name}"
     
     def should_send_email_notifications(self):
         """Check if student should receive email notifications"""

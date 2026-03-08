@@ -20,7 +20,7 @@ import io
 import openpyxl
 from openpyxl import Workbook
 
-from attendance.models import Lecturer, Student, Course, Attendance, AttendanceToken, CourseEnrollment, AttendanceStudent
+from attendance.models import Lecturer, Student, Course, Attendance, AttendanceToken, CourseEnrollment, AttendanceStudent, WebAuthnCredential
 from django.contrib.auth.models import User
 from .forms import LecturerForm, StudentForm, CourseForm, StudentUploadForm
 
@@ -1138,36 +1138,49 @@ def attendance_mark(request):
                         'token': token,
                         'course': course,
                         'latitude': latitude,
-                        'longitude': longitude
+                        'longitude': longitude,
+                        'has_webauthn': WebAuthnCredential.objects.filter(user=request.user).exists(),
+                        'has_otp': bool(getattr(student, 'two_factor_secret', None)),
                     }
                     
                     # Check if student has completed 2FA
                     has_completed_two_factor = request.POST.get('two_factor_completed') == 'on'
                     
                     if not has_completed_two_factor:
+                        # Check if student has any 2FA method configured
+                        if not two_fa_context['has_webauthn'] and not two_fa_context['has_otp']:
+                            messages.warning(request, 'This session requires 2FA. Please set up fingerprint or OTP first.')
+                            return redirect('frontend:student_setup_2fa')
                         # Render 2FA challenge page
                         return render(request, 'attendance/two_factor_challenge.html', two_fa_context)
                     else:
                         # Verify 2FA method
-                        two_factor_method = request.POST.get('two_factor_method', 'biometric')
-                        if two_factor_method == 'otp':
+                        two_factor_method = request.POST.get('two_factor_method', '')
+                        
+                        if two_factor_method == 'webauthn':
+                            # Verify WebAuthn was completed via session flag
+                            if not request.session.pop('webauthn_2fa_verified', False):
+                                messages.error(request, 'Biometric verification failed. Please try again.')
+                                return render(request, 'attendance/two_factor_challenge.html', two_fa_context)
+                        elif two_factor_method == 'otp':
                             # Verify OTP code using pyotp
                             import pyotp
                             otp_code = request.POST.get('otp_code', '')
                             if len(otp_code) != 6 or not otp_code.isdigit():
-                                messages.error(request, 'Invalid OTP code')
+                                messages.error(request, 'Invalid OTP code. Must be 6 digits.')
                                 return render(request, 'attendance/two_factor_challenge.html', two_fa_context)
                             
-                            # Check if student has a valid secret key
-                            if not hasattr(student.user, 'student') or not student.user.student.two_factor_secret:
-                                messages.error(request, 'Two-factor authentication not properly configured')
-                                return render(request, 'attendance/two_factor_challenge.html', two_fa_context)
+                            if not student.two_factor_secret:
+                                messages.error(request, 'OTP not configured. Please set up 2FA first.')
+                                return redirect('frontend:student_setup_2fa')
                             
-                            # Verify OTP code against the secret key
-                            totp = pyotp.TOTP(student.user.student.two_factor_secret)
-                            if not totp.verify(otp_code):
-                                messages.error(request, 'Invalid OTP code')
+                            totp = pyotp.TOTP(student.two_factor_secret)
+                            if not totp.verify(otp_code, valid_window=1):
+                                messages.error(request, 'Invalid or expired OTP code.')
                                 return render(request, 'attendance/two_factor_challenge.html', two_fa_context)
+                        else:
+                            messages.error(request, 'Invalid 2FA method.')
+                            return render(request, 'attendance/two_factor_challenge.html', two_fa_context)
                 
                 # Parse latitude and longitude — reject missing coords instead of defaulting
                 if not latitude or not longitude:
@@ -1584,6 +1597,277 @@ def register_view(request):
             return redirect('frontend:register')
             
     return render(request, 'frontend/register.html')
+
+
+# ==================== Two-Factor Authentication (WebAuthn + OTP) ====================
+
+import json
+import base64
+import pyotp
+import qrcode
+import qrcode.image.svg
+from io import BytesIO
+from webauthn import (
+    generate_registration_options,
+    verify_registration_response,
+    generate_authentication_options,
+    verify_authentication_response,
+    options_to_json,
+)
+from webauthn.helpers.structs import (
+    AuthenticatorSelectionCriteria,
+    UserVerificationRequirement,
+    PublicKeyCredentialDescriptor,
+    ResidentKeyRequirement,
+)
+from webauthn.helpers import base64url_to_bytes, bytes_to_base64url
+from django.views.decorators.http import require_POST
+
+
+def _get_rp_id(request):
+    """Get the Relying Party ID (domain without port)."""
+    return request.get_host().split(':')[0]
+
+
+def _get_origin(request):
+    """Get the full origin for WebAuthn verification."""
+    scheme = 'https' if request.is_secure() else 'http'
+    return f"{scheme}://{request.get_host()}"
+
+
+@login_required
+def student_setup_2fa(request):
+    """2FA setup page — students configure fingerprint and/or OTP."""
+    student = get_object_or_404(Student, user=request.user)
+    credentials = WebAuthnCredential.objects.filter(user=request.user)
+    has_otp = bool(student.two_factor_secret)
+
+    context = {
+        'student': student,
+        'credentials': credentials,
+        'has_webauthn': credentials.exists(),
+        'has_otp': has_otp,
+    }
+    return render(request, 'students/setup_2fa.html', context)
+
+
+@login_required
+@require_POST
+def webauthn_register_begin(request):
+    """Generate WebAuthn registration options (AJAX)."""
+    rp_id = _get_rp_id(request)
+    user = request.user
+
+    # Exclude already-registered credentials
+    existing = WebAuthnCredential.objects.filter(user=user)
+    exclude_credentials = [
+        PublicKeyCredentialDescriptor(id=base64url_to_bytes(c.credential_id))
+        for c in existing
+    ]
+
+    options = generate_registration_options(
+        rp_id=rp_id,
+        rp_name="Exodus Attendance",
+        user_id=str(user.id).encode(),
+        user_name=user.username,
+        user_display_name=user.get_full_name() or user.username,
+        authenticator_selection=AuthenticatorSelectionCriteria(
+            user_verification=UserVerificationRequirement.REQUIRED,
+            resident_key=ResidentKeyRequirement.DISCOURAGED,
+        ),
+        exclude_credentials=exclude_credentials,
+    )
+
+    # Store challenge in session for verification
+    request.session['webauthn_reg_challenge'] = bytes_to_base64url(options.challenge)
+
+    return JsonResponse(json.loads(options_to_json(options)), safe=False)
+
+
+@login_required
+@require_POST
+def webauthn_register_complete(request):
+    """Verify WebAuthn registration response and store credential (AJAX)."""
+    try:
+        body = json.loads(request.body)
+        challenge_b64 = request.session.pop('webauthn_reg_challenge', None)
+        if not challenge_b64:
+            return JsonResponse({'error': 'Registration session expired. Please try again.'}, status=400)
+
+        rp_id = _get_rp_id(request)
+        origin = _get_origin(request)
+
+        verification = verify_registration_response(
+            credential=body,
+            expected_challenge=base64url_to_bytes(challenge_b64),
+            expected_rp_id=rp_id,
+            expected_origin=origin,
+        )
+
+        # Store the credential
+        WebAuthnCredential.objects.create(
+            user=request.user,
+            credential_id=bytes_to_base64url(verification.credential_id),
+            public_key=bytes_to_base64url(verification.credential_public_key),
+            sign_count=verification.sign_count,
+            name=body.get('name', 'Fingerprint'),
+        )
+
+        return JsonResponse({'success': True, 'message': 'Fingerprint registered successfully!'})
+
+    except Exception as e:
+        return JsonResponse({'error': f'Registration failed: {str(e)}'}, status=400)
+
+
+@login_required
+@require_POST
+def webauthn_remove(request):
+    """Remove a registered WebAuthn credential."""
+    cred_id = request.POST.get('credential_id')
+    if cred_id:
+        WebAuthnCredential.objects.filter(user=request.user, credential_id=cred_id).delete()
+        messages.success(request, 'Fingerprint credential removed.')
+    return redirect('frontend:student_setup_2fa')
+
+
+@login_required
+@require_POST
+def webauthn_auth_begin(request):
+    """Generate WebAuthn authentication options (AJAX) — used during attendance 2FA."""
+    rp_id = _get_rp_id(request)
+    credentials = WebAuthnCredential.objects.filter(user=request.user)
+
+    if not credentials.exists():
+        return JsonResponse({'error': 'No fingerprint credentials registered.'}, status=400)
+
+    allow_credentials = [
+        PublicKeyCredentialDescriptor(id=base64url_to_bytes(c.credential_id))
+        for c in credentials
+    ]
+
+    options = generate_authentication_options(
+        rp_id=rp_id,
+        allow_credentials=allow_credentials,
+        user_verification=UserVerificationRequirement.REQUIRED,
+    )
+
+    request.session['webauthn_auth_challenge'] = bytes_to_base64url(options.challenge)
+
+    return JsonResponse(json.loads(options_to_json(options)), safe=False)
+
+
+@login_required
+@require_POST
+def webauthn_auth_complete(request):
+    """Verify WebAuthn authentication response (AJAX) — sets session flag for attendance."""
+    try:
+        body = json.loads(request.body)
+        challenge_b64 = request.session.pop('webauthn_auth_challenge', None)
+        if not challenge_b64:
+            return JsonResponse({'error': 'Authentication session expired.'}, status=400)
+
+        rp_id = _get_rp_id(request)
+        origin = _get_origin(request)
+
+        # Find the credential
+        raw_id = body.get('rawId', body.get('id', ''))
+        try:
+            stored_cred = WebAuthnCredential.objects.get(
+                user=request.user,
+                credential_id=raw_id,
+            )
+        except WebAuthnCredential.DoesNotExist:
+            return JsonResponse({'error': 'Unknown credential.'}, status=400)
+
+        verification = verify_authentication_response(
+            credential=body,
+            expected_challenge=base64url_to_bytes(challenge_b64),
+            expected_rp_id=rp_id,
+            expected_origin=origin,
+            credential_public_key=base64url_to_bytes(stored_cred.public_key),
+            credential_current_sign_count=stored_cred.sign_count,
+        )
+
+        # Update sign count
+        stored_cred.sign_count = verification.new_sign_count
+        stored_cred.save(update_fields=['sign_count'])
+
+        # Set session flag so attendance_mark knows 2FA passed
+        request.session['webauthn_2fa_verified'] = True
+
+        return JsonResponse({'success': True})
+
+    except Exception as e:
+        return JsonResponse({'error': f'Authentication failed: {str(e)}'}, status=400)
+
+
+@login_required
+@require_POST
+def student_setup_otp(request):
+    """Generate OTP secret and return QR code (AJAX)."""
+    student = get_object_or_404(Student, user=request.user)
+
+    # Generate a new secret if one doesn't exist, or regenerate on request
+    secret = pyotp.random_base32()
+    # Don't save yet — only save after verification
+    request.session['pending_otp_secret'] = secret
+
+    totp = pyotp.TOTP(secret)
+    provisioning_uri = totp.provisioning_uri(
+        name=request.user.username,
+        issuer_name="Exodus Attendance",
+    )
+
+    # Generate QR code as SVG
+    factory = qrcode.image.svg.SvgPathImage
+    img = qrcode.make(provisioning_uri, image_factory=factory)
+    buf = BytesIO()
+    img.save(buf)
+    svg_data = buf.getvalue().decode('utf-8')
+
+    return JsonResponse({
+        'secret': secret,
+        'qr_svg': svg_data,
+    })
+
+
+@login_required
+@require_POST
+def student_verify_otp(request):
+    """Verify initial OTP code to confirm setup (AJAX)."""
+    student = get_object_or_404(Student, user=request.user)
+    otp_code = request.POST.get('otp_code', '').strip()
+    secret = request.session.get('pending_otp_secret')
+
+    if not secret:
+        return JsonResponse({'error': 'OTP setup session expired. Please start again.'}, status=400)
+
+    if len(otp_code) != 6 or not otp_code.isdigit():
+        return JsonResponse({'error': 'OTP must be exactly 6 digits.'}, status=400)
+
+    totp = pyotp.TOTP(secret)
+    if not totp.verify(otp_code, valid_window=1):
+        return JsonResponse({'error': 'Invalid OTP code. Please try again.'}, status=400)
+
+    # OTP verified — save the secret
+    student.two_factor_secret = secret
+    student.is_two_factor_enabled = True
+    student.save(update_fields=['two_factor_secret', 'is_two_factor_enabled'])
+    request.session.pop('pending_otp_secret', None)
+
+    return JsonResponse({'success': True, 'message': 'OTP configured successfully!'})
+
+
+@login_required
+@require_POST
+def student_disable_otp(request):
+    """Disable OTP for the current student."""
+    student = get_object_or_404(Student, user=request.user)
+    student.two_factor_secret = None
+    student.is_two_factor_enabled = False
+    student.save(update_fields=['two_factor_secret', 'is_two_factor_enabled'])
+    messages.success(request, 'OTP authentication disabled.')
+    return redirect('frontend:student_setup_2fa')
 
 
 # ==================== Error Handlers ====================

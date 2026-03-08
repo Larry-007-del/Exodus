@@ -26,3 +26,4 @@ sentry-sdk
 django-jazzmin
 qrcode
 pyotp
+webauthn>=2.1.0
