@@ -2,9 +2,26 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import HttpResponse
+from django.views.decorators.cache import cache_control
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
+
+@cache_control(max_age=86400, public=True)
+def favicon_view(request):
+    svg = (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">'
+        '<rect width="32" height="32" rx="6" fill="#4f46e5"/>'
+        '<text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" '
+        'fill="white" font-size="20" font-weight="bold">E</text></svg>'
+    )
+    return HttpResponse(svg, content_type='image/svg+xml')
+
+
 urlpatterns = [
+    # Favicon
+    path('favicon.ico', favicon_view, name='favicon'),
+
     # Django Admin
     path('admin/', admin.site.urls),
 
