@@ -2,9 +2,41 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.cache import cache_control
+from django.db import connection
+from django.core.cache import cache
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+
+
+def health_view(request):
+    """Health check endpoint for Render / uptime monitors."""
+    status = {'status': 'ok'}
+    http_status = 200
+
+    # Check database connectivity
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT 1')
+        status['database'] = 'ok'
+    except Exception as e:
+        status['database'] = str(e)
+        status['status'] = 'degraded'
+        http_status = 503
+
+    # Check cache connectivity
+    try:
+        cache.set('_health_check', '1', 10)
+        if cache.get('_health_check') == '1':
+            status['cache'] = 'ok'
+        else:
+            status['cache'] = 'unreachable'
+            status['status'] = 'degraded'
+    except Exception as e:
+        status['cache'] = str(e)
+        status['status'] = 'degraded'
+
+    return JsonResponse(status, status=http_status)
 
 
 @cache_control(max_age=86400, public=True)
@@ -21,6 +53,9 @@ def favicon_view(request):
 urlpatterns = [
     # Favicon
     path('favicon.ico', favicon_view, name='favicon'),
+
+    # Health check
+    path('health/', health_view, name='health'),
 
     # Django Admin
     path('admin/', admin.site.urls),
