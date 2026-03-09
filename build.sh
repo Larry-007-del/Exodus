@@ -17,6 +17,4 @@ python manage.py collectstatic --no-input
 # 4. Apply Database Migrations
 python manage.py migrate
 
-# 5. Create Superuser (Automatically)
-# This command checks environment variables and creates the user if they don't exist
-python manage.py createsuperuser --no-input --email "$DJANGO_SUPERUSER_EMAIL" || true
+# Note: Superuser creation is handled in entrypoint.sh (checks if user exists first)
