@@ -19,6 +19,17 @@
             <p class="text-indigo-200 mt-1">Create Your Account</p>
         </div>
         
+        <!-- Messages -->
+        {% if messages %}
+        <div class="px-8 pt-4">
+            {% for message in messages %}
+            <div class="p-3 rounded-md text-sm {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <!-- Registration Form -->
         <div class="py-8 px-8">
             <form method="post" action="{% url 'frontend:register' %}"

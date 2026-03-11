@@ -4,6 +4,7 @@ from decimal import Decimal
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.test import TestCase, Client, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -23,6 +24,7 @@ class FrontendViewsTestCase(TestCase):
 
     def setUp(self):
         self.client = Client()
+        cache.clear()  # Reset rate-limit counters between tests
 
         # Create test users
         self.admin_user = User.objects.create_superuser(
@@ -1439,3 +1441,128 @@ class TwoFactorChallengeIntegrationTest(FrontendViewsTestCase):
 if __name__ == '__main__':
     import unittest
     unittest.main()
+
+
+class HealthEndpointTest(TestCase):
+    """Tests for the /health/ endpoint"""
+
+    def test_health_returns_200_json(self):
+        response = self.client.get('/health/')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['status'], 'ok')
+        self.assertEqual(data['database'], 'ok')
+        self.assertEqual(data['cache'], 'ok')
+
+    def test_health_no_auth_required(self):
+        """Health check should be publicly accessible"""
+        response = self.client.get('/health/')
+        self.assertEqual(response.status_code, 200)
+
+
+class PasswordResetViewTest(FrontendViewsTestCase):
+    """Tests for the password reset flow"""
+
+    def test_password_reset_page_loads(self):
+        response = self.client.get(reverse('frontend:password_reset'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Reset your password')
+
+    def test_password_reset_post_redirects(self):
+        response = self.client.post(reverse('frontend:password_reset'), {
+            'email': 'student@test.com',
+        })
+        self.assertRedirects(response, reverse('frontend:password_reset_done'))
+
+    def test_password_reset_done_page_loads(self):
+        response = self.client.get(reverse('frontend:password_reset_done'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Check your email')
+
+    def test_password_reset_complete_page_loads(self):
+        response = self.client.get(reverse('frontend:password_reset_complete'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Password reset successful')
+
+    def test_password_reset_confirm_invalid_token(self):
+        response = self.client.get(reverse('frontend:password_reset_confirm', kwargs={
+            'uidb64': 'invalid',
+            'token': 'invalid-token',
+        }))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Invalid or expired link')
+
+    def test_password_reset_sends_email(self):
+        from django.core import mail
+        self.client.post(reverse('frontend:password_reset'), {
+            'email': self.student_user.email,
+        })
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('Password Reset', mail.outbox[0].subject)
+
+
+class StudentDetailAccessControlTest(FrontendViewsTestCase):
+    """Tests for student_detail access restrictions"""
+
+    def test_admin_can_view_any_student(self):
+        self.client.login(username='testadmin', password='testpassword123')
+        response = self.client.get(reverse('frontend:student_detail', kwargs={'pk': self.student.pk}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_student_can_view_own_profile(self):
+        self.client.login(username='teststudent', password='testpassword123')
+        response = self.client.get(reverse('frontend:student_detail', kwargs={'pk': self.student.pk}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_lecturer_can_view_enrolled_student(self):
+        self.client.login(username='testlecturer', password='testpassword123')
+        response = self.client.get(reverse('frontend:student_detail', kwargs={'pk': self.student.pk}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_other_student_cannot_view(self):
+        other_user = User.objects.create_user(username='otherstudent', password='testpassword123', email='other@test.com')
+        Student.objects.create(user=other_user, student_id='OTHER001', name='Other Student')
+        self.client.login(username='otherstudent', password='testpassword123')
+        response = self.client.get(reverse('frontend:student_detail', kwargs={'pk': self.student.pk}))
+        self.assertRedirects(response, reverse('frontend:dashboard'))
+
+    def test_unrelated_lecturer_cannot_view(self):
+        other_lec_user = User.objects.create_user(username='otherlec', password='testpassword123', email='otherlec@test.com')
+        Lecturer.objects.create(user=other_lec_user, name='Other Lec', staff_id='OLEC001')
+        self.client.login(username='otherlec', password='testpassword123')
+        response = self.client.get(reverse('frontend:student_detail', kwargs={'pk': self.student.pk}))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/students/', response.url)
+
+
+class RegisterRateLimitTest(FrontendViewsTestCase):
+    """Tests for registration rate limiting"""
+
+    def test_registration_rate_limited_after_5_attempts(self):
+        cache.clear()
+        for i in range(5):
+            self.client.post(reverse('frontend:register'), {
+                'username': f'spamuser{i}',
+                'email': f'spam{i}@test.com',
+                'password1': 'badpassword',
+                'password2': 'badpassword',
+                'role': 'student',
+                'student_id': f'SPAM{i}',
+                'name': f'Spam User {i}',
+                'programme_of_study': 'Test',
+                'year': '1',
+            })
+        # 6th attempt should be rate limited
+        response = self.client.post(reverse('frontend:register'), {
+            'username': 'spamuser6',
+            'email': 'spam6@test.com',
+            'password1': 'TestPassword123!',
+            'password2': 'TestPassword123!',
+            'role': 'student',
+            'student_id': 'SPAM6',
+            'name': 'Spam User 6',
+            'programme_of_study': 'Test',
+            'year': '1',
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Too many registration attempts')

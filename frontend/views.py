@@ -637,8 +637,24 @@ def upload_students(request):
 
 @login_required
 def student_detail(request, pk):
-    """View student details"""
+    """View student details — restricted to admins, the student's lecturers, or the student themselves."""
     student = get_object_or_404(Student, pk=pk)
+
+    # Access control: admin, the student themselves, or a lecturer who teaches them
+    if not request.user.is_superuser:
+        if hasattr(request.user, 'student') and request.user.student.pk == student.pk:
+            pass  # Students can view their own profile
+        elif hasattr(request.user, 'lecturer'):
+            teaches_student = Course.objects.filter(
+                lecturer=request.user.lecturer, students=student
+            ).exists()
+            if not teaches_student:
+                messages.error(request, "You do not have permission to view this student.")
+                return redirect('frontend:student_list')
+        else:
+            messages.error(request, "You do not have permission to view this student.")
+            return redirect('frontend:dashboard')
+
     enrollments = CourseEnrollment.objects.filter(student=student).select_related('course')
     attendances = Attendance.objects.filter(present_students=student).select_related('course').order_by('-date')
     
@@ -1067,10 +1083,11 @@ def end_attendance(request):
                 is_active=True
             )
             
-            # Security check: Only the course's lecturer can end the session
-            if not hasattr(request.user, 'lecturer') or attendance.course.lecturer != request.user.lecturer:
-                messages.error(request, 'Unauthorized to end this session.')
-                return redirect('frontend:attendance_take')
+            # Security check: Admins or the course's lecturer can end the session
+            if not request.user.is_superuser:
+                if not hasattr(request.user, 'lecturer') or attendance.course.lecturer != request.user.lecturer:
+                    messages.error(request, 'Unauthorized to end this session.')
+                    return redirect('frontend:attendance_take')
             
             # End attendance
             attendance.is_active = False
@@ -1389,7 +1406,6 @@ def attendance_history(request):
 @login_required
 def reports_index(request):
     """Reports dashboard with real analytics"""
-    from django.db.models import Avg, F
     from collections import defaultdict
     import json
     
@@ -1532,8 +1548,17 @@ def reports_export(request):
 
 
 def register_view(request):
-    """View for user registration"""
+    """View for user registration with rate limiting"""
     if request.method == "POST":
+        # Rate limiting: max 5 registrations per IP per hour
+        ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', '')).split(',')[0].strip()
+        cache_key = f'register_attempts_{ip}'
+        attempts = cache.get(cache_key, 0)
+        if attempts >= 5:
+            messages.error(request, "Too many registration attempts. Please try again later.")
+            return render(request, 'frontend/register.html')
+        cache.set(cache_key, attempts + 1, 3600)  # 1-hour window
+
         username = request.POST.get('username')
         email = request.POST.get('email')
         password1 = request.POST.get('password1')
