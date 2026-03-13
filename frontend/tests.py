@@ -6,6 +6,7 @@ from unittest.mock import patch
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TestCase, Client, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -1673,6 +1674,62 @@ class DbBackupCommandTest(TestCase):
             for f in os.listdir('.'):
                 if f.startswith('backup_') and f.endswith('.json'):
                     os.remove(f)
+
+
+class DbRestoreCommandTest(TestCase):
+    """Tests for the dbrestore management command."""
+
+    def test_restore_dry_run_makes_no_changes(self):
+        import os
+        backup_file = 'test_restore_dryrun.json'
+        try:
+            user_before = User.objects.create_user(username='restore_before', password='pass12345')
+            call_command('dbbackup', output=backup_file)
+            User.objects.create_user(username='restore_after', password='pass12345')
+
+            call_command('dbrestore', input=backup_file, dry_run=True, flush=True, force=True)
+
+            self.assertTrue(User.objects.filter(username='restore_before').exists())
+            self.assertTrue(User.objects.filter(username='restore_after').exists())
+            self.assertTrue(User.objects.filter(pk=user_before.pk).exists())
+        finally:
+            if os.path.exists(backup_file):
+                os.remove(backup_file)
+
+    def test_restore_requires_file(self):
+        with self.assertRaises(CommandError):
+            call_command('dbrestore', input='missing_backup_file.json')
+
+    def test_restore_blocks_without_flush_when_data_exists(self):
+        import os
+        backup_file = 'test_restore_safety.json'
+        try:
+            User.objects.create_user(username='existing_user', password='pass12345')
+            call_command('dbbackup', output=backup_file)
+
+            with self.assertRaises(CommandError):
+                call_command('dbrestore', input=backup_file)
+        finally:
+            if os.path.exists(backup_file):
+                os.remove(backup_file)
+
+    def test_restore_with_flush_replaces_post_backup_changes(self):
+        import os
+        backup_file = 'test_restore_flush.json'
+        try:
+            User.objects.create_user(username='in_backup', password='pass12345')
+            call_command('dbbackup', output=backup_file)
+
+            User.objects.create_user(username='post_backup_change', password='pass12345')
+            self.assertTrue(User.objects.filter(username='post_backup_change').exists())
+
+            call_command('dbrestore', input=backup_file, flush=True, force=True)
+
+            self.assertTrue(User.objects.filter(username='in_backup').exists())
+            self.assertFalse(User.objects.filter(username='post_backup_change').exists())
+        finally:
+            if os.path.exists(backup_file):
+                os.remove(backup_file)
 
 
 class CloseExpiredSessionsTest(FrontendViewsTestCase):

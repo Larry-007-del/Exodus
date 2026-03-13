@@ -41,7 +41,7 @@ services:
     env: python
     schedule: "*/30 * * * *"
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python attendance_system_master/manage.py close_expired_sessions --notify"
+    startCommand: "python manage.py close_expired_sessions --notify"
     envVars:
       - key: PYTHON_VERSION
         value: "3.11.6"

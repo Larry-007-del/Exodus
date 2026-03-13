@@ -17,6 +17,7 @@ A full-stack Django web application for managing university attendance with GPS-
 - **Real-Time Notifications** — Email and SMS alerts for attendance sessions (configurable per-student)
 - **Reports & Analytics** — Attendance trends, per-course statistics, weekly charts, CSV/Excel exports
 - **Password Reset** — Full email-based password reset flow with branded templates
+- **Backup & Restore** — Database backup (`dbbackup`) and safe recovery (`dbrestore`) management commands
 - **REST API** — DRF-powered API with Swagger/OpenAPI documentation and token authentication
 - **Health Check** — `/health/` endpoint with DB and cache connectivity monitoring (used by Render)
 - **Responsive UI** — Tailwind CSS + Alpine.js + HTMX + Flowbite — all assets served locally (no CDN)
@@ -202,7 +203,7 @@ Authorization: Token <your-token>
 
 ## Testing
 
-The project has **248 tests** covering models, API endpoints, serializers, views, access control, rate limiting, 2FA flows, and integration scenarios.
+The project has **271 tests** covering models, API endpoints, serializers, views, access control, rate limiting, 2FA flows, management commands, and integration scenarios.
 
 ```bash
 # Run all tests
@@ -224,6 +225,30 @@ coverage report
 ```
 
 Tests run automatically on every push/PR via GitHub Actions CI.
+
+---
+
+## Backup & Restore
+
+Use built-in management commands for operational recovery:
+
+```bash
+# Create backup (JSON by default)
+python manage.py dbbackup
+
+# Create named XML backup
+python manage.py dbbackup --format xml --output backup_manual.xml
+
+# Restore safely (recommended): flush then restore
+python manage.py dbrestore --input backup_YYYYMMDD_HHMMSS.json --flush --force
+
+# Validate restore plan without writing
+python manage.py dbrestore --input backup_YYYYMMDD_HHMMSS.json --dry-run
+```
+
+Safety behavior:
+- `dbrestore` blocks restore when existing data is detected unless `--flush` or `--force` is provided.
+- `--flush --force` is recommended for full-environment recovery.
 
 ---
 
@@ -262,6 +287,7 @@ The project is configured for [Render](https://render.com) deployment via `rende
 
 - **Gunicorn** with 2 workers bound to `0.0.0.0:${PORT}`
 - **Health check** at `/health/` (configured in `render.yaml`)
+- **Cron session cleanup** — `close_expired_sessions --notify` runs every 30 minutes
 - **WhiteNoise** for static file serving with compression
 - **PostgreSQL** via `DATABASE_URL`
 - **Safe superuser creation** — checks if user exists before creating (no crash on redeploy)
