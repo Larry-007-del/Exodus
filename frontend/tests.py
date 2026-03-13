@@ -4,6 +4,7 @@ from decimal import Decimal
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
+from django.core import mail
 from django.core.cache import cache
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -70,6 +71,9 @@ class FrontendViewsTestCase(TestCase):
             lecturer=self.lecturer,
         )
         self.course.students.add(self.student)
+
+        # Welcome-email signals fire during fixture creation; clear outbox for test isolation.
+        mail.outbox = []
 
 
 class LoginViewTest(FrontendViewsTestCase):
@@ -789,6 +793,8 @@ class RegisterViewTest(FrontendViewsTestCase):
         self.assertRedirects(response, reverse('frontend:login'))
         self.assertTrue(User.objects.filter(username='newstu').exists())
         self.assertTrue(Student.objects.filter(student_id='NS001').exists())
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('Welcome to Exodus', mail.outbox[0].subject)
 
     def test_register_lecturer_success(self):
         """Lecturer self-registration is blocked — should redirect back to register."""
@@ -1695,6 +1701,54 @@ class DbRestoreCommandTest(TestCase):
         finally:
             if os.path.exists(backup_file):
                 os.remove(backup_file)
+
+
+class WelcomeEmailSignalTest(FrontendViewsTestCase):
+    """Tests onboarding welcome email triggers."""
+
+    def test_student_profile_creation_sends_welcome_email(self):
+        mail.outbox = []
+        user = User.objects.create_user(
+            username='signalstudent',
+            email='signalstudent@example.com',
+            password='testpassword123',
+        )
+        Student.objects.create(
+            user=user,
+            student_id='SIG001',
+            name='Signal Student',
+        )
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('Welcome to Exodus', mail.outbox[0].subject)
+
+    def test_lecturer_profile_creation_sends_welcome_email(self):
+        mail.outbox = []
+        user = User.objects.create_user(
+            username='signallec',
+            email='signallec@example.com',
+            password='testpassword123',
+        )
+        Lecturer.objects.create(
+            user=user,
+            staff_id='SIGL01',
+            name='Signal Lecturer',
+        )
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('Welcome to Exodus', mail.outbox[0].subject)
+
+    def test_profile_creation_without_email_skips_welcome_email(self):
+        mail.outbox = []
+        user = User.objects.create_user(
+            username='noemailuser',
+            email='',
+            password='testpassword123',
+        )
+        Student.objects.create(
+            user=user,
+            student_id='SIG002',
+            name='No Email Student',
+        )
+        self.assertEqual(len(mail.outbox), 0)
 
     def test_restore_requires_file(self):
         with self.assertRaises(CommandError):

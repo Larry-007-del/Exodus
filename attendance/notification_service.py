@@ -15,6 +15,40 @@ from .models import Attendance, Student
 logger = logging.getLogger(__name__)
 
 
+def send_welcome_account_email(user, role='student'):
+    """Send onboarding email when a Student/Lecturer profile is created."""
+    if not user or not user.email:
+        return False
+
+    role_label = 'Lecturer' if role == 'lecturer' else 'Student'
+    subject = f"Welcome to Exodus - {role_label} Account"
+    context = {
+        'user': user,
+        'role': role_label,
+        'login_url': '/login/',
+    }
+    html_message = render_to_string('emails/welcome_account.html', context)
+    plain_message = (
+        f"Welcome to Exodus, {user.username}! "
+        f"Your {role_label.lower()} account is ready. "
+        f"Sign in at {context['login_url']} to get started."
+    )
+
+    try:
+        send_mail(
+            subject,
+            plain_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        return True
+    except Exception as e:
+        logger.error("Failed to send welcome email to %s: %s", user.email, e)
+        return False
+
+
 def send_attendance_started_notifications(attendance, token):
     """
     Send notifications to students when an attendance session starts
