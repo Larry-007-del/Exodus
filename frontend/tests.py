@@ -1611,6 +1611,18 @@ class AdminDashboardStatsTest(FrontendViewsTestCase):
         self.assertContains(response, 'Students')
         self.assertContains(response, 'Lecturers')
         self.assertContains(response, 'Active Courses')
+        self.assertContains(response, 'Sessions Trend (7 days)')
+        self.assertContains(response, 'Check-ins Trend (7 days)')
+        self.assertContains(response, 'sessionsTrendChart')
+        self.assertContains(response, 'checkinsTrendChart')
+
+    def test_admin_index_has_weekly_analytics_summary(self):
+        self.client.login(username='testadmin', password='testpassword123')
+        response = self.client.get('/admin/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Sessions (Last 7 Days)')
+        self.assertContains(response, 'Check-ins (Last 7 Days)')
+        self.assertContains(response, 'Peak Daily Sessions')
 
     def test_admin_index_uses_custom_template(self):
         self.client.login(username='testadmin', password='testpassword123')
