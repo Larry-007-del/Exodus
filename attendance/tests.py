@@ -640,6 +640,8 @@ class SubmitLocationAPITest(APIAuthTestCase):
             {'latitude': '6.500000', 'longitude': '1.500000', 'attendance_token': 'LOC456'},
         )
         self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['code'], 'location_out_of_range')
+        self.assertIn('error', response.data)
 
     def test_submit_location_invalid_token(self):
         self.auth_as(self.stu_token)
@@ -648,6 +650,8 @@ class SubmitLocationAPITest(APIAuthTestCase):
             {'latitude': '5.650010', 'longitude': '-0.187010', 'attendance_token': 'INVALID'},
         )
         self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['code'], 'invalid_or_expired_token')
+        self.assertIn('error', response.data)
 
 
 class StudentLoginAPITest(TestCase):
@@ -677,6 +681,8 @@ class StudentLoginAPITest(TestCase):
             {'username': 'stulogin', 'password': 'pass1234', 'student_id': 'WRONG'},
         )
         self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['code'], 'invalid_student_id')
+        self.assertIn('error', response.data)
 
     def test_student_login_invalid_credentials(self):
         response = self.client_api.post(
@@ -684,6 +690,8 @@ class StudentLoginAPITest(TestCase):
             {'username': 'stulogin', 'password': 'wrongpass', 'student_id': 'SL01'},
         )
         self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['code'], 'invalid_credentials')
+        self.assertIn('error', response.data)
 
     def test_student_login_throttled_after_limit(self):
         # Scope is configured at 5/minute
@@ -728,6 +736,17 @@ class StaffLoginAPITest(TestCase):
             {'username': 'leclogin', 'password': 'pass1234', 'staff_id': 'WRONG'},
         )
         self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['code'], 'invalid_staff_id')
+        self.assertIn('error', response.data)
+
+    def test_staff_login_invalid_credentials(self):
+        response = self.client_api.post(
+            '/api/login/staff/',
+            {'username': 'leclogin', 'password': 'wrongpass', 'staff_id': 'LL01'},
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['code'], 'invalid_credentials')
+        self.assertIn('error', response.data)
 
     def test_staff_login_throttled_after_limit(self):
         # Scope is configured at 5/minute
