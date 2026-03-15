@@ -1,5 +1,76 @@
+from django import forms
 from django.contrib import admin
+from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.db import transaction
 from .models import Lecturer, Student, Course, CourseEnrollment, Attendance, AttendanceToken, AttendanceStudent, WebAuthnCredential
+
+
+class StudentAdminCreationForm(forms.ModelForm):
+    username = forms.CharField(max_length=150, required=True)
+    email = forms.EmailField(required=True)
+    password1 = forms.CharField(widget=forms.PasswordInput, required=True)
+    password2 = forms.CharField(widget=forms.PasswordInput, required=True)
+
+    class Meta:
+        model = Student
+        fields = (
+            'username', 'email', 'password1', 'password2',
+            'student_id', 'name', 'programme_of_study', 'year',
+            'phone_number', 'notification_preference', 'is_notifications_enabled',
+            'require_two_factor_auth',
+        )
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username', '').strip()
+        if User.objects.filter(username=username).exists():
+            raise ValidationError('A user with this username already exists.')
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip().lower()
+        if User.objects.filter(email=email).exists():
+            raise ValidationError('A user with this email already exists.')
+        return email
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+        username = cleaned_data.get('username')
+        email = cleaned_data.get('email')
+
+        if password1 and password2 and password1 != password2:
+            self.add_error('password2', 'Passwords do not match.')
+            return cleaned_data
+
+        if password1:
+            temp_user = User(username=username or '', email=email or '')
+            try:
+                validate_password(password1, user=temp_user)
+            except ValidationError as exc:
+                self.add_error('password1', exc)
+
+        return cleaned_data
+
+    @transaction.atomic
+    def save(self, commit=True):
+        password = self.cleaned_data['password1']
+        username = self.cleaned_data['username']
+        email = self.cleaned_data['email']
+
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+        )
+
+        student = super().save(commit=False)
+        student.user = user
+        if commit:
+            student.save()
+        return student
 
 
 @admin.register(Lecturer)
@@ -18,6 +89,27 @@ class StudentAdmin(admin.ModelAdmin):
     list_filter = ('programme_of_study', 'year', 'notification_preference', 'is_notifications_enabled', 'is_two_factor_enabled')
     readonly_fields = ('two_factor_secret',)
     raw_id_fields = ('user',)
+
+    def get_form(self, request, obj=None, **kwargs):
+        if obj is None:
+            kwargs['form'] = StudentAdminCreationForm
+        return super().get_form(request, obj, **kwargs)
+
+    def get_fieldsets(self, request, obj=None):
+        if obj is None:
+            return (
+                ('Account Credentials', {
+                    'fields': ('username', 'email', 'password1', 'password2'),
+                }),
+                ('Student Profile', {
+                    'fields': (
+                        'student_id', 'name', 'programme_of_study', 'year',
+                        'phone_number', 'notification_preference',
+                        'is_notifications_enabled', 'require_two_factor_auth',
+                    ),
+                }),
+            )
+        return super().get_fieldsets(request, obj)
 
 
 @admin.register(Course)

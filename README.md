@@ -14,6 +14,7 @@ A full-stack Django web application for managing university attendance with GPS-
 - **QR Code Check-In** — Lecturers generate time-limited attendance tokens with scannable QR codes
 - **Two-Factor Authentication** — WebAuthn (fingerprint/biometric) and TOTP (authenticator app) support for attendance verification
 - **Role-Based Access** — Admin, Lecturer, and Student roles with tailored dashboards, sidebars, and permissions
+- **Streamlined Admin Provisioning** — Admin can create Student profile + linked User credentials (including password validation) in one form
 - **Real-Time Notifications** — Email and SMS alerts for attendance sessions (configurable per-student)
 - **Welcome Onboarding Email** — Automatically emails new Student/Lecturer accounts with sign-in guidance
 - **Reports & Analytics** — Attendance trends, per-course statistics, weekly charts, CSV/Excel exports
@@ -204,7 +205,7 @@ Authorization: Token <your-token>
 
 ## Testing
 
-The project has **277 tests** covering models, API endpoints, serializers, views, access control, rate limiting, 2FA flows, management commands, and integration scenarios.
+The project has **279 tests** covering models, API endpoints, serializers, views, access control, rate limiting, 2FA flows, management commands, and integration scenarios.
 
 ```bash
 # Run all tests

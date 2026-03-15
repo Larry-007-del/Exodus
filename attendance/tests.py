@@ -20,6 +20,7 @@ from .models import (
     Lecturer,
     Student,
 )
+from .admin import StudentAdminCreationForm
 
 
 # ==================== Model Tests ====================
@@ -133,6 +134,44 @@ class StudentModelTest(TestCase):
         self.student.notification_preference = 'sms'
         self.student.phone_number = None
         self.assertFalse(self.student.should_send_sms_notifications())
+
+
+class StudentAdminCreationFormTest(TestCase):
+    """Tests for one-step admin student+user creation form."""
+
+    def test_form_rejects_password_mismatch(self):
+        form = StudentAdminCreationForm(data={
+            'username': 'admincreate1',
+            'email': 'admincreate1@example.com',
+            'password1': 'StrongPass123!xyz',
+            'password2': 'DifferentPass123!',
+            'student_id': 'ADM001',
+            'name': 'Admin Student One',
+            'programme_of_study': 'Computer Science',
+            'year': '2',
+            'notification_preference': 'both',
+            'is_notifications_enabled': True,
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('password2', form.errors)
+
+    def test_form_creates_user_and_student(self):
+        form = StudentAdminCreationForm(data={
+            'username': 'admincreate2',
+            'email': 'admincreate2@example.com',
+            'password1': 'StrongPass123!xyz',
+            'password2': 'StrongPass123!xyz',
+            'student_id': 'ADM002',
+            'name': 'Admin Student Two',
+            'programme_of_study': 'Computer Science',
+            'year': '3',
+            'notification_preference': 'both',
+            'is_notifications_enabled': True,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        student = form.save()
+        self.assertEqual(student.user.username, 'admincreate2')
+        self.assertTrue(student.user.check_password('StrongPass123!xyz'))
 
 
 class CourseModelTest(TestCase):
