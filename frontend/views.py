@@ -578,7 +578,7 @@ def upload_students(request):
                 if not header:
                     raise ValueError("The uploaded CSV file is empty.")
                 
-                count = 0
+                student_data_list = []
                 for i, column in enumerate(csv.reader(io_string, delimiter=',', quotechar='"')):
                     # Skip empty lines
                     if not column or all(cell.strip() == '' for cell in column):
@@ -598,30 +598,22 @@ def upload_students(request):
                     if not all([first_name, last_name, email, student_id]):
                         messages.warning(request, f"Row {i+2} has empty fields. Skipping.")
                         continue
+                    
+                    student_data_list.append({
+                        'first_name': first_name,
+                        'last_name': last_name,
+                        'email': email,
+                        'student_id': student_id
+                    })
 
-                    if not User.objects.filter(username=student_id).exists():
-                        random_password = secrets.token_urlsafe(12)
-                        user = User.objects.create_user(
-                            username=student_id, 
-                            email=email, 
-                            password=random_password,
-                            first_name=first_name,
-                            last_name=last_name
-                        )
-                        
-                        Student.objects.create(
-                            user=user, 
-                            student_id=student_id, 
-                            name=f"{first_name} {last_name}"
-                        )
-                        
-                        reset_form = PasswordResetForm({'email': user.email})
-                        if reset_form.is_valid():
-                            reset_form.save(request=request, use_https=request.is_secure())
-                            
-                        count += 1
-                
-                messages.success(request, f'{count} students uploaded successfully!')
+                if student_data_list:
+                    from attendance.tasks import process_student_upload
+                    # Fire to Celery Queue
+                    process_student_upload.delay(student_data_list, request.user.email)
+                    messages.success(request, f'{len(student_data_list)} students are being processed in the background. You will receive an email upon completion.')
+                else:
+                    messages.warning(request, "No valid students found in the CSV file.")
+
                 return redirect('frontend:dashboard')
                 
             except UnicodeDecodeError:
@@ -920,20 +912,14 @@ def upload_enrollments(request):
                     if student_id:
                         student_ids.append(student_id)
                 
-                # Fetch matching students
-                students = Student.objects.filter(student_id__in=student_ids)
-                existing_enrollments = CourseEnrollment.objects.filter(course=course).values_list('student_id', flat=True)
+                if student_ids:
+                    from attendance.tasks import process_enrollment_upload
+                    # Fire off to Celery in the background
+                    process_enrollment_upload.delay(student_ids, course.id, request.user.email)
+                    messages.success(request, f'{len(student_ids)} students are being enrolled into {course.course_code} in the background. You will receive an email upon completion.')
+                else:
+                    messages.warning(request, "No valid students found in the CSV file.")
                 
-                enrollments = []
-                count = 0
-                for student in students:
-                    if student.id not in existing_enrollments:
-                        enrollments.append(CourseEnrollment(course=course, student_id=student.id))
-                        count += 1
-                
-                CourseEnrollment.objects.bulk_create(enrollments, ignore_conflicts=True)
-                
-                messages.success(request, f'{count} students enrolled successfully in {course.course_code}!')
                 if request.user.is_superuser:
                     return redirect('frontend:course_list')
                 else:
