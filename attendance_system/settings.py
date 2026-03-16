@@ -69,10 +69,8 @@ JAZZMIN_SETTINGS = {
     "welcome_sign": "Welcome to Exodus Administration",
     "copyright": "Exodus Attendance System",
     "search_model": ["auth.User", "attendance.Student", "attendance.Lecturer"],
-    "topmenu_links": [
-        {"name": "Dashboard", "url": "/", "new_window": True},
-        {"name": "API Docs", "url": "/api/docs/", "new_window": True},
-    ],
+    "site_url": None,     # Suppress the default "View site" link in admin header
+    "topmenu_links": [],  # No extra links in the admin top navbar
     "show_sidebar": True,
     "navigation_expanded": True,
     "icons": {
