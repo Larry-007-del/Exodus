@@ -92,3 +92,23 @@ class StudentUploadForm(forms.Form):
             if uploaded.size > 5 * 1024 * 1024:
                 raise forms.ValidationError('File size must be under 5 MB.')
         return uploaded
+
+class CourseEnrollmentUploadForm(forms.Form):
+    """Form for bulk uploading course enrollments via CSV"""
+    course = forms.ModelChoiceField(queryset=Course.objects.all(), required=True, label="Select Course")
+    file = forms.FileField(label="Upload CSV File")
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user and not user.is_superuser and hasattr(user, 'lecturer'):
+            self.fields['course'].queryset = Course.objects.filter(lecturer=user.lecturer)
+
+    def clean_file(self):
+        uploaded = self.cleaned_data.get('file')
+        if uploaded:
+            if not uploaded.name.lower().endswith('.csv'):
+                raise forms.ValidationError('Only CSV files are accepted.')
+            if uploaded.size > 5 * 1024 * 1024:
+                raise forms.ValidationError('File size must be under 5 MB.')
+        return uploaded

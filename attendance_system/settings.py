@@ -320,9 +320,18 @@ else:
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
+EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', 10))
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@example.com')
+
+# Welcome email dispatch mode:
+# - Production default: async (non-blocking request flow)
+# - Development/tests default: sync (deterministic behavior)
+SEND_WELCOME_EMAIL_ASYNC = os.environ.get(
+    'SEND_WELCOME_EMAIL_ASYNC',
+    'False' if DEBUG else 'True'
+).lower() == 'true'
 
 # SMS Configuration
 # Twilio

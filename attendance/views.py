@@ -272,31 +272,42 @@ class AttendanceViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='export_csv/(?P<course_id>[^/.]+)')
     def export_attendance_csv(self, request, course_id=None):
-        """Export attendance as CSV for a specific course"""
-        from django.http import HttpResponse
-        import csv
+        """Export attendance as CSV for a specific course using StreamingHttpResponse"""
+        from django.http import StreamingHttpResponse
         
         course = get_object_or_404(Course, id=course_id)
-        response = HttpResponse(content_type='text/csv')
+
+        class Echo:
+            """An object that implements just the write method of the file-like interface."""
+            def write(self, value):
+                return value
+
+        def iter_items():
+            # Header Row
+            yield ['Date', 'Student ID', 'Student Name', 'Status', 'Time Marked']
+            
+            # Data Rows — use iterator() to avoid loading all into memory
+            attendance_students = AttendanceStudent.objects.filter(
+                attendance__course=course
+            ).select_related('student', 'student__user', 'attendance').order_by('attendance__date', 'student__name').iterator(chunk_size=1000)
+            
+            for record in attendance_students:
+                yield [
+                    record.attendance.date,
+                    record.student.student_id,
+                    record.student.name,
+                    'Present',
+                    record.marked_at.strftime("%H:%M:%S") if record.marked_at else '',
+                ]
+
+        pseudo_buffer = Echo()
+        writer = csv.writer(pseudo_buffer)
+        
+        response = StreamingHttpResponse(
+            (writer.writerow(row) for row in iter_items()),
+            content_type="text/csv"
+        )
         response['Content-Disposition'] = f'attachment; filename="{course.course_code}_attendance.csv"'
-
-        writer = csv.writer(response)
-        # Header Row
-        writer.writerow(['Date', 'Student ID', 'Student Name', 'Status', 'Time Marked'])
-
-        # Data Rows — use AttendanceStudent for per-student records with timestamps
-        attendance_students = AttendanceStudent.objects.filter(
-            attendance__course=course
-        ).select_related('student', 'student__user', 'attendance')
-        for record in attendance_students:
-            writer.writerow([
-                record.attendance.date,
-                record.student.student_id,
-                record.student.name,
-                'Present',
-                record.marked_at.strftime("%H:%M:%S") if record.marked_at else '',
-            ])
-
         return response
 
     @action(detail=False, methods=['post'], url_path='end_attendance')

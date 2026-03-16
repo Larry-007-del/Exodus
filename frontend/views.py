@@ -22,7 +22,7 @@ from openpyxl import Workbook
 
 from attendance.models import Lecturer, Student, Course, Attendance, AttendanceToken, CourseEnrollment, AttendanceStudent, WebAuthnCredential
 from django.contrib.auth.models import User
-from .forms import LecturerForm, StudentForm, CourseForm, StudentUploadForm
+from .forms import LecturerForm, StudentForm, CourseForm, StudentUploadForm, CourseEnrollmentUploadForm
 
 
 def admin_required(view_func):
@@ -727,7 +727,7 @@ def my_courses(request):
     if hasattr(request.user, 'student'):
         # Student: show enrolled courses
         student = request.user.student
-        courses = Course.objects.filter(students=student).select_related('lecturer').annotate(
+        courses = Course.objects.filter(students=student).select_related('lecturer', 'lecturer__user').annotate(
             enrolled_count=Count('students')
         )
         context = {
@@ -738,7 +738,7 @@ def my_courses(request):
     elif hasattr(request.user, 'lecturer'):
         # Lecturer: show taught courses
         lecturer = request.user.lecturer
-        courses = Course.objects.filter(lecturer=lecturer).select_related('lecturer').annotate(
+        courses = Course.objects.filter(lecturer=lecturer).select_related('lecturer', 'lecturer__user').annotate(
             enrolled_count=Count('students')
         )
         context = {
@@ -748,7 +748,7 @@ def my_courses(request):
         }
     else:
         # Other users: show all courses (admin)
-        courses = Course.objects.all().select_related('lecturer').annotate(
+        courses = Course.objects.all().select_related('lecturer', 'lecturer__user').annotate(
             enrolled_count=Count('students')
         )
         context = {
@@ -892,6 +892,62 @@ def course_edit(request, pk):
         'current_enrollments': list(current_enrollments),
     }
     return render(request, 'courses/edit.html', context)
+
+
+@staff_required
+def upload_enrollments(request):
+    """Bulk upload course enrollments from CSV file"""
+    if request.method == 'POST':
+        form = CourseEnrollmentUploadForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            course = form.cleaned_data['course']
+            csv_file = request.FILES['file']
+            
+            try:
+                data_set = csv_file.read().decode('utf-8-sig')
+                io_string = io.StringIO(data_set)
+                
+                header = next(io_string, None)
+                if not header:
+                    raise ValueError("The uploaded CSV file is empty.")
+                
+                student_ids = []
+                for i, column in enumerate(csv.reader(io_string, delimiter=',', quotechar='"')):
+                    if not column or all(cell.strip() == '' for cell in column):
+                        continue
+                        
+                    student_id = column[0].strip()
+                    if student_id:
+                        student_ids.append(student_id)
+                
+                # Fetch matching students
+                students = Student.objects.filter(student_id__in=student_ids)
+                existing_enrollments = CourseEnrollment.objects.filter(course=course).values_list('student_id', flat=True)
+                
+                enrollments = []
+                count = 0
+                for student in students:
+                    if student.id not in existing_enrollments:
+                        enrollments.append(CourseEnrollment(course=course, student_id=student.id))
+                        count += 1
+                
+                CourseEnrollment.objects.bulk_create(enrollments, ignore_conflicts=True)
+                
+                messages.success(request, f'{count} students enrolled successfully in {course.course_code}!')
+                if request.user.is_superuser:
+                    return redirect('frontend:course_list')
+                else:
+                    return redirect('frontend:my_courses')
+                
+            except UnicodeDecodeError:
+                messages.error(request, "Invalid file encoding. Please ensure the CSV is saved as UTF-8.")
+            except Exception as e:
+                messages.error(request, f"Error processing file: {str(e)}")
+    
+    else:
+        form = CourseEnrollmentUploadForm(user=request.user)
+    
+    return render(request, 'courses/upload_enrollments.html', {'form': form})
 
 
 @admin_required

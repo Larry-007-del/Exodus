@@ -141,6 +141,7 @@ class AttendanceStudent(models.Model):
         unique_together = ('attendance', 'student')
         indexes = [
             models.Index(fields=['attendance', 'student']),
+            models.Index(fields=['marked_at']),
         ]
     
     def is_within_valid_perimeter(self, radius_meters=50):
@@ -185,6 +186,8 @@ class Attendance(models.Model):
         indexes = [
             models.Index(fields=['course', 'date']),
             models.Index(fields=['is_active']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['ended_at']),
         ]
 
     def __str__(self):
@@ -254,6 +257,7 @@ class AttendanceToken(models.Model):
         indexes = [
             models.Index(fields=['is_active']),
             models.Index(fields=['course', 'is_active']),
+            models.Index(fields=['expires_at']),
         ]
 
     def __str__(self):

@@ -779,17 +779,18 @@ class RegisterViewTest(FrontendViewsTestCase):
         self.assertTemplateUsed(response, 'frontend/register.html')
 
     def test_register_student_success(self):
-        response = self.client.post(reverse('frontend:register'), {
-            'username': 'newstu',
-            'email': 'newstu@example.com',
-            'password1': 'strongpassword_123',
-            'password2': 'strongpassword_123',
-            'role': 'student',
-            'name': 'New Student',
-            'student_id': 'NS001',
-            'programme_of_study': 'Physics',
-            'year': '1',
-        })
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(reverse('frontend:register'), {
+                'username': 'newstu',
+                'email': 'newstu@example.com',
+                'password1': 'strongpassword_123',
+                'password2': 'strongpassword_123',
+                'role': 'student',
+                'name': 'New Student',
+                'student_id': 'NS001',
+                'programme_of_study': 'Physics',
+                'year': '1',
+            })
         self.assertRedirects(response, reverse('frontend:login'))
         self.assertTrue(User.objects.filter(username='newstu').exists())
         self.assertTrue(Student.objects.filter(student_id='NS001').exists())
@@ -1713,11 +1714,12 @@ class WelcomeEmailSignalTest(FrontendViewsTestCase):
             email='signalstudent@example.com',
             password='testpassword123',
         )
-        Student.objects.create(
-            user=user,
-            student_id='SIG001',
-            name='Signal Student',
-        )
+        with self.captureOnCommitCallbacks(execute=True):
+            Student.objects.create(
+                user=user,
+                student_id='SIG001',
+                name='Signal Student',
+            )
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn('Welcome to Exodus', mail.outbox[0].subject)
 
@@ -1728,11 +1730,12 @@ class WelcomeEmailSignalTest(FrontendViewsTestCase):
             email='signallec@example.com',
             password='testpassword123',
         )
-        Lecturer.objects.create(
-            user=user,
-            staff_id='SIGL01',
-            name='Signal Lecturer',
-        )
+        with self.captureOnCommitCallbacks(execute=True):
+            Lecturer.objects.create(
+                user=user,
+                staff_id='SIGL01',
+                name='Signal Lecturer',
+            )
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn('Welcome to Exodus', mail.outbox[0].subject)
 
@@ -1743,11 +1746,12 @@ class WelcomeEmailSignalTest(FrontendViewsTestCase):
             email='',
             password='testpassword123',
         )
-        Student.objects.create(
-            user=user,
-            student_id='SIG002',
-            name='No Email Student',
-        )
+        with self.captureOnCommitCallbacks(execute=True):
+            Student.objects.create(
+                user=user,
+                student_id='SIG002',
+                name='No Email Student',
+            )
         self.assertEqual(len(mail.outbox), 0)
 
     def test_restore_requires_file(self):
