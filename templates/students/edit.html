@@ -108,8 +108,7 @@ content %}
               value="email"
               {%
               if
-              student.notification_preference=""
-              ="email"
+              student.notification_preference == 'email'
               %}selected{%
               endif
               %}
@@ -120,8 +119,7 @@ content %}
               value="sms"
               {%
               if
-              student.notification_preference=""
-              ="sms"
+              student.notification_preference == 'sms'
               %}selected{%
               endif
               %}
@@ -132,8 +130,7 @@ content %}
               value="both"
               {%
               if
-              student.notification_preference=""
-              ="both"
+              student.notification_preference == 'both'
               %}selected{%
               endif
               %}
@@ -144,8 +141,7 @@ content %}
               value="none"
               {%
               if
-              student.notification_preference=""
-              ="none"
+              student.notification_preference == 'none'
               %}selected{%
               endif
               %}

@@ -172,7 +172,7 @@
               >
                 <option value="">Select Year</option>
                 {% for y in "1234" %}
-                <option value="{{ y }}" {% if profile.year="" ="y" %}selected{% endif %}>
+                <option value="{{ y }}" {% if profile.year == y %}selected{% endif %}>
                   Year {{ y }}
                 </option>
                 {% endfor %}
@@ -190,8 +190,7 @@
                   value="email"
                   {%
                   if
-                  profile.notification_preference=""
-                  ="email"
+                  profile.notification_preference == 'email'
                   %}selected{%
                   endif
                   %}
@@ -202,8 +201,7 @@
                   value="sms"
                   {%
                   if
-                  profile.notification_preference=""
-                  ="sms"
+                  profile.notification_preference == 'sms'
                   %}selected{%
                   endif
                   %}
@@ -214,8 +212,7 @@
                   value="both"
                   {%
                   if
-                  profile.notification_preference=""
-                  ="both"
+                  profile.notification_preference == 'both'
                   %}selected{%
                   endif
                   %}
@@ -226,8 +223,7 @@
                   value="none"
                   {%
                   if
-                  profile.notification_preference=""
-                  ="none"
+                  profile.notification_preference == 'none'
                   %}selected{%
                   endif
                   %}

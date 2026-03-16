@@ -38,7 +38,7 @@
     >
       <option value="">All Years</option>
       {% for year in years %}
-      <option value="{{ year }}" {% if year_filter="" ="year" %}selected{% endif %}>
+      <option value="{{ year }}" {% if year_filter == year %}selected{% endif %}>
         {{ year }}
       </option>
       {% endfor %}
@@ -49,7 +49,7 @@
     >
       <option value="">All Programmes</option>
       {% for prog in programmes %}
-      <option value="{{ prog }}" {% if programme_filter="" ="prog" %}selected{% endif %}>
+      <option value="{{ prog }}" {% if programme_filter == prog %}selected{% endif %}>
         {{ prog }}
       </option>
       {% endfor %}

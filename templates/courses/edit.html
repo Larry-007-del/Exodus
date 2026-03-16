@@ -60,8 +60,7 @@ content %}
             value="{{ lecturer.id }}"
             {%
             if
-            course.lecturer.id=""
-            ="lecturer.id"
+            course.lecturer.id == lecturer.id
             %}selected{%
             endif
             %}
