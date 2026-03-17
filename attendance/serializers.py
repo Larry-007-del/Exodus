@@ -17,7 +17,8 @@ class StudentLoginRequestSerializer(serializers.Serializer):
 
 
 class StudentLoginSuccessSerializer(serializers.Serializer):
-    token = serializers.CharField()
+    access = serializers.CharField()
+    refresh = serializers.CharField()
     user_id = serializers.IntegerField()
     username = serializers.CharField()
     student_id = serializers.CharField()
@@ -30,7 +31,8 @@ class StaffLoginRequestSerializer(serializers.Serializer):
 
 
 class StaffLoginSuccessSerializer(serializers.Serializer):
-    token = serializers.CharField()
+    access = serializers.CharField()
+    refresh = serializers.CharField()
     user_id = serializers.IntegerField()
     username = serializers.CharField()
     staff_id = serializers.CharField()

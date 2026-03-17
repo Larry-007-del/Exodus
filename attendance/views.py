@@ -3,8 +3,7 @@ from rest_framework import viewsets, generics, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, BasePermission
-from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.throttling import ScopedRateThrottle
 from django.contrib.auth import authenticate, logout
 from django.utils import timezone
@@ -353,9 +352,11 @@ class StudentEnrolledCoursesView(generics.ListAPIView):
         return Course.objects.select_related('lecturer', 'lecturer__user').prefetch_related('students', 'students__user').filter(students=student).order_by('name')
 
 # Custom Login Views
-class StudentLoginView(ObtainAuthToken):
+class StudentLoginView(APIView):
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = 'student_login'
+    permission_classes = []
+    authentication_classes = []
 
     @extend_schema(
         request=StudentLoginRequestSerializer,
@@ -383,9 +384,10 @@ class StudentLoginView(ObtainAuthToken):
             student = user.student
 
             if student.student_id == student_id:
-                token, created = Token.objects.get_or_create(user=user)
+                refresh = RefreshToken.for_user(user)
                 return Response({
-                    'token': token.key,
+                    'access': str(refresh.access_token),
+                    'refresh': str(refresh),
                     'user_id': user.student.id,
                     'username': user.username,
                     'student_id': student.student_id
@@ -395,9 +397,11 @@ class StudentLoginView(ObtainAuthToken):
 
         return api_error('Invalid credentials', APIErrorCode.INVALID_CREDENTIALS, status.HTTP_400_BAD_REQUEST)
 
-class StaffLoginView(ObtainAuthToken):
+class StaffLoginView(APIView):
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = 'staff_login'
+    permission_classes = []
+    authentication_classes = []
 
     @extend_schema(
         request=StaffLoginRequestSerializer,
@@ -424,10 +428,11 @@ class StaffLoginView(ObtainAuthToken):
         if user and hasattr(user, 'lecturer'):
             lecturer = user.lecturer
             if lecturer.staff_id == staff_id:
-                token, created = Token.objects.get_or_create(user=user)
+                refresh = RefreshToken.for_user(user)
 
                 return Response({
-                    'token': token.key,
+                    'access': str(refresh.access_token),
+                    'refresh': str(refresh),
                     'user_id': user.lecturer.id,
                     'username': user.username,
                     'staff_id': lecturer.staff_id
@@ -442,10 +447,21 @@ class LogoutView(generics.GenericAPIView):
     serializer_class = LogoutSerializer
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        request={'type': 'object', 'properties': {'refresh': {'type': 'string'}}, 'required': ['refresh']},
+        responses={205: None, 400: OpenApiResponse(response=APIErrorSerializer, description='Invalid or missing refresh token.')},
+    )
     def post(self, request, *args, **kwargs):
-        request.user.auth_token.delete()
+        refresh_token = request.data.get('refresh')
+        if not refresh_token:
+            return api_error('Refresh token is required', APIErrorCode.INVALID_CREDENTIALS, status.HTTP_400_BAD_REQUEST)
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        except Exception:
+            pass  # Token may already be blacklisted or expired — still log out
         logout(request)
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_205_RESET_CONTENT)
 
 # Location-based Attendance View
 
