@@ -10,6 +10,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
     env:
       DJANGO_SETTINGS_MODULE: attendance_system.settings
       DJANGO_SECRET_KEY: ci-test-secret-key-not-for-production-use
