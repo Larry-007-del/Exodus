@@ -1,0 +1,179 @@
+<div class="overflow-hidden rounded-lg bg-white shadow dark:bg-gray-800">
+  <!-- Desktop Table (hidden on mobile) -->
+  <div class="hidden overflow-x-auto md:block">
+    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+      <thead class="bg-gray-50 dark:bg-gray-900">
+        <tr>
+          <th
+            hx-get="{% url 'frontend:student_list' %}?sort={% if sort == 'name' %}-name{% else %}name{% endif %}&q={{ query }}&year={{ year_filter }}&programme={{ programme_filter }}"
+            hx-target="#student-list-container"
+            hx-push-url="true"
+            class="group cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+          >
+            Student
+            <span class="ml-1 inline-block">
+              {% if sort == 'name' %}↑{% elif sort == '-name' %}↓{% else %}<span class="text-transparent group-hover:text-gray-300">↕</span>{% endif %}
+            </span>
+          </th>
+          <th
+            hx-get="{% url 'frontend:student_list' %}?sort={% if sort == 'student_id' %}-student_id{% else %}student_id{% endif %}&q={{ query }}&year={{ year_filter }}&programme={{ programme_filter }}"
+            hx-target="#student-list-container"
+            hx-push-url="true"
+            class="group cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+          >
+            Student ID
+            <span class="ml-1 inline-block">
+              {% if sort == 'student_id' %}↑{% elif sort == '-student_id' %}↓{% else %}<span class="text-transparent group-hover:text-gray-300">↕</span>{% endif %}
+            </span>
+          </th>
+          <th
+            hx-get="{% url 'frontend:student_list' %}?sort={% if sort == 'programme_of_study' %}-programme_of_study{% else %}programme_of_study{% endif %}&q={{ query }}&year={{ year_filter }}&programme={{ programme_filter }}"
+            hx-target="#student-list-container"
+            hx-push-url="true"
+            class="group cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+          >
+            Programme
+            <span class="ml-1 inline-block">
+              {% if sort == 'programme_of_study' %}↑{% elif sort == '-programme_of_study' %}↓{% else %}<span class="text-transparent group-hover:text-gray-300">↕</span>{% endif %}
+            </span>
+          </th>
+          <th
+            hx-get="{% url 'frontend:student_list' %}?sort={% if sort == 'year' %}-year{% else %}year{% endif %}&q={{ query }}&year={{ year_filter }}&programme={{ programme_filter }}"
+            hx-target="#student-list-container"
+            hx-push-url="true"
+            class="group cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+          >
+            Year
+            <span class="ml-1 inline-block">
+              {% if sort == 'year' %}↑{% elif sort == '-year' %}↓{% else %}<span class="text-transparent group-hover:text-gray-300">↕</span>{% endif %}
+            </span>
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+            Phone
+          </th>
+          <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+            Actions
+          </th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+        {% for student in students %}
+        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+          <td class="whitespace-nowrap px-6 py-4">
+            <div class="flex items-center">
+              <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                <span class="font-bold text-green-600 dark:text-green-300">{{ student.name|first|upper }}</span>
+              </div>
+              <div class="ml-4">
+                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ student.name }}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">{{ student.user.email }}</div>
+              </div>
+            </div>
+          </td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-300">
+            {{ student.student_id }}
+          </td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+            {{ student.programme_of_study|default:"-" }}
+          </td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+            {{ student.year|default:"-" }}
+          </td>
+          <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+            {{ student.phone_number|default:"-" }}
+          </td>
+          <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+            <div class="flex items-center justify-end space-x-3">
+              <a href="{% url 'frontend:student_detail' student.id %}" class="inline-flex items-center rounded-full bg-indigo-600 p-2 text-white shadow-sm hover:bg-indigo-700">
+                <!-- Eye icon -->
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </a>
+              <a href="{% url 'frontend:student_edit' student.id %}" class="text-blue-600 transition-colors duration-200 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
+                Edit
+              </a>
+              <button hx-post="{% url 'frontend:student_delete' student.id %}" hx-confirm="Are you sure you want to delete this student?" hx-target="closest tr" hx-swap="delete" class="text-red-600 transition-colors duration-200 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="px-6 py-8">
+            <div class="rounded-lg border border-gray-100 bg-white py-16 text-center shadow dark:border-gray-700 dark:bg-gray-800">
+              <svg class="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No students found</h3>
+              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                {% if query or year_filter or programme_filter %} Try different filters to find what you're looking for. {% else %} Get started by adding students to the registry. {% endif %}
+              </p>
+              {% if not query and not year_filter and not programme_filter %}
+              <div class="mt-6">
+                <a href="{% url 'frontend:student_create' %}" class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
+                  <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                  </svg>
+                  Add Student
+                </a>
+              </div>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mobile Cards (hidden on desktop) -->
+  <div class="grid grid-cols-1 divide-y divide-gray-200 dark:divide-gray-700 md:hidden">
+    {% for student in students %}
+    <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700">
+      <div class="mb-3 flex items-center space-x-4">
+        <div class="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+          <span class="text-lg font-bold text-green-600 dark:text-green-300">{{ student.name|first|upper }}</span>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-base font-semibold text-gray-900 dark:text-white truncate">{{ student.name }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ student.user.email }}</p>
+        </div>
+      </div>
+      
+      <div class="mb-3 grid grid-cols-2 gap-2 text-sm">
+        <div>
+          <span class="block text-gray-500 dark:text-gray-400">Student ID</span>
+          <span class="font-medium text-gray-900 dark:text-gray-200">{{ student.student_id }}</span>
+        </div>
+        <div>
+          <span class="block text-gray-500 dark:text-gray-400">Programme</span>
+          <span class="font-medium text-gray-900 dark:text-gray-200">{{ student.programme_of_study|default:"-" }}</span>
+        </div>
+        <div>
+          <span class="block text-gray-500 dark:text-gray-400">Year</span>
+          <span class="font-medium text-gray-900 dark:text-gray-200">{{ student.year|default:"-" }}</span>
+        </div>
+      </div>
+      
+      <div class="flex items-center justify-end space-x-3 pt-2">
+        <a href="{% url 'frontend:student_detail' student.id %}" class="rounded-lg bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-900 dark:text-indigo-300 dark:hover:bg-indigo-800">View</a>
+        <a href="{% url 'frontend:student_edit' student.id %}" class="rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-600 hover:bg-blue-100 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800">Edit</a>
+        <button hx-post="{% url 'frontend:student_delete' student.id %}" hx-confirm="Are you sure you want to delete this student?" hx-target="closest div.p-4" hx-swap="delete" class="rounded-lg bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-100 dark:bg-red-900 dark:text-red-300 dark:hover:bg-red-800">Delete</button>
+      </div>
+    </div>
+    {% empty %}
+    <div class="p-8 text-center text-gray-500 dark:text-gray-400">
+      No students found.
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="mt-4" id="student-pagination">
+  <div hx-boost="true" hx-target="#student-list-container">
+    {% include 'partials/pagination.html' with page_obj=students %}
+  </div>
+</div>

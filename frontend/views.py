@@ -559,12 +559,13 @@ def ajax_search_lecturers(request):
 
 @admin_required
 def student_list(request):
-    """List all students (admin only)"""
-    query = request.GET.get('q')
-    year_filter = request.GET.get('year')
-    programme_filter = request.GET.get('programme')
+    """List all students (admin only) with HTMX sort & search"""
+    query = request.GET.get('q', '')
+    year_filter = request.GET.get('year', '')
+    programme_filter = request.GET.get('programme', '')
+    sort = request.GET.get('sort', 'name')
     
-    students = Student.objects.select_related('user').all().order_by('name')
+    students = Student.objects.select_related('user').all()
     
     if query:
         students = students.filter(
@@ -574,6 +575,13 @@ def student_list(request):
         students = students.filter(year=year_filter)
     if programme_filter:
         students = students.filter(programme_of_study=programme_filter)
+        
+    allowed_sorts = ['name', '-name', 'student_id', '-student_id', 'year', '-year', 'programme_of_study', '-programme_of_study']
+    if sort in allowed_sorts:
+        students = students.order_by(sort)
+    else:
+        students = students.order_by('name')
+        sort = 'name'
     
     paginator = Paginator(students, 20)
     page = request.GET.get('page')
@@ -589,9 +597,13 @@ def student_list(request):
         'query': query,
         'year_filter': year_filter,
         'programme_filter': programme_filter,
+        'sort': sort,
         'years': Student.objects.values_list('year', flat=True).distinct(),
         'programmes': Student.objects.values_list('programme_of_study', flat=True).distinct(),
     }
+    
+    if request.headers.get('HX-Request'):
+        return render(request, 'partials/student_list_content.html', context)
     return render(request, 'students/list.html', context)
 
 
