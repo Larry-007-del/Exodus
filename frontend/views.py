@@ -94,6 +94,59 @@ def logout_view(request):
     return redirect('frontend:dashboard')
 
 
+def register_view(request):
+    """Self-registration for new students."""
+    if request.user.is_authenticated:
+        return redirect('frontend:dashboard')
+
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        password1 = request.POST.get('password1', '')
+        password2 = request.POST.get('password2', '')
+
+        # Validation
+        errors = []
+        if not username or not email or not password1:
+            errors.append('All fields are required.')
+        if password1 != password2:
+            errors.append('Passwords do not match.')
+        if len(password1) < 8:
+            errors.append('Password must be at least 8 characters.')
+        if User.objects.filter(username=username).exists():
+            errors.append('Username is already taken.')
+        if User.objects.filter(email=email).exists():
+            errors.append('An account with this email already exists.')
+
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return render(request, 'frontend/register.html')
+
+        # Create User
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password1,
+            first_name=username,
+        )
+
+        # Auto-generate student_id (STU + zero-padded pk)
+        student_id = f'STU{user.pk:05d}'
+        Student.objects.create(
+            user=user,
+            student_id=student_id,
+            name=username,
+        )
+
+        # Auto-login after registration
+        login(request, user)
+        messages.success(request, f'Welcome to Exodus! Your Student ID is {student_id}.')
+        return redirect('frontend:dashboard')
+
+    return render(request, 'frontend/register.html')
+
+
 # ==================== Dashboard ====================
 
 @login_required
