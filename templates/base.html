@@ -28,6 +28,11 @@
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%234f46e5'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='20' font-weight='bold'>E</text></svg>"
     />
 
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
     <script defer src="{% static 'js/alpine.min.js' %}"></script>
@@ -35,7 +40,7 @@
 
     {% block extra_head %}{% endblock %}
   </head>
-  <body class="bg-gray-50 dark:bg-gray-900">
+  <body class="bg-gray-50 bg-gradient-to-br from-brand-50 to-white dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-gray-100 min-h-screen selection:bg-brand-500 selection:text-white">
     <!-- Skip to main content link for keyboard/screen-reader users -->
     <a
       href="#main-content"
@@ -44,7 +49,7 @@
     >
 
     <nav
-      class="fixed top-0 z-50 w-full border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+      class="fixed top-0 z-50 w-full border-b border-gray-200/50 bg-white/70 backdrop-blur-lg dark:border-gray-700/50 dark:bg-gray-800/70"
       aria-label="Top navigation"
     >
       <div class="px-3 py-3 lg:px-5 lg:pl-3">
@@ -142,10 +147,10 @@
 
     <aside
       id="logo-sidebar"
-      class="fixed left-0 top-0 z-40 h-screen w-64 -translate-x-full border-r border-gray-200 bg-white pt-20 transition-transform dark:border-gray-700 dark:bg-gray-800 sm:translate-x-0"
+      class="fixed left-0 top-0 z-40 h-screen w-64 -translate-x-full border-r border-gray-200/50 bg-white/60 backdrop-blur-xl pt-20 transition-transform duration-300 ease-in-out dark:border-gray-700/50 dark:bg-gray-800/60 sm:translate-x-0"
       aria-label="Sidebar"
     >
-      <div class="h-full overflow-y-auto bg-white px-3 pb-4 dark:bg-gray-800">
+      <div class="h-full overflow-y-auto px-3 pb-4">
         <ul class="space-y-2 font-medium">
           <!-- Dashboard — all users -->
           <li>
@@ -487,7 +492,7 @@
       </div>
     </aside>
 
-    <main id="main-content" class="p-4 sm:ml-64" role="main">
+    <main id="main-content" class="p-4 sm:ml-64 animate-fade-in-up" role="main">
       <div class="mt-14 min-h-screen p-4">
         {% if messages %}
         <div class="fixed right-5 top-5 z-50 space-y-3" role="status" aria-live="polite">
