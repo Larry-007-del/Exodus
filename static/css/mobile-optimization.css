@@ -1,0 +1,212 @@
+/* Mobile Performance Optimizations for Exodus
+ * AGGRESSIVE optimization for low-end Android devices (Infinix Hot 60 Pro, etc.)
+ * - DISABLES all animations/transitions on mobile
+ * - REMOVES all backdrop-filter, blur, gradients
+ * - ELIMINATES complex shadows
+ * - ENABLES aggressive GPU acceleration
+ */
+
+/* ================= GLOBAL DISABLES (Mobile Only) ================= */
+@media (max-width: 1024px) {
+  /* DISABLE ALL ANIMATIONS */
+  * {
+    animation: none !important;
+    animation-delay: 0 !important;
+    animation-duration: 0 !important;
+  }
+
+  /* DISABLE TRANSITIONS */
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+
+  /* DISABLE TRANSFORMS (except GPU acceleration) */
+  [class*="scale"],
+  [class*="rotate"],
+  [class*="skew"],
+  [class*="translate"] {
+    transform: none !important;
+  }
+
+  /* REMOVE ALL GRADIENTS */
+  [class*="gradient"],
+  [class*="from-"],
+  [class*="to-"],
+  [class*="via-"] {
+    background: #1f2937 !important;
+    background-image: none !important;
+  }
+
+  /* REMOVE ALL BLUR EFFECTS */
+  [class*="backdrop-blur"],
+  [class*="blur-"] {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    filter: none !important;
+  }
+
+  /* REMOVE ALL SHADOWS */
+  [class*="shadow"] {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* SIMPLIFY ALL BORDERS */
+  [class*="border"] {
+    border-width: 1px !important;
+  }
+}
+
+/* ================= INPUT FIELD OPTIMIZATION ================= */
+input:focus,
+textarea:focus,
+select:focus {
+  /* Larger touch targets */
+  min-height: 48px;
+  min-width: 100%;
+  
+  /* Prevent iOS zoom */
+  font-size: 16px !important;
+  
+  /* NO animations on focus */
+  transition: none !important;
+  
+  /* Disable all effects */
+  box-shadow: none !important;
+  outline: none !important;
+  
+  /* Force GPU acceleration */
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+}
+
+input[inputmode="numeric"] {
+  text-align: center;
+  font-family: monospace;
+  letter-spacing: 0.1em;
+  font-size: 18px;
+}
+
+/* ================= LOGIN PAGE (MOBILE) ================= */
+@media (max-width: 640px) {
+  body {
+    /* Solid background - NO gradients */
+    background: #1f2937 !important;
+    background-image: none !important;
+  }
+
+  /* Remove decorative elements */
+  .absolute { display: none; }
+
+  /* Simplify card */
+  .rounded-3xl { border-radius: 8px !important; }
+  .backdrop-blur-xl { 
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    background: #111827 !important;
+  }
+
+  .border-white\/20 { border: none !important; }
+}
+
+/* ================= BUTTONS ================= */
+button {
+  min-height: 44px;
+  font-size: 16px;
+  transition: none !important;
+  -webkit-appearance: none;
+}
+
+button:active { opacity: 0.8; }
+
+/* ================= GPU ACCELERATION ================= */
+body, html {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  overflow-y: scroll;
+}
+
+/* ================= SCROLLING ================= */
+html { -webkit-overflow-scrolling: touch; scroll-behavior: auto !important; }
+* { scroll-behavior: auto !important; }
+
+/* ================= TOUCH OPTIMIZATION ================= */
+@media (hover: none) and (pointer: coarse) {
+  button:hover, a:hover { background-color: inherit; }
+  button:active, a:active { opacity: 0.75; }
+  *:focus { outline: none; }
+}
+
+/* ================= PAINT OPTIMIZATION ================= */
+.card, .modal, form, [role="dialog"] { contain: layout style paint; }
+
+/* ================= FONT OPTIMIZATION ================= */
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 { font-weight: 600; }
+
+/* ================= DISABLE ALL ANIMATIONS ================= */
+.animate-fade-in-up,
+.animate-fade-in,
+.animate-pulse,
+.animate-pulse-slow,
+.animate-bounce,
+.animate-ping,
+.animate-spin {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ================= DISABLE BACKDROP & FILTERS ================= */
+[class*="backdrop-blur"],
+[class*="drop-shadow"],
+[class*="filter-"],
+[class*="brightness"],
+[class*="contrast"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+}
+
+/* ================= SAFE AREA ================= */
+@supports (height: max(1px, env(safe-area-inset-bottom))) {
+  body {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    padding-top: max(0px, env(safe-area-inset-top));
+  }
+}
+
+/* ================= HIDE DECORATIONS ================= */
+.absolute { display: none !important; }
+[class*="bloom"], [class*="decoration"] { display: none; }
+
+/* ================= GRID & LAYOUTS ================= */
+@media (max-width: 768px) {
+  .grid-cols-2, .grid-cols-3 { grid-template-columns: 1fr !important; }
+}
+
+/* ================= TEXT ================= */
+p { margin: 0; line-height: 1.5; }
+body { text-rendering: optimizeSpeed; }
+
+/* ================= LINKS & SVG ================= */
+a { -webkit-tap-highlight-color: transparent; transition: none; }
+svg { shape-rendering: crispEdges; }
+
+/* ================= FOCUS STATES ================= */
+input:focus, button:focus, select:focus {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+}
+
+@media (hover: none) {
+  *:focus { outline: none; }
+}

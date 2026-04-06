@@ -25,7 +25,7 @@
 
   {% if active_session %}
   <div
-    class="mb-8 transform overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl transition-all hover:shadow-2xl"
+    class="mb-8 transform overflow-hidden rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-md shadow-2xl shadow-brand-500/10 transition-all hover:shadow-brand-500/20"
   >
     <div
       class="flex items-center justify-between bg-gradient-to-r from-green-500 to-green-600 px-6 py-4"
@@ -67,7 +67,7 @@
                 ></path>
               </svg>
               {{ active_session.course.name }}
-              <span class="ml-2 rounded-md bg-gray-100 px-2 py-0.5 text-sm text-gray-500"
+              <span class="ml-2 rounded-xl bg-gray-100/50 px-2 py-0.5 text-sm text-gray-500 backdrop-blur-sm"
                 >{{ active_session.course.course_code }}</span
               >
             </p>
@@ -79,7 +79,7 @@
             >
             <div class="group relative">
               <div
-                class="rounded-xl border-2 border-indigo-100 bg-indigo-50 py-4 text-center font-mono text-3xl font-bold tracking-[0.2em] text-indigo-700 shadow-inner"
+                class="rounded-xl border border-brand-100 bg-white/50 py-4 text-center font-mono text-3xl font-bold tracking-[0.2em] text-brand-700 backdrop-blur-sm shadow-inner"
               >
                 {{ active_session.token }}
               </div>
@@ -91,7 +91,7 @@
         </div>
 
         <div
-          class="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-gray-50 p-6"
+          class="flex flex-col items-center justify-center rounded-xl border border-gray-100 bg-white/30 p-6 backdrop-blur-sm"
         >
           <span class="mb-4 block text-xs font-semibold uppercase tracking-wider text-gray-500"
             >Scan QR Code</span
@@ -138,7 +138,7 @@
           <input type="hidden" name="course_id" value="{{ active_session.course.id }}" />
           <button
             type="submit"
-            class="flex w-full items-center justify-center rounded-xl border border-transparent bg-red-600 px-4 py-3.5 text-sm font-bold text-white shadow-sm transition-colors duration-200 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            class="flex w-full items-center justify-center rounded-xl border border-transparent bg-red-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-red-500/20 transition-all hover:-translate-y-0.5 hover:bg-red-700 active:scale-95"
           >
             <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -227,13 +227,13 @@
                 maxlength="6"
                 minlength="4"
                 placeholder="e.g., AB12X"
-                class="block w-full rounded-xl border-gray-300 bg-gray-50 px-4 py-4 text-center font-mono text-2xl uppercase tracking-[0.2em] shadow-sm transition-colors hover:bg-white focus:border-indigo-500 focus:ring-indigo-500"
+                class="block w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-4 text-center font-mono text-2xl uppercase tracking-[0.2em] backdrop-blur-sm transition-all hover:bg-white/80 focus:border-brand-500 focus:ring-brand-500"
                 style="text-transform: uppercase"
               />
               <button
                 type="button"
                 onclick="generateRandomToken()"
-                class="absolute right-3 top-1/2 -translate-y-1/2 transform rounded-lg bg-indigo-50 p-2 text-indigo-600 transition-colors hover:text-indigo-800"
+                class="absolute right-3 top-1/2 -translate-y-1/2 transform rounded-xl bg-brand-50 p-2 text-brand-600 transition-colors hover:text-brand-800"
                 title="Generate Random Token"
               >
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -302,7 +302,7 @@
                   name="latitude"
                   id="latitude"
                   placeholder="Detecting..."
-                  class="block w-full rounded-lg border-gray-300 bg-gray-50 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  class="block w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 sm:text-sm"
                   readonly
                   required
                 />
@@ -314,7 +314,7 @@
                   name="longitude"
                   id="longitude"
                   placeholder="Detecting..."
-                  class="block w-full rounded-lg border-gray-300 bg-gray-50 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  class="block w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 sm:text-sm"
                   readonly
                   required
                 />
@@ -332,7 +332,7 @@
             <select
               name="duration_hours"
               id="duration_hours"
-              class="block w-full rounded-lg border-gray-300 bg-gray-50 py-2.5 pl-3 pr-10 text-base focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              class="block w-full rounded-xl border border-gray-200 bg-white/50 py-2.5 pl-4 pr-10 text-base backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 sm:text-sm"
             >
               <option value="1">1 Hour</option>
               <option value="2" selected>2 Hours (Standard)</option>

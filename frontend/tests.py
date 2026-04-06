@@ -773,6 +773,10 @@ class ReportsViewTest(FrontendViewsTestCase):
 class RegisterViewTest(FrontendViewsTestCase):
     """Tests for registration view"""
 
+    def setUp(self):
+        super().setUp()
+        cache.clear()
+
     def test_register_get(self):
         response = self.client.get(reverse('frontend:register'))
         self.assertEqual(response.status_code, 200)

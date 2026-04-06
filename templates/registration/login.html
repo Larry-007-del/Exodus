@@ -18,7 +18,7 @@
     <div class="flex min-h-screen flex-col items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
       <!-- Logo and Brand -->
       <div class="mb-8 text-center">
-        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-lg">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-xl shadow-brand-500/30">
           <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
@@ -40,7 +40,7 @@
 
       <!-- Login Card -->
       <div
-        class="w-full rounded-xl bg-white shadow-lg dark:border dark:border-gray-700 dark:bg-gray-800 sm:max-w-md"
+        class="w-full rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-md shadow-2xl shadow-brand-500/10 dark:border-gray-700/50 dark:bg-gray-800/80 sm:max-w-md"
       >
         <div class="spaces-y-6 px-6 py-8 sm:px-8 sm:py-10">
           <div>
@@ -54,7 +54,7 @@
           {% if messages %}
             {% for message in messages %}
               <div
-                class="rounded-lg {% if message.tags %}bg-{{ message.tags }}-50 text-{{ message.tags }}-800 dark:bg-{{ message.tags }}-900 dark:text-{{ message.tags }}-300{% else %}bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-300{% endif %} p-4 text-sm"
+                class="rounded-xl {% if message.tags %}bg-{{ message.tags }}-50 text-{{ message.tags }}-800 dark:bg-{{ message.tags }}-900 dark:text-{{ message.tags }}-300{% else %}bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-300{% endif %} p-4 text-sm"
                 role="alert"
               >
                 <div class="flex items-start">
@@ -166,7 +166,7 @@
             <!-- Submit Button -->
             <button
               type="submit"
-              class="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-center text-sm font-semibold text-white transition-all duration-200 hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-300 disabled:opacity-50 dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800"
+              class="w-full rounded-xl bg-brand-600 px-4 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-brand-700 focus:outline-none disabled:opacity-50 active:scale-95"
             >
               Sign in
             </button>
@@ -207,7 +207,7 @@
       input[type="text"],
       input[type="password"],
       input[type="email"] {
-        @apply block w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2.5 text-gray-900 placeholder-gray-500 transition-all focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-indigo-400 dark:focus:ring-indigo-500;
+        @apply block w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 text-gray-900 placeholder-gray-500 backdrop-blur-sm transition-all focus:border-brand-500 focus:bg-white/80 focus:ring-2 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-brand-400 dark:focus:ring-brand-500;
       }
 
       /* Remove default outline */

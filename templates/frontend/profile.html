@@ -7,7 +7,7 @@
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
   <!-- Profile Card -->
   <div class="lg:col-span-1">
-    <div class="rounded-2xl border border-gray-100 bg-white p-6 text-center shadow-sm">
+    <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 text-center backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
       <div
         class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-indigo-100"
       >
@@ -96,7 +96,7 @@
                 type="email"
                 name="email"
                 value="{{ user.email }}"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"
+                class="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50"
               />
             </div>
             <div>
@@ -105,7 +105,7 @@
                 type="text"
                 name="first_name"
                 value="{{ user.first_name }}"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"
+                class="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50"
               />
             </div>
             <div>
@@ -114,7 +114,7 @@
                 type="text"
                 name="last_name"
                 value="{{ user.last_name }}"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"
+                class="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50"
               />
             </div>
           </div>
@@ -132,7 +132,7 @@
                 type="text"
                 name="name"
                 value="{{ profile.name }}"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"
+                class="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50"
               />
             </div>
             <div>
@@ -141,7 +141,7 @@
                 type="text"
                 name="phone_number"
                 value="{{ profile.phone_number|default:'' }}"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"
+                class="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50"
               />
             </div>
 
@@ -161,14 +161,14 @@
                 type="text"
                 name="programme_of_study"
                 value="{{ profile.programme_of_study|default:'' }}"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"
+                class="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50"
               />
             </div>
             <div>
               <label class="mb-1 block text-sm font-medium text-gray-700">Year</label>
               <select
                 name="year"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"
+                class="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50"
               >
                 <option value="">Select Year</option>
                 {% for y in "1234" %}
@@ -184,7 +184,7 @@
               >
               <select
                 name="notification_preference"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"
+                class="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50"
               >
                 <option
                   value="email"
@@ -230,7 +230,7 @@
                 type="text"
                 value="{{ profile.staff_id }}"
                 disabled
-                class="w-full cursor-not-allowed rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-gray-500"
+                class="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-gray-500"
               />
             </div>
             <div>
@@ -239,23 +239,23 @@
                 type="text"
                 name="department"
                 value="{{ profile.department|default:'' }}"
-                class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500"
+                class="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50"
               />
             </div>
             {% endif %}
           </div>
         </div>
 
-        <div class="flex justify-end gap-3">
+        <div class="flex justify-end gap-3 border-t border-gray-100 pt-6">
           <a
             href="{% url 'frontend:change_password' %}"
-            class="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+            class="rounded-xl border border-gray-200 bg-white/50 px-6 py-2.5 text-sm font-semibold text-gray-700 backdrop-blur-sm transition-all hover:bg-gray-50 active:scale-95"
           >
             Change Password
           </a>
           <button
             type="submit"
-            class="rounded-lg bg-indigo-600 px-6 py-2.5 font-medium text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            class="rounded-xl bg-brand-600 px-8 py-2.5 font-semibold text-white shadow-lg shadow-brand-500/20 transition-all hover:-translate-y-0.5 hover:bg-brand-700 active:scale-95"
           >
             Save Changes
           </button>

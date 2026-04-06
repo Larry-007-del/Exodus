@@ -1599,6 +1599,23 @@ def attendance_history(request):
         attendances = attendances.filter(date__gte=date_from)
     if date_to:
         attendances = attendances.filter(date__lte=date_to)
+        
+    if request.GET.get('export_csv') == 'true':
+        import csv
+        from django.http import HttpResponse
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="attendance_history.csv"'
+        writer = csv.writer(response)
+        writer.writerow(['Course', 'Course Code', 'Date', 'Present Count', 'Status'])
+        for att in attendances.order_by('-date'):
+            writer.writerow([
+                att.course.name,
+                att.course.course_code,
+                att.date,
+                att.present_students.count(),
+                'Active' if att.is_active else 'Ended'
+            ])
+        return response
     
     courses = Course.objects.all()
     

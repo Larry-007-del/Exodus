@@ -22,12 +22,12 @@
     <div class="mt-4 flex gap-2 md:mt-0">
       <a
         href="{% url 'frontend:course_edit' course.id %}"
-        class="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
+        class="rounded-xl bg-brand-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-brand-500/20 transition-all hover:-translate-y-0.5 hover:bg-brand-700 active:scale-95"
         >Edit</a
       >
       <a
         href="{% url 'frontend:course_delete' course.id %}"
-        class="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+        class="rounded-xl bg-red-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-red-500/20 transition-all hover:-translate-y-0.5 hover:bg-red-700 active:scale-95"
         >Delete</a
       >
     </div>
@@ -94,7 +94,7 @@
   </div>
 
   <!-- NEW: Attendance History Section -->
-  <div class="rounded-lg bg-white p-6 shadow">
+  <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
     <h2 class="mb-4 text-lg font-semibold text-gray-900">Attendance History</h2>
     {% if attendances %}
     <div class="overflow-x-auto">

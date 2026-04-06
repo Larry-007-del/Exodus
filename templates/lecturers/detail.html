@@ -31,19 +31,19 @@
     <div class="mt-4 flex gap-2 md:mt-0">
       <a
         href="{% url 'frontend:lecturer_edit' lecturer.id %}"
-        class="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
+        class="rounded-xl bg-brand-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-brand-500/20 transition-all hover:-translate-y-0.5 hover:bg-brand-700 active:scale-95"
       >
         Edit
       </a>
       <a
         href="{% url 'frontend:lecturer_two_factor_settings' lecturer.id %}"
-        class="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
+        class="rounded-xl border border-gray-200 bg-white/50 px-5 py-2.5 font-semibold text-gray-700 backdrop-blur-sm transition-all hover:bg-gray-50 active:scale-95"
       >
         2FA Settings
       </a>
       <a
         href="{% url 'frontend:lecturer_delete' lecturer.id %}"
-        class="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+        class="rounded-xl bg-red-600 px-5 py-2.5 font-semibold text-white shadow-lg shadow-red-500/20 transition-all hover:-translate-y-0.5 hover:bg-red-700 active:scale-95"
       >
         Delete
       </a>
@@ -84,11 +84,11 @@
     {% if courses %}
     <div class="space-y-3">
       {% for course in courses %}
-        class="block rounded-xl border border-gray-100 bg-white/50 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-brand-300 hover:bg-brand-50 hover:shadow-md dark:border-gray-700/50 dark:bg-gray-800/50 dark:hover:border-brand-700 dark:hover:bg-brand-900/30"
+      <a href="{% url 'frontend:course_detail' course.id %}" class="block rounded-xl border border-gray-100 bg-white/50 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-brand-300 hover:bg-brand-50 hover:shadow-md dark:border-gray-700/50 dark:bg-gray-800/50 dark:hover:border-brand-700 dark:hover:bg-brand-900/30">
         <div class="flex items-center justify-between">
           <div>
-            <p class="font-medium text-gray-900">{{ course.name }}</p>
-            <p class="text-sm text-gray-500">{{ course.course_code }}</p>
+            <p class="font-medium text-gray-900 dark:text-white">{{ course.name }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ course.course_code }}</p>
           </div>
           <span
             class="{% if course.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %} rounded-full px-2.5 py-0.5 text-xs font-medium"

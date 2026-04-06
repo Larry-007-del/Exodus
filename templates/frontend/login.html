@@ -3,7 +3,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Login - Exodus</title>
     <meta name="description" content="Sign in to Exodus — university attendance tracking powered by QR codes, geolocation, and two-factor authentication." />
     <meta property="og:title" content="Login - Exodus" />
@@ -15,24 +15,34 @@
       rel="icon"
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%234f46e5'/><text x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='20' font-weight='bold'>E</text></svg>"
     />
-    <!-- Google Fonts: Outfit -->
+    <!-- Google Fonts: Outfit - ASYNC LOAD FOR MOBILE -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
-    <script defer src="{% static 'js/alpine.min.js' %}"></script>
-  </head>
-  <body class="bg-gray-50 flex items-center justify-center min-h-screen bg-gradient-to-br from-brand-600 via-indigo-900 to-purple-900 dark:from-gray-900 dark:via-gray-900 dark:to-black selection:bg-brand-500 selection:text-white overflow-hidden relative">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap&preload" rel="stylesheet" as="style" media="(min-width: 1025px)">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap" rel="stylesheet"></noscript>
     
-    <!-- Animated background blooms -->
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-      <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-500 blur-[120px] opacity-30 animate-pulse-slow"></div>
-      <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-500 blur-[120px] opacity-30 animate-pulse-slow" style="animation-delay: 1.5s;"></div>
-    </div>
+    <style>
+      body { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      @media (min-width: 1025px) { body { font-family: 'Outfit', system-ui, -apple-system, sans-serif; } }
+      
+      /* Eliminate infamous 300ms tap delay universally */
+      button, a, input, select, textarea {
+        touch-action: manipulation;
+      }
+    </style>
+    
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/mobile-optimization.css' %}" />
+  </head>
+  <body class="bg-gray-50 flex items-center justify-center min-h-screen dark:from-gray-900 dark:via-gray-900 dark:to-black selection:bg-brand-500 selection:text-white overflow-hidden relative" style="background: #1f2937;">
+    
+    <!-- NO ANIMATED BLOOMS ON MOBILE - Too expensive! -->
+    <!-- Visual blooms removed entirely for low-end devices -->
 
-    <div class="mx-auto flex flex-col items-center justify-center px-6 py-8 w-full max-w-md z-10 animate-fade-in-up">
+    <div class="mx-auto flex flex-col items-center justify-center px-6 py-8 w-full max-w-md z-10" style="animation: none; opacity: 1; transform: none;">
       <div
-        class="w-full rounded-3xl border border-white/20 bg-white/10 backdrop-blur-xl shadow-2xl p-8 sm:p-10"
+        class="w-full rounded-3xl bg-slate-900 shadow-xl p-8 sm:p-10"
+        style="border: none; background-color: #111827; backdrop-filter: none; -webkit-backdrop-filter: none;"
       >
         <div class="text-center mb-8">
             <div class="mx-auto mb-4 inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-gradient-to-br from-brand-400 to-brand-600 text-white shadow-lg shadow-brand-500/50">
@@ -56,55 +66,60 @@
                 name="username"
                 id="username"
                 autocomplete="username"
-                class="block w-full rounded-xl border border-white/20 bg-white/10 p-3 text-white placeholder-indigo-200/70 focus:border-white focus:bg-white/20 focus:ring-0 transition-all sm:text-sm"
+                inputmode="text"
+                class="block w-full rounded-lg border border-gray-600 bg-gray-800 p-3 text-white placeholder-gray-400 focus:border-indigo-500 focus:bg-gray-700 focus:ring-0 sm:text-sm"
+                style="font-size: 16px; border: 1px solid #4b5563; background: #1f2937; transition: none; min-height: 48px;"
                 placeholder="Student ID or Username"
                 required=""
               />
             </div>
 
-            <div x-data="{ show: false }">
+            <div>
               <label for="password" class="mb-2 block text-sm font-medium text-white">Password</label>
               <div class="relative">
                 <input
-                  :type="show ? 'text' : 'password'"
+                  type="password"
                   name="password"
                   id="password"
                   autocomplete="current-password"
                   placeholder="••••••••"
-                  class="block w-full rounded-xl border border-white/20 bg-white/10 p-3 pr-16 text-white placeholder-indigo-200/70 focus:border-white focus:bg-white/20 focus:ring-0 transition-all sm:text-sm"
+                  class="block w-full rounded-lg border border-gray-600 bg-gray-800 p-3 pr-16 text-white placeholder-gray-400 focus:border-indigo-500 focus:bg-gray-700 focus:ring-0 sm:text-sm"
+                  style="font-size: 16px; border: 1px solid #4b5563; background: #1f2937; transition: none; min-height: 48px;"
                   required=""
                 />
                 <button
                   type="button"
-                  @click="show = !show"
-                  class="absolute inset-y-0 right-0 flex items-center pr-4 text-sm text-indigo-200 hover:text-white transition-colors"
+                  onclick="const input = document.getElementById('password'); const isPassword = input.type === 'password'; input.type = isPassword ? 'text' : 'password'; this.querySelector('span').innerText = isPassword ? 'Hide' : 'Show';"
+                  class="absolute inset-y-0 right-0 flex items-center pr-4 text-sm text-gray-300 hover:text-white"
+                  style="transition: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation;"
                 >
-                  <span x-text="show ? 'Hide' : 'Show'"></span>
+                  <span>Show</span>
                 </button>
               </div>
             </div>
 
             {% if messages %} 
               {% for message in messages %}
-              <div class="rounded-xl bg-red-500/20 border border-red-500/50 p-4 text-sm text-red-100 backdrop-blur-md" role="alert">
+              <div class="rounded-lg bg-red-900 border border-red-700 p-4 text-sm text-red-100" role="alert" style="background-color: #7f1d1d; backdrop-filter: none;">
                 {{ message }}
               </div>
               {% endfor %} 
             {% endif %} 
             
             {% if form.errors %}
-              <div class="rounded-xl bg-red-500/20 border border-red-500/50 p-4 text-sm text-red-100 backdrop-blur-md">
+              <div class="rounded-lg bg-red-900 border border-red-700 p-4 text-sm text-red-100" style="background-color: #7f1d1d; backdrop-filter: none;">
                 Username or password incorrect.
               </div>
             {% endif %}
 
             <div class="flex items-center justify-end">
-              <a href="{% url 'frontend:password_reset' %}" class="text-sm font-medium text-brand-200 hover:text-white transition-colors">Forgot password?</a>
+              <a href="{% url 'frontend:password_reset' %}" class="text-sm font-medium text-indigo-300 hover:text-indigo-200" style="transition: none;">Forgot password?</a>
             </div>
 
             <button
               type="submit"
-              class="w-full rounded-xl bg-gradient-to-r from-brand-500 to-purple-600 px-5 py-3.5 text-center text-sm font-bold text-white shadow-lg shadow-brand-500/30 hover:shadow-brand-500/50 hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-4 focus:ring-brand-500/50"
+              class="w-full rounded-lg bg-indigo-600 px-5 py-3.5 text-center text-sm font-bold text-white shadow-lg focus:outline-none"
+              style="background-color: #4f46e5; transition: none; min-height: 48px; font-size: 16px; -webkit-tap-highlight-color: transparent;"
             >
               Sign in
             </button>
@@ -113,7 +128,7 @@
             <div class="text-center mt-6">
               <p class="text-sm text-indigo-200">
                 Don't have an account?
-                <a href="{% url 'frontend:register' %}" class="font-bold text-white hover:text-brand-200 transition-colors">
+                <a href="{% url 'frontend:register' %}" class="font-bold text-white hover:text-indigo-200" style="transition: none;">
                   Create an account
                 </a>
               </p>

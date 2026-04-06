@@ -7,7 +7,7 @@
   <div class="mt-4 flex gap-2 md:mt-0">
     <a
       href="{% url 'frontend:upload_enrollments' %}"
-      class="inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-700 shadow-sm hover:bg-gray-50"
+      class="inline-flex items-center rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm backdrop-blur-sm transition-all hover:bg-gray-50 active:scale-95"
     >
       <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -21,7 +21,7 @@
     </a>
     <a
       href="{% url 'frontend:course_create' %}"
-      class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-white shadow-sm hover:bg-indigo-700"
+      class="inline-flex items-center rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition-all hover:-translate-y-0.5 hover:bg-brand-700 active:scale-95"
     >
       <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -37,7 +37,7 @@
 </div>
 
 <!-- Search & Filters -->
-<div class="mb-6 rounded-lg bg-white p-4 shadow dark:bg-gray-800">
+<div class="mb-6 rounded-2xl border border-gray-100 bg-white/80 p-6 backdrop-blur-md shadow-lg shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
   <form method="get" class="flex flex-col gap-4 md:flex-row" id="courseSearchForm">
     <div class="flex-1">
       <input
@@ -50,7 +50,7 @@
         hx-target="#course-list-container"
         hx-include="#courseSearchForm"
         hx-push-url="true"
-        class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+        class="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
       />
     </div>
     <select
@@ -60,7 +60,7 @@
       hx-target="#course-list-container"
       hx-include="#courseSearchForm"
       hx-push-url="true"
-      class="rounded-lg border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+      class="rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
     >
       <option value="">All Status</option>
       <option value="true" {% if active_filter == 'true' %}selected{% endif %}>Active</option>
@@ -73,7 +73,7 @@
       hx-target="#course-list-container"
       hx-include="#courseSearchForm"
       hx-push-url="true"
-      class="rounded-lg border border-gray-300 px-4 py-2 focus:border-indigo-500 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+      class="rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
     >
       <option value="name" {% if sort == 'name' %}selected{% endif %}>Name (A-Z)</option>
       <option value="-name" {% if sort == '-name' %}selected{% endif %}>Name (Z-A)</option>
