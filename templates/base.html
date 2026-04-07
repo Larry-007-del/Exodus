@@ -41,7 +41,14 @@
 
     {% block extra_head %}{% endblock %}
   </head>
-  <body class="bg-gray-50 bg-gradient-to-br from-brand-100 via-white to-purple-100 dark:from-gray-900 dark:via-indigo-950 dark:to-gray-800 text-gray-800 dark:text-gray-100 min-h-screen selection:bg-brand-500 selection:text-white">
+  <body class="bg-gray-50 bg-gradient-to-br from-brand-100 via-white to-purple-100 dark:from-gray-900 dark:via-indigo-950 dark:to-gray-800 text-gray-800 dark:text-gray-100 min-h-screen selection:bg-brand-500 selection:text-white relative">
+    
+    <!-- Animated background blooms for global glassy ripple feel -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden z-[0] pointer-events-none">
+      <div class="absolute top-[0%] left-[-10%] w-[50%] h-[50%] rounded-full bg-brand-400/20 dark:bg-brand-600/30 blur-[120px] animate-pulse-slow"></div>
+      <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-400/20 dark:bg-purple-600/30 blur-[120px] animate-pulse-slow" style="animation-delay: 1.5s;"></div>
+    </div>
+
     <!-- Skip to main content link for keyboard/screen-reader users -->
     <a
       href="#main-content"
