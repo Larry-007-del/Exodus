@@ -1831,7 +1831,7 @@ def reports_export(request):
   
 
 
-def register_view(request):
+def disabled_register_view_duplicate(request):
     """View for user registration with rate limiting"""
     if request.method == "POST":
         # Rate limiting: max 5 registrations per IP per hour
