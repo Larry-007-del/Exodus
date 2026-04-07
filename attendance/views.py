@@ -128,6 +128,12 @@ class CourseViewSet(viewsets.ModelViewSet):
                 {'required': ['token', 'latitude', 'longitude']}
             )
 
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+        except (ValueError, TypeError):
+            return api_error('Invalid latitude or longitude.', APIErrorCode.INVALID_GPS_COORDINATES, status.HTTP_400_BAD_REQUEST)
+
         # CRITICAL FIX: Create/Update the Attendance record immediately so students can find it
         # We use get_or_create to prevent duplicates if the button is clicked twice
         attendance, created = Attendance.objects.get_or_create(
@@ -504,16 +510,13 @@ class SubmitLocationView(generics.GenericAPIView):
         ],
     )
     def post(self, request, *args, **kwargs):
-        latitude = request.data.get('latitude')
-        longitude = request.data.get('longitude')
-        attendance_token = request.data.get('attendance_token')
-
-        # Validate coordinates
-        try:
-            lat_float = float(latitude)
-            lon_float = float(longitude)
-        except (TypeError, ValueError):
-            return api_error('Invalid GPS coordinates.', APIErrorCode.INVALID_GPS_COORDINATES, status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            return api_error('Invalid latitude, longitude, or attendance_token.', APIErrorCode.MISSING_REQUIRED_FIELDS, status.HTTP_400_BAD_REQUEST, serializer.errors)
+        
+        lat_float = serializer.validated_data['latitude']
+        lon_float = serializer.validated_data['longitude']
+        attendance_token = serializer.validated_data['attendance_token']
 
         try:
             token = AttendanceToken.objects.get(token=attendance_token, is_active=True)
@@ -539,8 +542,8 @@ class SubmitLocationView(generics.GenericAPIView):
                             attendance=locked_attendance,
                             student=student,
                             defaults={
-                                'latitude': latitude,
-                                'longitude': longitude
+                                'latitude': lat_float,
+                                'longitude': lon_float
                             }
                         )
                         # CRITICAL FIX: Add student to present_students M2M field

@@ -490,6 +490,16 @@ def lecturer_create(request):
                     form = LecturerForm(request.POST)
                     return render(request, 'lecturers/create.html', {'form': form})
                 
+                # Check password strength
+                try:
+                    from django.contrib.auth.password_validation import validate_password
+                    validate_password(password)
+                except ValidationError as e:
+                    for error in e.messages:
+                        messages.error(request, error)
+                    form = LecturerForm(request.POST)
+                    return render(request, 'lecturers/create.html', {'form': form})
+                
                 user = User.objects.create_user(username=username, email=email, password=password)
                 
                 # Create lecturer profile
@@ -699,6 +709,16 @@ def student_create(request):
                 # Check if username already exists
                 if User.objects.filter(username=username).exists():
                     messages.error(request, 'Username already exists')
+                    form = StudentForm(request.POST)
+                    return render(request, 'students/create.html', {'form': form})
+                
+                # Check password strength
+                try:
+                    from django.contrib.auth.password_validation import validate_password
+                    validate_password(password)
+                except ValidationError as e:
+                    for error in e.messages:
+                        messages.error(request, error)
                     form = StudentForm(request.POST)
                     return render(request, 'students/create.html', {'form': form})
                 
@@ -1019,6 +1039,16 @@ def course_create(request):
 def course_detail(request, pk):
     """View course details"""
     course = get_object_or_404(Course, pk=pk)
+    
+    # Access control: admin, the course's lecturer, or an enrolled student
+    if not request.user.is_superuser:
+        if hasattr(request.user, 'lecturer') and course.lecturer.pk != request.user.lecturer.pk:
+            messages.error(request, 'You do not have permission to view this course.')
+            return redirect('frontend:dashboard')
+        elif hasattr(request.user, 'student') and not course.students.filter(pk=request.user.student.pk).exists():
+            messages.error(request, 'You do not have permission to view this course.')
+            return redirect('frontend:dashboard')
+
     enrollments = CourseEnrollment.objects.filter(course=course).select_related('student')
     attendances = Attendance.objects.filter(course=course).select_related('course').prefetch_related('present_students')
     

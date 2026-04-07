@@ -4,7 +4,7 @@ Handles email and SMS notifications for students
 """
 import logging
 
-from django.core.mail import send_mail
+from django.core.mail import send_mail, get_connection, EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.utils import timezone
@@ -56,15 +56,34 @@ def send_attendance_started_notifications(attendance, token):
     course = attendance.course
     students = course.students.select_related('user').all()
     
+    emails_to_send = []
+    
     for student in students:
         # Send email notification if student wants it
         if student.should_send_email_notifications():
-            send_attendance_started_email(student, course, token)
+            subject = f"Attendance Session Started - {course.name}"
+            context = {
+                'student': student,
+                'course': course,
+                'token': token,
+            }
+            html_message = render_to_string('emails/attendance_started.html', context)
+            plain_message = f"Attendance session started for {course.name} ({course.course_code}). Token: {token}"
+            
+            msg = EmailMultiAlternatives(subject, plain_message, settings.DEFAULT_FROM_EMAIL, [student.user.email])
+            msg.attach_alternative(html_message, "text/html")
+            emails_to_send.append(msg)
         
         # Send SMS notification if student wants it and has a phone number
         if student.should_send_sms_notifications():
             send_attendance_started_sms(student, course, token)
 
+    if emails_to_send:
+        try:
+            connection = get_connection()
+            connection.send_messages(emails_to_send)
+        except Exception as e:
+            logger.error("Failed to send bulk started emails: %s", e)
 
 def send_attendance_started_email(student, course, token):
     """
@@ -138,13 +157,36 @@ def send_attendance_expiring_notifications(attendance, token):
     students = course.students.select_related('user').all()
     present_ids = set(attendance.present_students.values_list('id', flat=True))
     
+    emails_to_send = []
+    
     for student in students:
         if student.id not in present_ids:
             if student.should_send_email_notifications():
-                send_attendance_expiring_email(student, course, token, attendance)
+                subject = f"Attendance Session Expiring Soon - {course.name}"
+                duration_hours = attendance.duration_hours or 2
+                expiration_time = attendance.created_at + timedelta(hours=duration_hours)
+                context = {
+                    'student': student,
+                    'course': course,
+                    'token': token,
+                    'expiration_time': expiration_time.strftime('%H:%M:%S')
+                }
+                html_message = render_to_string('emails/attendance_expiring.html', context)
+                plain_message = f"Attendance session for {course.course_code} expires in 15 minutes. Token: {token}"
+                
+                msg = EmailMultiAlternatives(subject, plain_message, settings.DEFAULT_FROM_EMAIL, [student.user.email])
+                msg.attach_alternative(html_message, "text/html")
+                emails_to_send.append(msg)
             
             if student.should_send_sms_notifications():
                 send_attendance_expiring_sms(student, course, token, attendance)
+                
+    if emails_to_send:
+        try:
+            connection = get_connection()
+            connection.send_messages(emails_to_send)
+        except Exception as e:
+            logger.error("Failed to send bulk expiring emails: %s", e)
 
 
 def send_attendance_expiring_email(student, course, token, attendance):
@@ -226,13 +268,32 @@ def send_attendance_missed_notifications(attendance):
     
     missed_students = [student for student in all_students if student.id not in present_ids]
     
+    emails_to_send = []
+    
     for student in missed_students:
         if student.should_send_email_notifications():
-            send_attendance_missed_email(student, course, attendance)
+            subject = f"You Missed Attendance - {course.name}"
+            context = {
+                'student': student,
+                'course': course,
+                'session_date': attendance.date.strftime('%Y-%m-%d')
+            }
+            html_message = render_to_string('emails/attendance_missed.html', context)
+            plain_message = f"You missed the attendance session for {course.course_code} on {attendance.date}"
+            
+            msg = EmailMultiAlternatives(subject, plain_message, settings.DEFAULT_FROM_EMAIL, [student.user.email])
+            msg.attach_alternative(html_message, "text/html")
+            emails_to_send.append(msg)
         
         if student.should_send_sms_notifications():
             send_attendance_missed_sms(student, course, attendance)
-
+            
+    if emails_to_send:
+        try:
+            connection = get_connection()
+            connection.send_messages(emails_to_send)
+        except Exception as e:
+            logger.error("Failed to send bulk missed emails: %s", e)
 
 def send_attendance_missed_email(student, course, attendance):
     """
