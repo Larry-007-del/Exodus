@@ -155,6 +155,24 @@
 </div>
 {% endif %}
 
+{% if is_student %}
+<!-- Student Charts -->
+<div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+  <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 backdrop-blur-md shadow-lg shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
+    <h5 class="mb-4 text-xl font-bold tracking-tight text-gray-900 dark:text-white">Recent Attendance</h5>
+    <div class="relative h-64 w-full">
+      <canvas id="studentHistoryChart"></canvas>
+    </div>
+  </div>
+  <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 backdrop-blur-md shadow-lg shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
+    <h5 class="mb-4 text-xl font-bold tracking-tight text-gray-900 dark:text-white">Course Breakdown</h5>
+    <div class="relative h-64 w-full">
+      <canvas id="studentCourseChart"></canvas>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 {% if is_student and enrolled_courses %}
 <div
   class="mb-6 rounded-2xl border border-gray-100 bg-white/80 p-6 backdrop-blur-md shadow-lg shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80"
@@ -289,7 +307,7 @@
 {% endblock %}
 
 {% block extra_js %}
-{% if is_admin %}
+{% if is_admin or is_student %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -300,51 +318,104 @@
     Chart.defaults.color = textColor;
     Chart.defaults.scale.grid.color = gridColor;
 
+    {% if is_admin %}
     // Weekly Attendance
     fetch('{% url "frontend:chart_weekly_attendance" %}')
       .then(res => res.json())
       .then(data => {
-        new Chart(document.getElementById('weeklyAttendanceChart'), {
-          type: 'line',
-          data: data,
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
-          }
-        });
+        const ctx = document.getElementById('weeklyAttendanceChart');
+        if(ctx) {
+          new Chart(ctx, {
+            type: 'line',
+            data: data,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } }
+            }
+          });
+        }
       });
 
     // Course Enrollment
     fetch('{% url "frontend:chart_course_enrollment" %}')
       .then(res => res.json())
       .then(data => {
-        new Chart(document.getElementById('courseEnrollmentChart'), {
-          type: 'doughnut',
-          data: data,
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '70%',
-            plugins: { legend: { position: 'bottom' } }
-          }
-        });
+        const ctx = document.getElementById('courseEnrollmentChart');
+        if(ctx) {
+          new Chart(ctx, {
+            type: 'doughnut',
+            data: data,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              cutout: '70%',
+              plugins: { legend: { position: 'bottom' } }
+            }
+          });
+        }
       });
 
     // Department Stats
     fetch('{% url "frontend:chart_department_stats" %}')
       .then(res => res.json())
       .then(data => {
-        new Chart(document.getElementById('departmentChart'), {
-          type: 'bar',
-          data: data,
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
-          }
-        });
+        const ctx = document.getElementById('departmentChart');
+        if(ctx) {
+          new Chart(ctx, {
+            type: 'bar',
+            data: data,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } }
+            }
+          });
+        }
       });
+    {% endif %}
+
+    {% if is_student %}
+    // Student Attendance History
+    fetch('{% url "frontend:chart_student_history" %}')
+      .then(res => res.json())
+      .then(data => {
+        const ctx = document.getElementById('studentHistoryChart');
+        if(ctx) {
+          new Chart(ctx, {
+            type: 'line',
+            data: data,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } }
+            }
+          });
+        }
+      });
+
+    // Student Course Breakdown
+    fetch('{% url "frontend:chart_student_course_breakdown" %}')
+      .then(res => res.json())
+      .then(data => {
+        const ctx = document.getElementById('studentCourseChart');
+        if(ctx) {
+          new Chart(ctx, {
+            type: 'bar',
+            data: data,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              indexAxis: 'y', // horizontal bars
+              scales: {
+                x: { stacked: true },
+                y: { stacked: true }
+              }
+            }
+          });
+        }
+      });
+    {% endif %}
   });
 </script>
 {% endif %}

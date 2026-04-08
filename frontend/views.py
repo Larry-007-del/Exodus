@@ -424,6 +424,89 @@ def chart_department_stats(request):
         }]
     })
 
+@login_required
+def chart_student_history(request):
+    """Returns student's attendance sessions over the last 30 days"""
+    if not hasattr(request.user, 'student'):
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+        
+    student = request.user.student
+    today = timezone.localdate()
+    start_date = today - timedelta(days=29)
+    
+    records = Attendance.objects.filter(
+        present_students=student,
+        date__gte=start_date,
+        date__lte=today
+    ).values('date').annotate(
+        sessions=Count('id')
+    ).order_by('date')
+    
+    # We will aggregate by week to keep it clean, or just plot individual days that had attendance
+    date_list = [(start_date + timedelta(days=i)) for i in range(30)]
+    labels = [d.strftime('%b %d') for d in date_list]
+    data = [0] * 30
+    
+    for r in records:
+        if r['date'] in date_list:
+            idx = date_list.index(r['date'])
+            data[idx] = r['sessions']
+            
+    # Filter out empty past dates at start to make chart nicer (optional)
+    return JsonResponse({
+        'labels': labels,
+        'datasets': [{
+            'label': 'Classes Attended',
+            'data': data,
+            'backgroundColor': 'rgba(99, 102, 241, 0.2)',
+            'borderColor': '#6366f1',
+            'borderWidth': 2,
+            'fill': True,
+            'tension': 0.4
+        }]
+    })
+
+@login_required
+def chart_student_course_breakdown(request):
+    """Returns attended vs missed sessions per enrolled course for a student"""
+    if not hasattr(request.user, 'student'):
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+        
+    student = request.user.student
+    courses = Course.objects.filter(students=student)
+    
+    labels = []
+    attended_data = []
+    missed_data = []
+    
+    for course in courses:
+        labels.append(course.course_code)
+        
+        # Get count of total distinct sessions for this course
+        total_sessions = Attendance.objects.filter(course=course).count()
+        attended_sessions = Attendance.objects.filter(course=course, present_students=student).count()
+        
+        attended_data.append(attended_sessions)
+        missed_data.append(max(0, total_sessions - attended_sessions))
+        
+    return JsonResponse({
+        'labels': labels,
+        'datasets': [
+            {
+                'label': 'Attended',
+                'data': attended_data,
+                'backgroundColor': '#10b981', # Emerald
+                'borderRadius': 4
+            },
+            {
+                'label': 'Missed',
+                'data': missed_data,
+                'backgroundColor': '#ef4444', # Red
+                'borderRadius': 4
+            }
+        ]
+    })
+
 
 # ==================== Lecturers ====================
 
