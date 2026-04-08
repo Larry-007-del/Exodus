@@ -100,6 +100,14 @@ def register_view(request):
         return redirect('frontend:dashboard')
 
     if request.method == 'POST':
+        ip = request.META.get('REMOTE_ADDR')
+        cache_key = f'register_attempts_{ip}'
+        attempts = cache.get(cache_key, 0)
+        
+        if attempts >= 5:
+            messages.error(request, "Too many registration attempts. Please try again later.")
+            return render(request, 'frontend/register.html')
+
         username = request.POST.get('username', '').strip()
         email = request.POST.get('email', '').strip()
         password1 = request.POST.get('password1', '')
@@ -119,6 +127,7 @@ def register_view(request):
             errors.append('An account with this email already exists.')
 
         if errors:
+            cache.set(cache_key, attempts + 1, 300)
             for error in errors:
                 messages.error(request, error)
             return render(request, 'frontend/register.html')
@@ -139,6 +148,7 @@ def register_view(request):
             name=username,
         )
 
+        cache.delete(cache_key)
         # Auto-login after registration
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         messages.success(request, f'Welcome to Exodus! Your Student ID is {student_id}.')

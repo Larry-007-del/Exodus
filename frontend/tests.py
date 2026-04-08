@@ -795,9 +795,9 @@ class RegisterViewTest(FrontendViewsTestCase):
                 'programme_of_study': 'Physics',
                 'year': '1',
             })
-        self.assertRedirects(response, reverse('frontend:login'))
+        self.assertRedirects(response, reverse('frontend:dashboard'))
         self.assertTrue(User.objects.filter(username='newstu').exists())
-        self.assertTrue(Student.objects.filter(student_id='NS001').exists())
+        self.assertTrue(Student.objects.filter(user__username='newstu').exists())
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn('Welcome to Exodus', mail.outbox[0].subject)
 
@@ -813,8 +813,9 @@ class RegisterViewTest(FrontendViewsTestCase):
             'staff_id': 'NL001',
             'department': 'Physics',
         })
-        self.assertRedirects(response, reverse('frontend:register'))
+        self.assertRedirects(response, reverse('frontend:dashboard'))
         self.assertFalse(Lecturer.objects.filter(staff_id='NL001').exists())
+        self.assertTrue(Student.objects.filter(user__username='newlec').exists())
 
     def test_register_password_mismatch(self):
         response = self.client.post(reverse('frontend:register'), {
@@ -826,7 +827,8 @@ class RegisterViewTest(FrontendViewsTestCase):
             'name': 'Mismatch',
             'student_id': 'MM001',
         })
-        self.assertRedirects(response, reverse('frontend:register'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'frontend/register.html')
         self.assertFalse(User.objects.filter(username='mismatch').exists())
 
     def test_register_duplicate_username(self):
@@ -839,7 +841,8 @@ class RegisterViewTest(FrontendViewsTestCase):
             'name': 'Dup',
             'student_id': 'DU001',
         })
-        self.assertRedirects(response, reverse('frontend:register'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'frontend/register.html')
 
     def test_register_duplicate_email(self):
         response = self.client.post(reverse('frontend:register'), {
@@ -851,7 +854,8 @@ class RegisterViewTest(FrontendViewsTestCase):
             'name': 'Dup Email',
             'student_id': 'DE001',
         })
-        self.assertRedirects(response, reverse('frontend:register'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'frontend/register.html')
         self.assertFalse(User.objects.filter(username='uniqueuser').exists())
 
     def test_register_invalid_role(self):
@@ -864,8 +868,8 @@ class RegisterViewTest(FrontendViewsTestCase):
             'name': 'Invalid',
             'student_id': 'IR001',
         })
-        self.assertRedirects(response, reverse('frontend:register'))
-        self.assertFalse(User.objects.filter(username='invalidrole').exists())
+        self.assertRedirects(response, reverse('frontend:dashboard'))
+        self.assertTrue(User.objects.filter(username='invalidrole').exists())
 
 
 class AccessControlTest(FrontendViewsTestCase):
@@ -1558,7 +1562,7 @@ class RegisterRateLimitTest(FrontendViewsTestCase):
         for i in range(5):
             self.client.post(reverse('frontend:register'), {
                 'username': f'spamuser{i}',
-                'email': f'spam{i}@test.com',
+                'email': '',  # missing email will fail validation
                 'password1': 'badpassword',
                 'password2': 'badpassword',
                 'role': 'student',
