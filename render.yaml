@@ -44,6 +44,8 @@ services:
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
 
 # Cron job: auto-close expired attendance sessions every 30 minutes
   - type: cron
@@ -113,8 +115,9 @@ services:
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
 
-  - type: redis
     name: attendance-redis
     ipAllowList: [] # internal only
 

@@ -187,6 +187,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'attendance.context_processors.user_avatar',
             ],
         },
     },
@@ -420,6 +421,11 @@ TWILIO_PHONE_NUMBER = os.environ.get('TWILIO_PHONE_NUMBER', '')
 # Africa's Talking (for African countries)
 AFRICAS_TALKING_USERNAME = os.environ.get('AFRICAS_TALKING_USERNAME', '')
 AFRICAS_TALKING_API_KEY = os.environ.get('AFRICAS_TALKING_API_KEY', '')
+
+# Firebase / FCM Push Notifications
+# Set this to the full JSON content of your Firebase service account key file.
+# Example: FIREBASE_SERVICE_ACCOUNT_JSON='{"type":"service_account","project_id":"...","private_key":"...","client_email":"..."}'
+FIREBASE_SERVICE_ACCOUNT_JSON = os.environ.get('FIREBASE_SERVICE_ACCOUNT_JSON', '')
 
 # Logging Configuration - capture tracebacks in production console
 LOGGING = {

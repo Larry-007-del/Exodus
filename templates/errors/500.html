@@ -3,28 +3,61 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Server Error - Exodus</title>
+    <title>Server Error — Exodus</title>
+    <meta name="robots" content="noindex" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%234f46e5'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='20' font-weight='bold'>E</text></svg>" />
     <link rel="stylesheet" href="/static/css/styles.css" />
+    <style>
+      body { font-family: 'Outfit', sans-serif; }
+    </style>
   </head>
-  <body class="flex min-h-screen items-center justify-center bg-gray-50">
-    <div class="px-6 text-center">
-      <p class="mb-4 text-6xl font-bold text-red-600">500</p>
-      <h1 class="mb-2 text-3xl font-bold text-gray-900">Something went wrong</h1>
-      <p class="mx-auto mb-8 max-w-md text-gray-500">
-        We're experiencing a server error. Please try again later or contact support if the problem
-        persists.
+  <body class="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-rose-100 via-white to-orange-100">
+    <!-- Background blooms -->
+    <div class="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+      <div class="absolute -left-1/4 -top-1/4 h-[60%] w-[60%] animate-pulse rounded-full bg-rose-400/20 blur-[120px]"></div>
+      <div class="absolute -bottom-1/4 -right-1/4 h-[60%] w-[60%] animate-pulse rounded-full bg-orange-400/20 blur-[120px]" style="animation-delay:1.5s;"></div>
+    </div>
+
+    <!-- Glassmorphism card -->
+    <div class="relative z-10 mx-4 w-full max-w-md rounded-3xl border border-white/60 bg-white/50 p-10 text-center shadow-2xl backdrop-blur-xl">
+      <!-- Logo -->
+      <a href="/" class="mb-8 inline-flex items-center gap-2 no-underline">
+        <div class="rounded-lg bg-indigo-600 p-1.5 text-white">
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </div>
+        <span class="text-xl font-bold text-gray-900">Exodus</span>
+      </a>
+
+      <!-- Warning icon -->
+      <div class="mb-4 flex justify-center">
+        <div class="flex h-20 w-20 items-center justify-center rounded-full bg-rose-100">
+          <svg class="h-10 w-10 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Error label -->
+      <p class="mb-2 bg-gradient-to-r from-rose-500 to-orange-500 bg-clip-text text-8xl font-extrabold text-transparent">500</p>
+      <h1 class="mb-3 text-2xl font-bold text-gray-900">Something went wrong</h1>
+      <p class="mx-auto mb-8 max-w-xs text-sm text-gray-500">
+        We're experiencing a server error. Our team has been notified. Please try again shortly.
       </p>
-      <div class="flex items-center justify-center gap-4">
-        <a
-          href="/"
-          class="rounded-lg bg-indigo-600 px-6 py-2.5 font-medium text-white transition hover:bg-indigo-700"
-        >
+
+      <!-- Actions -->
+      <div class="flex items-center justify-center gap-3">
+        <a href="/"
+           class="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow transition hover:bg-indigo-700 active:scale-95">
           Go Home
         </a>
-        <a
-          href="javascript:location.reload()"
-          class="rounded-lg border border-gray-300 px-6 py-2.5 font-medium text-gray-700 transition hover:bg-gray-100"
-        >
+        <a href="javascript:location.reload()"
+           class="rounded-xl border border-gray-200 bg-white/70 px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 active:scale-95">
           Try Again
         </a>
       </div>
