@@ -465,6 +465,10 @@
       statusLabel.textContent = 'Locating...';
       statusLabel.classList.remove('text-red-500', 'text-green-600');
       statusLabel.classList.add('text-indigo-600');
+      latInput.placeholder = "Detecting...";
+      lngInput.placeholder = "Detecting...";
+      latInput.value = "";
+      lngInput.value = "";
 
       if (submitButton) {
         submitButton.disabled = true;
@@ -499,6 +503,9 @@
           statusLabel.textContent = errorMsg;
           statusLabel.classList.remove('text-indigo-600');
           statusLabel.classList.add('text-red-500');
+
+          latInput.placeholder = "Failed";
+          lngInput.placeholder = "Failed";
 
           if (submitButton) {
             submitButton.disabled = true;
@@ -535,35 +542,32 @@
       </div>
       <div class="ml-4">
         <h3 class="mb-2 text-lg font-bold text-indigo-900">How Attendance Works</h3>
-        <ul class="mt-4 space-y-3">
-          <li class="flex items-start">
+        <ul class="mt-4 space-y-4">
+          <li class="flex items-center">
             <span
-              class="mr-3 mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-sm font-bold text-indigo-700"
+              class="mr-3 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-sm font-bold text-indigo-700"
               >1</span
             >
             <span class="text-sm text-indigo-800"
-              >Select a course and hit <strong>Start Attendance Session</strong> to generate a
-              unique QR code.</span
+              >Select a course and hit <strong>Start Attendance Session</strong> to generate a unique QR code.</span
             >
           </li>
-          <li class="flex items-start">
+          <li class="flex items-center">
             <span
-              class="mr-3 mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-sm font-bold text-indigo-700"
+              class="mr-3 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-sm font-bold text-indigo-700"
               >2</span
             >
             <span class="text-sm text-indigo-800"
-              >Project the live QR code on the screen or share the 6-character token with your
-              class.</span
+              >Project the live QR code on the screen or share the 6-character token with your class.</span
             >
           </li>
-          <li class="flex items-start">
+          <li class="flex items-center">
             <span
-              class="mr-3 mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-sm font-bold text-indigo-700"
+              class="mr-3 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-sm font-bold text-indigo-700"
               >3</span
             >
             <span class="text-sm text-indigo-800"
-              >Students use their portals to scan the code or enter the token, verifying their
-              presence.</span
+              >Students use their portals to scan the code or enter the token, verifying their presence.</span
             >
           </li>
         </ul>

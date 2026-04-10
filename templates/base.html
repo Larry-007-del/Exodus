@@ -580,18 +580,28 @@
       (function () {
         var path = window.location.pathname;
         var links = document.querySelectorAll('#logo-sidebar a[href]');
+        var bestMatch = null;
+
         links.forEach(function (link) {
           var href = link.getAttribute('href');
-          if (href && href !== '/' && path.startsWith(href)) {
-            link.classList.add('bg-gray-100', 'dark:bg-gray-700');
-            link.classList.remove('hover:bg-gray-100');
-            var svg = link.querySelector('svg');
-            if (svg) {
-              svg.classList.add('text-indigo-600');
-              svg.classList.remove('text-gray-500');
+          if (href === '/' && path === '/') {
+            bestMatch = link;
+          } else if (href && href !== '/' && path.startsWith(href)) {
+            if (!bestMatch || href.length > bestMatch.getAttribute('href').length) {
+              bestMatch = link;
             }
           }
         });
+
+        if (bestMatch) {
+          bestMatch.classList.add('bg-gray-100', 'dark:bg-gray-700');
+          bestMatch.classList.remove('hover:bg-gray-100');
+          var svg = bestMatch.querySelector('svg');
+          if (svg) {
+            svg.classList.add('text-indigo-600');
+            svg.classList.remove('text-gray-500');
+          }
+        }
       })();
     </script>
 

@@ -1862,7 +1862,11 @@ def reports_index(request):
     # ---- Summary stats (4 single-query counts) ----
     total_records = attendances_qs.count()
     total_courses = courses.count()
-    total_students = Student.objects.filter(enrolled_courses__in=courses).distinct().count()
+    
+    if request.user.is_superuser:
+        total_students = Student.objects.count()
+    else:
+        total_students = Student.objects.filter(enrolled_courses__in=courses).distinct().count()
     active_sessions = attendances_qs.filter(is_active=True).count()
 
     # ---- Per-course attendance rates — O(3) queries total ----
