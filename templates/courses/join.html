@@ -1,0 +1,40 @@
+{% extends 'base.html' %} {% block title %}Join Course - Exodus{% endblock %}
+
+{% block content %}
+<div class="flex min-h-[60vh] flex-col items-center justify-center">
+  <div class="mb-10 text-center">
+    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Join a Course</h2>
+    <p class="mt-2 text-gray-500 dark:text-gray-400">
+      Enter the 6-character course code provided by your lecturer.
+    </p>
+  </div>
+
+  <div class="mb-8 w-full max-w-sm rounded-2xl border border-gray-100 bg-white/80 p-8 backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
+    <form method="post" action="{% url 'frontend:join_course' %}" class="flex flex-col items-center">
+      {% csrf_token %}
+      <input
+        type="text"
+        name="join_code"
+        placeholder="e.g. XJ9V42"
+        class="mb-6 w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-4 text-center font-mono text-2xl tracking-[0.25em] text-gray-900 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-900/50 dark:text-white uppercase"
+        maxlength="6"
+        minlength="6"
+        required
+        autocomplete="off"
+      />
+      <button
+        type="submit"
+        class="relative flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 py-3.5 font-bold text-white shadow-lg shadow-brand-500/30 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-brand-500/40 active:scale-95"
+      >
+        <span>Enroll in Course</span>
+      </button>
+    </form>
+  </div>
+  
+  <div class="text-center">
+    <a href="{% url 'frontend:dashboard' %}" class="text-sm font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 transition-colors">
+      &larr; Back to Dashboard
+    </a>
+  </div>
+</div>
+{% endblock %}

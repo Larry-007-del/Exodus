@@ -1,4 +1,4 @@
-﻿import logging
+import logging
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from geopy.distance import geodesic
 from datetime import timedelta
 from django.utils import timezone
+from django.utils.crypto import get_random_string
 
 logger = logging.getLogger(__name__)
 
@@ -107,6 +108,7 @@ class Course(models.Model):
     students = models.ManyToManyField(Student, through='CourseEnrollment', related_name='enrolled_courses', blank=True)
     is_active = models.BooleanField(default=False)  # Added field
     require_two_factor_auth = models.BooleanField(default=False)  # Course-specific 2FA setting
+    join_code = models.CharField(max_length=10, unique=True, null=True, blank=True)
 
     class Meta:
         indexes = [
@@ -119,6 +121,15 @@ class Course(models.Model):
 
     def clean(self):
         super().clean()
+
+    def save(self, *args, **kwargs):
+        if not self.join_code:
+            # Generate a 6-character unique alphanumeric join code
+            code = get_random_string(length=6).upper()
+            while Course.objects.filter(join_code=code).exists():
+                code = get_random_string(length=6).upper()
+            self.join_code = code
+        super().save(*args, **kwargs)
 
 class CourseEnrollment(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)

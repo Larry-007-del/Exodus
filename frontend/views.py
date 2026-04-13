@@ -1304,6 +1304,44 @@ def upload_enrollments(request):
 
 
 @login_required
+def join_course(request):
+    """Student view to join a course using a code"""
+    if not hasattr(request.user, 'student'):
+        messages.error(request, "Only students can join courses via code.")
+        return redirect('frontend:dashboard')
+
+    if request.method == 'POST':
+        join_code = request.POST.get('join_code', '').strip().upper()
+        if not join_code:
+            messages.error(request, "Please enter a valid join code.")
+            return redirect('frontend:join_course')
+
+        try:
+            course = Course.objects.get(join_code=join_code)
+            
+            # Check if active
+            if not course.is_active:
+                messages.warning(request, "This course is currently inactive.")
+                return redirect('frontend:join_course')
+
+            # Check if already enrolled
+            if CourseEnrollment.objects.filter(course=course, student=request.user.student).exists():
+                messages.info(request, f"You are already enrolled in {course.course_code}.")
+                return redirect('frontend:my_courses')
+
+            # Enroll
+            CourseEnrollment.objects.create(course=course, student=request.user.student)
+            messages.success(request, f"Successfully enrolled in {course.name} ({course.course_code})!")
+            return redirect('frontend:my_courses')
+
+        except Course.DoesNotExist:
+            messages.error(request, "Invalid join code. Please try again.")
+            return redirect('frontend:join_course')
+
+    return render(request, 'courses/join.html')
+
+
+@login_required
 def task_status(request, task_id):
     """Return the status of a Celery task as JSON for polling."""
     from celery.result import AsyncResult
