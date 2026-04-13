@@ -244,8 +244,8 @@
       },
       function (error) {
         console.log('Geolocation error: ' + error.message);
-        document.querySelector('#gps-status').textContent =
-          'GPS Signal: Unavailable - ' + error.message;
+        document.querySelector('#gps-status').innerHTML =
+          'GPS Signal: Unavailable - <a href="#" onclick="location.reload()" class="underline font-semibold text-brand-600 ml-2">Retry</a>';
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
