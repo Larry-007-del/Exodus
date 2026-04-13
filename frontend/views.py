@@ -1592,14 +1592,13 @@ def attendance_mark(request):
                     messages.error(request, 'You are not enrolled in this course!')
                     return render(request, 'attendance/mark.html')
                 
-                # Get attendance session
-                try:
-                    attendance = Attendance.objects.get(
-                        course=course, 
-                        date=timezone.localdate(),
-                        is_active=True
-                    )
-                except Attendance.DoesNotExist:
+                # Get active attendance session
+                attendance = Attendance.objects.filter(
+                    course=course, 
+                    is_active=True
+                ).first()
+                
+                if not attendance:
                     messages.error(request, 'No active attendance session found for this course today.')
                     return render(request, 'attendance/mark.html')
                 

@@ -134,25 +134,25 @@ class CourseViewSet(viewsets.ModelViewSet):
         except (ValueError, TypeError):
             return api_error('Invalid latitude or longitude.', APIErrorCode.INVALID_GPS_COORDINATES, status.HTTP_400_BAD_REQUEST)
 
-        # CRITICAL FIX: Create/Update the Attendance record immediately so students can find it
-        # We use get_or_create to prevent duplicates if the button is clicked twice
-        attendance, created = Attendance.objects.get_or_create(
+        # CRITICAL FIX: To prevent midnight-crossing mismatch and stale created_at bugs,
+        # we always end any previously active session and create a strictly new one.
+        
+        # End any currently active session
+        Attendance.objects.filter(
+            course=course,
+            is_active=True
+        ).update(is_active=False)
+
+        # Create fresh session
+        attendance = Attendance.objects.create(
             course=course,
             date=timezone.localdate(),
-            defaults={
-                'lecturer_latitude': latitude,
-                'lecturer_longitude': longitude,
-                'is_active': True,
-                'created_by': request.user
-            }
+            lecturer_latitude=latitude,
+            lecturer_longitude=longitude,
+            is_active=True,
+            created_by=request.user,
+            duration_hours=2  # Default to 2 hours
         )
-
-        # If it already existed, update the location and ensure it is active
-        if not created:
-            attendance.lecturer_latitude = latitude
-            attendance.lecturer_longitude = longitude
-            attendance.is_active = True
-            attendance.save()
 
         # Now create the token — expiry matches the attendance session duration
         AttendanceToken.objects.create(
@@ -523,7 +523,7 @@ class SubmitLocationView(generics.GenericAPIView):
         except AttendanceToken.DoesNotExist:
             return api_error('Invalid or expired token', APIErrorCode.INVALID_OR_EXPIRED_TOKEN, status.HTTP_400_BAD_REQUEST)
 
-        attendance = Attendance.objects.filter(course=token.course, date=timezone.localdate()).first()
+        attendance = Attendance.objects.filter(course=token.course, is_active=True).first()
 
         if not attendance or not attendance.is_session_valid:
             return api_error('This attendance session has expired.', APIErrorCode.SESSION_EXPIRED, status.HTTP_400_BAD_REQUEST)
