@@ -620,6 +620,28 @@ class AttendanceAPITest(APIAuthTestCase):
         )
         self.assertEqual(response.status_code, 400)
 
+    @override_settings(DEFAULT_FILE_STORAGE='django.core.files.storage.InMemoryStorage')
+    def test_take_attendance_session_ended_prematurely(self):
+        """Test that attempting to check in after the session ends prematurely returns a clear 400 error"""
+        self.auth_as_user(self.stu_user)
+        from decimal import Decimal
+        # Active token but inactive attendance (session ended)
+        import datetime
+        attendance = Attendance.objects.create(
+            course=self.course, date=datetime.date.today(), is_active=False,
+            lecturer_latitude=Decimal('5.650000'), lecturer_longitude=Decimal('-0.187000')
+        )
+        AttendanceToken.objects.create(
+            course=self.course, token='ENDED1', is_active=True
+        )
+        
+        response = self.client.post(
+            '/api/courses/take_attendance/', {'token': 'ENDED1', 'latitude': '5.650000', 'longitude': '-0.187000'},
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data['code'], 'session_expired')
+        self.assertEqual(response.data['error'], 'This attendance session has expired.')
+
     @patch('attendance.tasks.send_missed_attendance_notifications')
     def test_end_attendance(self, mock_notif):
         self.auth_as_user(self.lec_user)

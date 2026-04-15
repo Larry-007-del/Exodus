@@ -153,6 +153,23 @@
           scanQrBtn.textContent = 'Stop Scanning';
           scanning = true;
 
+          // If the system or user revokes access prematurely (e.g. locks phone)
+          stream.getTracks().forEach((track) => {
+            track.addEventListener('ended', () => {
+              if (scanning) {
+                scanning = false;
+                qrScanner.classList.add('hidden');
+                scanQrBtn.textContent = 'Scan QR Code';
+                if (scannerInterval) {
+                  clearInterval(scannerInterval);
+                  scannerInterval = null;
+                }
+                currentStream = null;
+                alert('Camera stream ended unexpectedly.');
+              }
+            });
+          });
+
           const context = canvas.getContext('2d');
 
           scannerInterval = setInterval(() => {
