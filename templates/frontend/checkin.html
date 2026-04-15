@@ -106,16 +106,22 @@
 
 <script src="https://unpkg.com/@zxing/library@latest"></script>
 <script>
-  // QR Code Scanner Functionality
+  // Configuration
+  const geolocOptions = { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 };
+  
+  // Elements
   const scanQrBtn = document.getElementById('scan-qr-btn');
   const qrScanner = document.getElementById('qr-scanner');
   const video = document.getElementById('video');
   const canvas = document.getElementById('canvas');
   const tokenInput = document.getElementById('attendance-token');
   const form = document.getElementById('attendance-form');
+  const gpsStatus = document.getElementById('gps-status');
 
   let codeReader;
   let scanning = false;
+  let currentPosition = null;
+  let obtainingLocation = false;
 
   scanQrBtn.addEventListener('click', async () => {
     if (scanning) {
@@ -140,8 +146,7 @@
             if (codeReader) {
               codeReader.reset();
             }
-            // Auto-submit form
-            form.submit();
+            // Ask user to click Check In rather than auto-submitting in case GPS needs retry
           }
         });
         qrScanner.classList.remove('hidden');
@@ -154,6 +159,94 @@
     }
   });
 
+  function updateStatus(message, isError=false, retry=false) {
+    if (isError) {
+      const retryHtml = retry ? ' - <button type="button" onclick="acquireLocation()" class="underline font-semibold text-brand-600 ml-2">Retry</button>' : '';
+      gpsStatus.innerHTML = `GPS Signal: ${message}${retryHtml}`;
+    } else {
+      gpsStatus.textContent = `GPS Signal: ${message}`;
+    }
+  }
+
+  function acquireLocation() {
+    if (!navigator.geolocation) {
+      updateStatus("Geolocation not supported", true, false);
+      return;
+    }
+    
+    updateStatus("Acquiring... Please wait", false, false);
+    obtainingLocation = true;
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        obtainingLocation = false;
+        currentPosition = position;
+        updateStatus(`Strong (Accuracy: ${Math.round(position.coords.accuracy)}m)`);
+        
+        var lat = position.coords.latitude;
+        var lng = position.coords.longitude;
+        map.setView([lat, lng], 17);
+        // Clear previous markers
+        map.eachLayer((layer) => {
+          if(layer instanceof L.Marker) { map.removeLayer(layer); }
+        });
+        L.marker([lat, lng]).addTo(map).bindPopup('You are here').openPopup();
+      },
+      (error) => {
+        obtainingLocation = false;
+        currentPosition = null;
+        console.error('Geolocation error: ' + error.message);
+        if (error.code === error.TIMEOUT) {
+            updateStatus("Unavailable (Timeout)", true, true);
+        } else if (error.code === error.PERMISSION_DENIED) {
+            updateStatus("Unavailable (Permission Denied)", true, true);
+            alert("Please enable location permissions for this site.");
+        } else {
+            updateStatus("Unavailable", true, true);
+        }
+      },
+      geolocOptions
+    );
+  }
+
+  function submitAttendance() {
+      const token = tokenInput.value.trim();
+      const btnText = document.querySelector('button span.font-bold');
+      
+      btnText.innerText = 'LOCATING...';
+      const formData = new FormData(form);
+      formData.append('latitude', currentPosition.coords.latitude);
+      formData.append('longitude', currentPosition.coords.longitude);
+      formData.append('attendance_token', formData.get('token'));
+
+      fetch('{% url "submit_location" %}', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+          Accept: 'application/json',
+        },
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === 'Attendance marked successfully' || data.message === 'Attendance recorded successfully.') {
+            btnText.innerText = 'SUCCESS!';
+            setTimeout(() => {
+              btnText.innerText = 'CHECK IN';
+              tokenInput.value = '';
+            }, 2000);
+          } else {
+            alert(data.error || 'Failed to mark attendance');
+            btnText.innerText = 'CHECK IN';
+          }
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+          alert('Network error. Please try again.');
+          btnText.innerText = 'CHECK IN';
+        });
+  }
+
   // Form submission
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -164,61 +257,35 @@
       return;
     }
 
-    const btnText = document.querySelector('button span.font-bold');
-    btnText.innerText = 'LOCATING...';
-
-    // Get current location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          // Submit form with location data
-          const formData = new FormData(form);
-          formData.append('latitude', position.coords.latitude);
-          formData.append('longitude', position.coords.longitude);
-          formData.append('attendance_token', formData.get('token'));
-
-          fetch('{% url "submit_location" %}', {
-            method: 'POST',
-            headers: {
-              'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
-              Accept: 'application/json',
-            },
-            body: formData,
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              if (data.status === 'Attendance marked successfully') {
-                btnText.innerText = 'SUCCESS!';
-                setTimeout(() => {
-                  btnText.innerText = 'CHECK IN';
-                  tokenInput.value = '';
-                }, 2000);
-              } else {
-                alert(data.error || 'Failed to mark attendance');
-                btnText.innerText = 'CHECK IN';
-              }
-            })
-            .catch((error) => {
-              console.error('Error:', error);
-              alert('Network error. Please try again.');
-              btnText.innerText = 'CHECK IN';
-            });
-        },
-        (error) => {
-          console.error('Geolocation Error:', error);
-          alert('Unable to get location. Please enable GPS.');
-          btnText.innerText = 'CHECK IN';
-        }
-      );
+    if (currentPosition) {
+        submitAttendance();
     } else {
-      alert('Geolocation not supported');
-      btnText.innerText = 'CHECK IN';
+        const btnText = document.querySelector('button span.font-bold');
+        btnText.innerText = 'WAITING FOR GPS...';
+        
+        if (obtainingLocation) {
+            alert('Still acquiring initial GPS location. Please ensure you have allowed location permissions.');
+            btnText.innerText = 'CHECK IN';
+        } else {
+            // Attempt to get position immediately prior to submission
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                currentPosition = position;
+                submitAttendance();
+              },
+              (error) => {
+                console.error('Geolocation Error:', error);
+                alert('Unable to get location. Please click Retry on the GPS signal monitor and ensure you are outside or near a window.');
+                btnText.innerText = 'CHECK IN';
+              },
+              geolocOptions
+            );
+        }
     }
   });
 
-  // Initialize Map - center on student's location once acquired
-  var defaultLat = 5.6037,
-    defaultLng = -0.187;
+  // Initialize Map - center on default roughly
+  var defaultLat = 5.6037, defaultLng = -0.187;
   var map = L.map('map').setView([defaultLat, defaultLng], 17);
 
   // Add OpenStreetMap Tiles
@@ -227,29 +294,8 @@
     attribution: '© OpenStreetMap',
   }).addTo(map);
 
-  // Show the Student's Location (Blue Dot) and center map on it
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      function (position) {
-        var lat = position.coords.latitude;
-        var lng = position.coords.longitude;
-
-        // Update the GPS signal indicator
-        document.querySelector('#gps-status').textContent =
-          'GPS Signal: Strong (Accuracy: ' + Math.round(position.coords.accuracy) + 'm)';
-
-        map.setView([lat, lng], 17);
-
-        L.marker([lat, lng]).addTo(map).bindPopup('You are here').openPopup();
-      },
-      function (error) {
-        console.log('Geolocation error: ' + error.message);
-        document.querySelector('#gps-status').innerHTML =
-          'GPS Signal: Unavailable - <a href="#" onclick="location.reload()" class="underline font-semibold text-brand-600 ml-2">Retry</a>';
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
-  }
+  // Start finding location on page load
+  acquireLocation();
 </script>
 
 {% endblock %}

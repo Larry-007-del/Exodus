@@ -202,7 +202,18 @@
         submitButton.disabled = true;
         submitButton.classList.add('opacity-50', 'cursor-not-allowed');
 
-        if ('geolocation' in navigator) {
+        window.acquireLocationMark = function() {
+          if (!('geolocation' in navigator)) {
+            statusText.textContent = 'Geolocation is not supported by your browser.';
+            statusText.className = 'mt-2 text-center text-sm text-red-500 font-medium';
+            return;
+          }
+
+          statusText.textContent = 'Acquiring satellite location...';
+          statusText.className = 'mt-2 animate-pulse text-center text-sm text-gray-500';
+          
+          if (radarPing) radarPing.classList.add('animate-ping');
+
           navigator.geolocation.getCurrentPosition(
             (position) => {
               latInput.value = position.coords.latitude.toFixed(6);
@@ -210,16 +221,15 @@
 
               // Update UI
               statusText.textContent = 'Location Secured';
-              statusText.classList.remove('animate-pulse', 'text-gray-500');
-              statusText.classList.add('text-green-600', 'font-medium');
+              statusText.className = 'mt-2 text-center text-sm text-green-600 font-medium';
 
               if (radarPing) {
-                radarPing.classList.remove('bg-indigo-400');
-                radarPing.classList.add('bg-green-400');
+                radarPing.classList.replace('bg-indigo-400', 'bg-green-400');
+                radarPing.classList.replace('bg-red-400', 'bg-green-400');
               }
-              const radarCore = document.querySelector('#gps-radar .bg-indigo-600');
+              const radarCore = document.querySelector('#gps-radar > span:last-child');
               if (radarCore) {
-                radarCore.classList.remove('bg-indigo-600');
+                radarCore.classList.remove('bg-indigo-600', 'bg-red-600');
                 radarCore.classList.add('bg-green-600');
               }
 
@@ -229,33 +239,30 @@
             },
             (error) => {
               console.error('Geolocation error:', error);
-              statusText.textContent =
-                'Failed to acquire location. Please enable location services.';
-              statusText.classList.remove('animate-pulse', 'text-gray-500');
-              statusText.classList.add('text-red-500', 'font-medium');
+              statusText.innerHTML =
+                'Failed to acquire location. <button type="button" onclick="acquireLocationMark()" class="underline font-semibold text-indigo-600 ml-1">Retry</button>';
+              statusText.className = 'mt-2 text-center text-sm text-red-500 font-medium';
 
               if (radarPing) {
-                radarPing.classList.remove('bg-indigo-400');
-                radarPing.classList.add('bg-red-400');
+                radarPing.classList.replace('bg-indigo-400', 'bg-red-400');
+                radarPing.classList.replace('bg-green-400', 'bg-red-400');
                 radarPing.classList.remove('animate-ping');
               }
-              const radarCore = document.querySelector('#gps-radar .bg-indigo-600');
+              const radarCore = document.querySelector('#gps-radar > span:last-child');
               if (radarCore) {
-                radarCore.classList.remove('bg-indigo-600');
+                radarCore.classList.remove('bg-indigo-600', 'bg-green-600');
                 radarCore.classList.add('bg-red-600');
               }
             },
             {
               enableHighAccuracy: true,
-              timeout: 10000,
+              timeout: 30000,
               maximumAge: 0,
             }
           );
-        } else {
-          statusText.textContent = 'Geolocation is not supported by your browser.';
-          statusText.classList.remove('animate-pulse', 'text-gray-500');
-          statusText.classList.add('text-red-500', 'font-medium');
-        }
+        };
+
+        acquireLocationMark();
       });
     </script>
 
