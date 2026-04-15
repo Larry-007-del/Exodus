@@ -104,7 +104,7 @@
   </div>
 </div>
 
-<script src="https://unpkg.com/@zxing/library@latest"></script>
+<script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
 <script>
   // Configuration
   const geolocOptions = { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 };
@@ -118,44 +118,77 @@
   const form = document.getElementById('attendance-form');
   const gpsStatus = document.getElementById('gps-status');
 
-  let codeReader;
+  let scannerInterval = null;
+  let currentStream = null;
   let scanning = false;
   let currentPosition = null;
   let obtainingLocation = false;
 
-  scanQrBtn.addEventListener('click', async () => {
+  scanQrBtn.addEventListener('click', () => {
     if (scanning) {
       // Stop scanning
       scanning = false;
       qrScanner.classList.add('hidden');
       scanQrBtn.textContent = 'Scan QR Code';
-      if (codeReader) {
-        codeReader.reset();
+      if (scannerInterval) {
+        clearInterval(scannerInterval);
+        scannerInterval = null;
+      }
+      if (currentStream) {
+        currentStream.getTracks().forEach((track) => track.stop());
+        currentStream = null;
       }
     } else {
       // Start scanning
-      try {
-        codeReader = new ZXing.BrowserQRCodeReader();
-        const result = await codeReader.decodeFromVideoElement(video, (result, err) => {
-          if (result) {
-            const token = result.text.replace('attendance_token:', '');
-            tokenInput.value = token;
-            scanning = false;
-            qrScanner.classList.add('hidden');
-            scanQrBtn.textContent = 'Scan QR Code';
-            if (codeReader) {
-              codeReader.reset();
+      qrScanner.classList.remove('hidden');
+      
+      navigator.mediaDevices
+        .getUserMedia({ video: { facingMode: 'environment' } })
+        .then((stream) => {
+          currentStream = stream;
+          video.srcObject = stream;
+          video.setAttribute('playsinline', true);
+          video.play();
+          
+          scanQrBtn.textContent = 'Stop Scanning';
+          scanning = true;
+
+          const context = canvas.getContext('2d');
+
+          scannerInterval = setInterval(() => {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+              canvas.width = video.videoWidth;
+              canvas.height = video.videoHeight;
+              context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+              const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+              const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+
+              if (qrCode) {
+                // Stop scanning and apply token
+                scanning = false;
+                qrScanner.classList.add('hidden');
+                scanQrBtn.textContent = 'Scan QR Code';
+                clearInterval(scannerInterval);
+                scannerInterval = null;
+                
+                if (currentStream) {
+                  currentStream.getTracks().forEach((track) => track.stop());
+                  currentStream = null;
+                }
+
+                const token = qrCode.data.replace('attendance_token:', '').trim();
+                tokenInput.value = token;
+                // Ask user to click Check In rather than auto-submitting in case GPS needs retry
+              }
             }
-            // Ask user to click Check In rather than auto-submitting in case GPS needs retry
-          }
+          }, 100);
+        })
+        .catch((error) => {
+          console.error('Camera Error:', error);
+          alert('Unable to access camera. Please check permissions.');
+          qrScanner.classList.add('hidden');
         });
-        qrScanner.classList.remove('hidden');
-        scanQrBtn.textContent = 'Stop Scanning';
-        scanning = true;
-      } catch (error) {
-        console.error('QR Scanner Error:', error);
-        alert('Unable to access camera. Please check permissions.');
-      }
     }
   });
 
