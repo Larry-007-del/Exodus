@@ -6,7 +6,6 @@ from django.core.exceptions import ValidationError
 from geopy.distance import geodesic
 from datetime import timedelta
 from django.utils import timezone
-from django.utils.crypto import get_random_string
 
 logger = logging.getLogger(__name__)
 
@@ -108,7 +107,6 @@ class Course(models.Model):
     students = models.ManyToManyField(Student, through='CourseEnrollment', related_name='enrolled_courses', blank=True)
     is_active = models.BooleanField(default=False)  # Added field
     require_two_factor_auth = models.BooleanField(default=False)  # Course-specific 2FA setting
-    join_code = models.CharField(max_length=10, unique=True, null=True, blank=True)
 
     class Meta:
         indexes = [
@@ -121,15 +119,6 @@ class Course(models.Model):
 
     def clean(self):
         super().clean()
-
-    def save(self, *args, **kwargs):
-        if not self.join_code:
-            # Generate a 6-character unique alphanumeric join code
-            code = get_random_string(length=6).upper()
-            while Course.objects.filter(join_code=code).exists():
-                code = get_random_string(length=6).upper()
-            self.join_code = code
-        super().save(*args, **kwargs)
 
 class CourseEnrollment(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
@@ -157,7 +146,7 @@ class AttendanceStudent(models.Model):
             models.Index(fields=['marked_at']),
         ]
     
-    def is_within_valid_perimeter(self, radius_meters=50):
+    def is_within_valid_perimeter(self, radius_meters=100):
         """Check if student's location is within valid radius of lecturer's location"""
         if self.latitude is None or self.longitude is None or \
            self.attendance.lecturer_latitude is None or self.attendance.lecturer_longitude is None:
@@ -227,7 +216,7 @@ class Attendance(models.Model):
         time_limit = self.created_at + timedelta(hours=self.duration_hours)
         return timezone.now() < time_limit
 
-    def is_within_radius(self, student_lat, student_lon, radius_meters=50):
+    def is_within_radius(self, student_lat, student_lon, radius_meters=100):
         """Check if student is within radius of lecturer's location"""
         if not self.lecturer_latitude or not self.lecturer_longitude:
             return False  # Deny attendance when lecturer location is not set

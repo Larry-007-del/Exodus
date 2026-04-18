@@ -362,7 +362,8 @@
 
     return {
       // WebAuthn state
-      webauthnSupported: !!window.PublicKeyCredential,
+      webauthnSupported: !!window.PublicKeyCredential || navigator.userAgent.includes('ExodusMobile') || typeof window.ExodusNative !== 'undefined',
+      isFlutterApp: navigator.userAgent.includes('ExodusMobile') || typeof window.ExodusNative !== 'undefined',
       registering: false,
       webauthnMsg: '',
       webauthnOk: false,
@@ -403,6 +404,32 @@
       async registerFingerprint() {
         this.registering = true;
         this.webauthnMsg = '';
+
+        if (this.isFlutterApp) {
+            window.onFlutterBiometricSuccess = () => {
+                this.webauthnMsg = 'You are using the Mobile App! Your device is already capable of Biometric authentication for attendance. No setup required here.';
+                this.webauthnOk = true;
+                this.registering = false;
+            };
+            window.onFlutterBiometricFailed = () => {
+                this.webauthnMsg = 'Biometric check failed.';
+                this.webauthnOk = false;
+                this.registering = false;
+            };
+            window.onFlutterBiometricNotAvailable = () => {
+                this.webauthnMsg = 'No biometrics (fingerprint/face) enrolled on this phone.';
+                this.webauthnOk = false;
+                this.registering = false;
+            };
+            if (window.ExodusNative) {
+                window.ExodusNative.postMessage('authenticate_biometric');
+            } else {
+                this.webauthnMsg = 'App bridge failed to load.';
+                this.webauthnOk = false;
+                this.registering = false;
+            }
+            return;
+        }
 
         try {
           // Step 1: Get registration options from server

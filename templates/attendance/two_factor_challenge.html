@@ -246,7 +246,8 @@
     <input type="hidden" name="latitude" value="{{ latitude }}" />
     <input type="hidden" name="longitude" value="{{ longitude }}" />
     <input type="hidden" name="two_factor_completed" value="on" />
-    <input type="hidden" name="two_factor_method" value="webauthn" />
+    <input type="hidden" name="two_factor_method" id="two_factor_method_input" value="webauthn" />
+    <input type="hidden" name="app_bypass_token" id="app_bypass_token_input" value="" />
   </form>
 </div>
 
@@ -255,10 +256,13 @@
       const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
                       || '{{ csrf_token }}';
       const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const isWebViewApp = /Exodus/.test(navigator.userAgent);
+      // Check if we are running inside the Flutter App AND it has the native biometric bridge injected
+      const isFlutterApp = navigator.userAgent.includes('ExodusMobile') || typeof window.ExodusNative !== 'undefined';
+      const isWebViewApp = navigator.userAgent.includes('ExodusMobile');
 
       return {
-          webauthnSupported: !!window.PublicKeyCredential,
+          webauthnSupported: !!window.PublicKeyCredential || isFlutterApp,
+          isFlutterApp: isFlutterApp,
           isMobileDevice: isMobileDevice,
           authenticating: false,
           webauthnDone: false,
@@ -285,6 +289,37 @@
           async authenticateFingerprint() {
               this.authenticating = true;
               this.webauthnError = '';
+
+              if (this.isFlutterApp) {
+                  // FLUTTER NATIVE BYPASS
+                  window.onFlutterBiometricSuccess = (msg) => {
+                      document.getElementById('two_factor_method_input').value = 'app_biometric';
+                      document.getElementById('app_bypass_token_input').value = 'flutter_native_auth_verified_true';
+                      this.webauthnDone = true;
+                      this.authenticating = false;
+                      setTimeout(() => document.getElementById('webauthn-submit-form').submit(), 600);
+                  };
+                  window.onFlutterBiometricFailed = () => {
+                      this.webauthnError = 'Native biometric verification failed.';
+                      this.authenticating = false;
+                      this.showWebAuthnError = true;
+                  };
+                  window.onFlutterBiometricNotAvailable = () => {
+                      this.webauthnError = 'No secure biometrics enrolled on this device. Please use OTP.';
+                      this.authenticating = false;
+                      this.showWebAuthnError = true;
+                  };
+                  
+                  // Trigger Flutter's local_auth prompt
+                  if (window.ExodusNative) {
+                      window.ExodusNative.postMessage('authenticate_biometric');
+                  } else {
+                      this.webauthnError = 'App bridge not ready. Please try again.';
+                      this.authenticating = false;
+                      this.showWebAuthnError = true;
+                  }
+                  return;
+              }
 
               try {
                   // Step 1: Get auth challenge from server
