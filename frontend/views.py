@@ -1633,6 +1633,12 @@ def attendance_mark(request):
                             if not request.session.pop('webauthn_2fa_verified', False):
                                 messages.error(request, 'Biometric verification failed. Please try again.')
                                 return render(request, 'attendance/two_factor_challenge.html', two_fa_context)
+                        elif two_factor_method == 'app_biometric':
+                            # Native Mobile bypass
+                            app_token = request.POST.get('app_bypass_token', '')
+                            if app_token != 'flutter_native_auth_verified_true':
+                                messages.error(request, 'Native biometric authentication failed. Please try again.')
+                                return render(request, 'attendance/two_factor_challenge.html', two_fa_context)
                         elif two_factor_method == 'otp':
                             # Verify OTP code using pyotp
                             otp_code = request.POST.get('otp_code', '')
