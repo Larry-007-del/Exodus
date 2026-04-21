@@ -198,9 +198,9 @@
         const radarPing = document.querySelector('.animate-ping');
         const submitButton = markForm.querySelector('button[type="submit"]');
 
-        // Initially disable submit until location is found
-        submitButton.disabled = true;
-        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+        // Do not disable submit button even if location is not found
+        // submitButton.disabled = true;
+        // submitButton.classList.add('opacity-50', 'cursor-not-allowed');
 
         window.acquireLocationMark = function() {
           if (!('geolocation' in navigator)) {

@@ -1450,18 +1450,17 @@ def attendance_take(request):
             return redirect('frontend:attendance_take')
         
         # Validate coordinates
-        if not latitude or not longitude:
-            messages.error(request, "Location coordinates must be provided. Please ensure location services are enabled.")
-            return redirect('frontend:attendance_take')
-        
-        try:
-            lat = float(latitude)
-            lng = float(longitude)
-            if not (-90 <= lat <= 90) or not (-180 <= lng <= 180):
-                raise ValueError("Invalid coordinate values")
-        except (ValueError, TypeError):
-            messages.error(request, "Invalid location coordinates. Please refresh your location.")
-            return redirect('frontend:attendance_take')
+        lat = None
+        lng = None
+        if latitude and longitude:
+            try:
+                lat = float(latitude)
+                lng = float(longitude)
+                if not (-90 <= lat <= 90) or not (-180 <= lng <= 180):
+                    raise ValueError("Invalid coordinate values")
+            except (ValueError, TypeError):
+                messages.error(request, "Invalid location coordinates. Please refresh your location.")
+                return redirect('frontend:attendance_take')
         
         course = get_object_or_404(Course, pk=course_id)
         
@@ -1658,21 +1657,30 @@ def attendance_mark(request):
                             messages.error(request, 'Invalid 2FA method.')
                             return render(request, 'attendance/two_factor_challenge.html', two_fa_context)
                 
-                # Parse latitude and longitude — reject missing coords instead of defaulting
-                if not latitude or not longitude:
-                    messages.error(request, 'Location coordinates are required. Please enable location services.')
-                    return render(request, 'attendance/mark.html')
-                try:
-                    lat_float = float(latitude)
-                    lon_float = float(longitude)
-                except (ValueError, TypeError):
-                    messages.error(request, 'Invalid GPS coordinates provided.')
-                    return render(request, 'attendance/mark.html')
+                lat_float = None
+                lon_float = None
+                if attendance.lecturer_latitude and attendance.lecturer_longitude:
+                    # Parse latitude and longitude — reject missing coords instead of defaulting
+                    if not latitude or not longitude:
+                        messages.error(request, 'Location coordinates are required. Please enable location services.')
+                        return render(request, 'attendance/mark.html')
+                    try:
+                        lat_float = float(latitude)
+                        lon_float = float(longitude)
+                    except (ValueError, TypeError):
+                        messages.error(request, 'Invalid GPS coordinates provided.')
+                        return render(request, 'attendance/mark.html')
 
-                # Check if student is within valid GPS radius
-                if not attendance.is_within_radius(lat_float, lon_float):
-                    messages.error(request, 'You are too far from the classroom to check in.')
-                    return render(request, 'attendance/mark.html')
+                    # Check if student is within valid GPS radius
+                    if not attendance.is_within_radius(lat_float, lon_float):
+                        messages.error(request, 'You are too far from the classroom to check in.')
+                        return render(request, 'attendance/mark.html')
+                elif latitude and longitude:
+                    try:
+                        lat_float = float(latitude)
+                        lon_float = float(longitude)
+                    except (ValueError, TypeError):
+                        pass
                 
                 from django.db import transaction
                 with transaction.atomic():

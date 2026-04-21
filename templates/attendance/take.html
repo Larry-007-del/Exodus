@@ -304,7 +304,6 @@
                   placeholder="Detecting..."
                   class="block w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 sm:text-sm"
                   readonly
-                  required
                 />
               </div>
               <div>
@@ -316,7 +315,6 @@
                   placeholder="Detecting..."
                   class="block w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 sm:text-sm"
                   readonly
-                  required
                 />
               </div>
             </div>
@@ -418,13 +416,6 @@
 
       // Automatically get location on page load
       getLocation();
-
-      // Disable form initially until location is verified
-      const submitButton = document.querySelector('button[type="submit"]');
-      if (submitButton) {
-        submitButton.disabled = true;
-        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
-      }
     });
 
     // Auto-uppercase token input
@@ -470,11 +461,6 @@
       latInput.value = "";
       lngInput.value = "";
 
-      if (submitButton) {
-        submitButton.disabled = true;
-        submitButton.classList.add('opacity-50', 'cursor-not-allowed');
-      }
-
       navigator.geolocation.getCurrentPosition(
         (position) => {
           latInput.value = position.coords.latitude.toFixed(6);
@@ -506,11 +492,6 @@
 
           latInput.placeholder = "Failed";
           lngInput.placeholder = "Failed";
-
-          if (submitButton) {
-            submitButton.disabled = true;
-            submitButton.classList.add('opacity-50', 'cursor-not-allowed');
-          }
         },
         {
           enableHighAccuracy: true,
