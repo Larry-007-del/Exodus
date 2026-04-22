@@ -61,14 +61,13 @@
                 id="username"
                 autocomplete="username"
                 @focusin="focused = true" @focusout="focused = false" @input="hasValue = $event.target.value.length > 0"
-                class="block w-full rounded-[1rem] border border-white/20 bg-white/10 pl-10 pr-4 pt-6 pb-2 text-white placeholder-transparent focus:border-white focus:bg-white/20 focus:ring-0 transition-all sm:text-sm"
-                placeholder="Student ID or Username"
+                class="block w-full rounded-xl border border-white/20 bg-white/10 pl-10 pr-4 py-3.5 text-white placeholder-transparent focus:border-white focus:bg-white/20 focus:ring-0 transition-all sm:text-sm"
                 required=""
               />
               <label
                 for="username"
                 class="absolute left-10 pointer-events-none transition-all duration-200 text-indigo-200/70"
-                :class="(focused || hasValue) ? 'top-[4px] text-[10px] uppercase tracking-wider font-bold text-white' : 'top-1/2 -translate-y-1/2 text-sm font-medium'"
+                :class="(focused || hasValue) ? '-translate-y-8 -translate-x-4 bg-transparent text-xs uppercase tracking-wider font-bold text-white shadow-none border-none outline-none' : 'top-1/2 -translate-y-1/2 text-sm font-medium'"
               >
                 Your Username
               </label>
@@ -87,8 +86,7 @@
                   id="password"
                   autocomplete="current-password"
                   @focusin="focused = true" @focusout="focused = false" @input="hasValue = $event.target.value.length > 0"
-                  class="block w-full rounded-[1rem] border border-white/20 bg-white/10 pl-10 pr-16 pt-6 pb-2 text-white placeholder-transparent focus:border-white focus:bg-white/20 focus:ring-0 transition-all sm:text-sm"
-                  placeholder="ÔÇóÔÇóÔÇóÔÇóÔÇóÔÇóÔÇóÔÇó"
+                  class="block w-full rounded-xl border border-white/20 bg-white/10 pl-10 pr-16 py-3.5 text-white placeholder-transparent focus:border-white focus:bg-white/20 focus:ring-0 transition-all sm:text-sm"
                   required=""
                 />
                 <button
@@ -101,7 +99,7 @@
                 <label
                   for="password"
                   class="absolute left-10 pointer-events-none transition-all duration-200 text-indigo-200/70"
-                  :class="(focused || hasValue) ? 'top-[4px] text-[10px] uppercase tracking-wider font-bold text-white' : 'top-1/2 -translate-y-1/2 text-sm font-medium'"
+                  :class="(focused || hasValue) ? '-translate-y-8 -translate-x-4 bg-transparent text-xs uppercase tracking-wider font-bold text-white shadow-none border-none outline-none' : 'top-1/2 -translate-y-1/2 text-sm font-medium'"
                 >
                   Password
                 </label>
@@ -110,14 +108,14 @@
 
             {% if messages %} 
               {% for message in messages %}
-              <div class="rounded-[1rem] bg-red-500/20 border border-red-500/50 p-4 text-sm text-red-100 backdrop-blur-md" role="alert">
+              <div class="rounded-xl bg-red-500/20 border border-red-500/50 p-4 text-sm text-red-100 backdrop-blur-md" role="alert">
                 {{ message }}
               </div>
               {% endfor %} 
             {% endif %} 
             
             {% if form.errors %}
-              <div class="rounded-[1rem] bg-red-500/20 border border-red-500/50 p-4 text-sm text-red-100 backdrop-blur-md">
+              <div class="rounded-xl bg-red-500/20 border border-red-500/50 p-4 text-sm text-red-100 backdrop-blur-md">
                 Username or password incorrect.
               </div>
             {% endif %}
@@ -128,7 +126,7 @@
 
             <button
               type="submit"
-              class="w-full rounded-[1rem] bg-gradient-to-r from-brand-500 to-purple-600 px-5 py-3.5 text-center text-sm font-bold text-white shadow-lg shadow-brand-500/30 hover:shadow-brand-500/50 hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-4 focus:ring-brand-500/50"
+              class="w-full rounded-xl bg-gradient-to-r from-brand-500 to-purple-600 px-5 py-3.5 text-center text-sm font-bold text-white shadow-lg shadow-brand-500/30 hover:shadow-brand-500/50 hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-4 focus:ring-brand-500/50"
             >
               Sign in
             </button>
