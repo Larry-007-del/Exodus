@@ -59,7 +59,7 @@
                         <div class="text-sm font-medium text-gray-900">{{ attendance.course.name }}</div>
                         <div class="text-sm text-gray-500">{{ attendance.course.course_code }}</div>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ attendance.date }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" title="{{ attendance.date }}">{{ attendance.date|timesince }} ago</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="px-2 py-1 text-sm font-medium bg-green-100 text-green-800 rounded-full">
                             {{ attendance.present_students.count }}

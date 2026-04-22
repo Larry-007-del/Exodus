@@ -93,7 +93,7 @@
       >
         <div>
           <p class="font-medium text-gray-900">{{ attendance.course.name }}</p>
-          <p class="text-sm text-gray-500">{{ attendance.date }}</p>
+          <p class="text-sm text-gray-500" title="{{ attendance.date }}">{{ attendance.date|timesince }} ago</p>
         </div>
         <div class="flex items-center gap-4">
           <span class="rounded-full bg-green-100 px-3 py-1 text-sm text-green-800">

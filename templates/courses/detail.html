@@ -95,7 +95,7 @@
             <td class="px-4 py-2 text-sm text-gray-900">{{ enrollment.student.name }}</td>
             <td class="px-4 py-2 text-sm text-gray-500">{{ enrollment.student.student_id }}</td>
             <td class="px-4 py-2 text-sm text-gray-500">
-              {{ enrollment.enrolled_at|date:"M d, Y" }}
+              <span title="{{ enrollment.enrolled_at|date:'M d, Y' }}">{{ enrollment.enrolled_at|timesince }} ago</span>
             </td>
           </tr>
           {% endfor %}
@@ -124,7 +124,7 @@
           {% for session in attendances %}
           <tr>
             <td class="px-4 py-2 text-sm text-gray-900">
-              <span class="font-medium">{{ session.date|date:"M d, Y" }}</span>
+              <span class="font-medium" title="{{ session.date|date:'M d, Y' }}">{{ session.date|timesince }} ago</span>
             </td>
             <td class="px-4 py-2 text-sm text-gray-500">
               <span class="{% if session.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %} rounded-full px-2.5 py-0.5 text-xs font-medium">

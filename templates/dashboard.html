@@ -18,7 +18,7 @@
     <div class="flex items-center justify-between border-b border-gray-100 pb-3 last:border-0 dark:border-gray-700">
       <div>
         <p class="font-medium text-gray-900 dark:text-white">{{ activity.course.name }}</p>
-        <p class="text-sm text-gray-500">Session Date: {{ activity.date }}</p>
+        <p class="text-sm text-gray-500">Session Date: {{ activity.date|timesince }} ago</p>
       </div>
       <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300">
         {{ activity.is_active|yesno:"Active,Completed" }}

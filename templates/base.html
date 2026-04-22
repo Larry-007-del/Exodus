@@ -39,6 +39,15 @@
     <script defer src="{% static 'js/alpine.min.js' %}"></script>
     <script src="{% static 'js/htmx.min.js' %}"></script>
 
+    <!-- NProgress for native-like page loading -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/nprogress/0.2.0/nprogress.min.js"></script>
+    <style>
+      #nprogress .bar { background: #4f46e5 !important; height: 3px !important; }
+      #nprogress .peg { box-shadow: 0 0 10px #4f46e5, 0 0 5px #4f46e5 !important; }
+      #nprogress .spinner-icon { border-top-color: #4f46e5 !important; border-left-color: #4f46e5 !important; }
+    </style>
+
     {% block extra_head %}{% endblock %}
   </head>
   <body class="bg-gray-50 bg-gradient-to-br from-brand-100 via-white to-purple-100 dark:from-gray-900 dark:via-indigo-950 dark:to-gray-800 text-gray-800 dark:text-gray-100 min-h-screen selection:bg-brand-500 selection:text-white relative">
@@ -688,6 +697,16 @@
           });
         }
       })();
+    </script>
+    
+    <!-- HTMX NProgress Integration -->
+    <script>
+      document.body.addEventListener('htmx:beforeRequest', function(evt) {
+        NProgress.start();
+      });
+      document.body.addEventListener('htmx:afterRequest', function(evt) {
+        NProgress.done();
+      });
     </script>
   </body>
 </html>
