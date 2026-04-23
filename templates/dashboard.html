@@ -86,7 +86,7 @@
         />
       </svg>
       <div class="absolute flex flex-col items-center">
-        <span class="text-2xl font-bold text-gray-800" x-text="`${percent}%`"></span>
+        <span class="text-2xl font-bold text-gray-800 dark:text-gray-200" x-text="`${percent}%`"></span>
       </div>
     </div>
 
@@ -183,7 +183,7 @@
   <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
     {% for course in enrolled_courses %}
     <div
-      class="rounded-xl border border-gray-100 bg-white/30 p-4 transition-all hover:-translate-y-1 hover:bg-white/50 hover:shadow-lg hover:shadow-brand-500/5 dark:hover:bg-gray-700"
+      class="rounded-xl border border-gray-100 dark:border-gray-700 bg-white/30 p-4 transition-all hover:-translate-y-1 hover:bg-white/50 hover:shadow-lg hover:shadow-brand-500/5 dark:hover:bg-gray-700"
     >
       <h6 class="font-semibold text-gray-900 dark:text-white">{{ course.name }}</h6>
       <p class="mb-2 text-sm text-gray-600 dark:text-gray-400">{{ course.course_code }}</p>
@@ -237,7 +237,7 @@
   <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
     {% for course in taught_courses %}
     <div
-      class="rounded-xl border border-gray-100 bg-white/30 p-4 transition-all hover:-translate-y-1 hover:bg-white/50 hover:shadow-lg hover:shadow-brand-500/5 dark:hover:bg-gray-700"
+      class="rounded-xl border border-gray-100 dark:border-gray-700 bg-white/30 p-4 transition-all hover:-translate-y-1 hover:bg-white/50 hover:shadow-lg hover:shadow-brand-500/5 dark:hover:bg-gray-700"
     >
       <h6 class="font-semibold text-gray-900 dark:text-white">{{ course.name }}</h6>
       <p class="text-sm text-gray-600 dark:text-gray-400">{{ course.course_code }}</p>

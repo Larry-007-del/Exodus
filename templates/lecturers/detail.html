@@ -24,7 +24,7 @@
         </div>
       {% endif %}
       <div class="ml-4">
-        <h1 class="text-2xl font-bold text-gray-900">{{ lecturer.name }}</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ lecturer.name }}</h1>
         <p class="text-gray-600">Staff ID: {{ lecturer.staff_id }}</p>
       </div>
     </div>
@@ -37,7 +37,7 @@
       </a>
       <a
         href="{% url 'frontend:lecturer_two_factor_settings' lecturer.id %}"
-        class="rounded-xl border border-gray-200 bg-white/50 px-5 py-2.5 font-semibold text-gray-700 backdrop-blur-sm transition-all hover:bg-gray-50 active:scale-95"
+        class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 px-5 py-2.5 font-semibold text-gray-700 dark:text-gray-300 backdrop-blur-sm transition-all hover:bg-gray-50 active:scale-95"
       >
         2FA Settings
       </a>
@@ -54,23 +54,23 @@
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
   <!-- Profile Info -->
   <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
-    <h2 class="mb-4 text-lg font-semibold text-gray-900">Profile Information</h2>
+    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Profile Information</h2>
     <dl class="space-y-4">
       <div>
         <dt class="text-sm font-medium text-gray-500">Email</dt>
-        <dd class="text-gray-900">{{ lecturer.user.email }}</dd>
+        <dd class="text-gray-900 dark:text-white">{{ lecturer.user.email }}</dd>
       </div>
       <div>
         <dt class="text-sm font-medium text-gray-500">Phone</dt>
-        <dd class="text-gray-900">{{ lecturer.phone_number|default:"Not provided" }}</dd>
+        <dd class="text-gray-900 dark:text-white">{{ lecturer.phone_number|default:"Not provided" }}</dd>
       </div>
       <div>
         <dt class="text-sm font-medium text-gray-500">Department</dt>
-        <dd class="text-gray-900">{{ lecturer.department|default:"Not specified" }}</dd>
+        <dd class="text-gray-900 dark:text-white">{{ lecturer.department|default:"Not specified" }}</dd>
       </div>
       <div>
         <dt class="text-sm font-medium text-gray-500">Location</dt>
-        <dd class="text-gray-900">
+        <dd class="text-gray-900 dark:text-white">
           {% if lecturer.latitude and lecturer.longitude %} {{ lecturer.latitude }}, {{
           lecturer.longitude }} {% else %} Not set {% endif %}
         </dd>
@@ -80,7 +80,7 @@
 
   <!-- Courses -->
   <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80 lg:col-span-2">
-    <h2 class="mb-4 text-lg font-semibold text-gray-900">Courses ({{ courses.count }})</h2>
+    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Courses ({{ courses.count }})</h2>
     {% if courses %}
     <div class="space-y-3">
       {% for course in courses %}
@@ -91,7 +91,7 @@
             <p class="text-sm text-gray-500 dark:text-gray-400">{{ course.course_code }}</p>
           </div>
           <span
-            class="{% if course.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %} rounded-full px-2.5 py-0.5 text-xs font-medium"
+            class="{% if course.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800 dark:text-gray-200{% endif %} rounded-full px-2.5 py-0.5 text-xs font-medium"
           >
             {% if course.is_active %}Active{% else %}Inactive{% endif %}
           </span>

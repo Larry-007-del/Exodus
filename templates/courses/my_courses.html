@@ -1,7 +1,7 @@
 {% extends 'base.html' %} {% block title %}My Courses - Exodus{% endblock %} {% block content %}
 <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
   <div>
-    <h1 class="text-2xl font-bold text-gray-900">{{ page_title }}</h1>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ page_title }}</h1>
     <p class="mt-1 text-gray-600">
       View your {% if is_student %}enrolled{% else %}taught{% endif %} courses
     </p>
@@ -26,9 +26,9 @@
   {% endif %}
 </div>
 
-<div class="rounded-lg bg-white shadow">
-  <div class="flex items-center justify-between border-b border-gray-200 p-6">
-    <h2 class="text-lg font-semibold text-gray-900">
+<div class="rounded-lg bg-white dark:bg-gray-800 shadow">
+  <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 p-6">
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
       {{ courses|length }} Course{{ courses|pluralize }}
     </h2>
   </div>
@@ -36,9 +36,9 @@
     {% if courses %}
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {% for course in courses %}
-      <div class="rounded-lg border border-gray-200 transition-colors hover:bg-gray-50">
+      <div class="rounded-lg border border-gray-200 dark:border-gray-700 transition-colors hover:bg-gray-50">
         <div class="p-4">
-          <h3 class="text-lg font-semibold text-gray-900">{{ course.name }}</h3>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ course.name }}</h3>
           <p class="mb-2 text-sm text-gray-600">{{ course.course_code }}</p>
           <div class="mb-3 flex items-center text-sm text-gray-500">
             <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,7 +71,7 @@
           <div class="flex gap-2">
             <a
               href="{% url 'frontend:course_detail' course.pk %}"
-              class="inline-flex flex-1 items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50"
+              class="inline-flex flex-1 items-center justify-center rounded-md border border-gray-300 bg-white dark:bg-gray-800 px-3 py-2 text-sm font-medium leading-4 text-gray-700 dark:text-gray-300 shadow-sm hover:bg-gray-50"
             >
               View Details
             </a>
@@ -89,7 +89,7 @@
       {% endfor %}
     </div>
     {% else %}
-    <div class="rounded-lg border border-gray-100 bg-white py-16 text-center shadow">
+    <div class="rounded-lg border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 py-16 text-center shadow">
       <svg
         class="mx-auto h-12 w-12 text-gray-300"
         fill="none"
@@ -103,7 +103,7 @@
           d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
         />
       </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900">
+      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">
         {% if is_student %} No courses enrolled {% else %} No courses to teach {% endif %}
       </h3>
       <p class="mt-1 text-sm text-gray-500">

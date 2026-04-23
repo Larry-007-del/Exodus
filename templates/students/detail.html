@@ -24,7 +24,7 @@
         </div>
       {% endif %}
       <div class="ml-4">
-        <h1 class="text-2xl font-bold text-gray-900">{{ student.name }}</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ student.name }}</h1>
         <p class="text-gray-600">Student ID: {{ student.student_id }}</p>
       </div>
     </div>
@@ -45,28 +45,28 @@
 
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
   <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
-    <h2 class="mb-4 text-lg font-semibold text-gray-900">Profile Information</h2>
+    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Profile Information</h2>
     <dl class="space-y-4">
       <div>
         <dt class="text-sm font-medium text-gray-500">Email</dt>
-        <dd class="text-gray-900">{{ student.user.email }}</dd>
+        <dd class="text-gray-900 dark:text-white">{{ student.user.email }}</dd>
       </div>
       <div>
         <dt class="text-sm font-medium text-gray-500">Phone</dt>
-        <dd class="text-gray-900">{{ student.phone_number|default:"Not provided" }}</dd>
+        <dd class="text-gray-900 dark:text-white">{{ student.phone_number|default:"Not provided" }}</dd>
       </div>
       <div>
         <dt class="text-sm font-medium text-gray-500">Programme</dt>
-        <dd class="text-gray-900">{{ student.programme_of_study|default:"Not specified" }}</dd>
+        <dd class="text-gray-900 dark:text-white">{{ student.programme_of_study|default:"Not specified" }}</dd>
       </div>
       <div>
         <dt class="text-sm font-medium text-gray-500">Year</dt>
-        <dd class="text-gray-900">{{ student.year|default:"Not specified" }}</dd>
+        <dd class="text-gray-900 dark:text-white">{{ student.year|default:"Not specified" }}</dd>
       </div>
     </dl>
 
-    <div class="mt-8 border-t border-gray-100 pt-6">
-      <h3 class="mb-2 text-md font-semibold text-gray-900 border-b border-gray-100 pb-2">Device Security</h3>
+    <div class="mt-8 border-t border-gray-100 dark:border-gray-700 pt-6">
+      <h3 class="mb-2 text-md font-semibold text-gray-900 dark:text-white border-b border-gray-100 dark:border-gray-700 pb-2">Device Security</h3>
       <p class="text-sm text-gray-500 mb-4">Register your device's native fingerprint or face scanner to quickly mark attendance securely.</p>
       <button id="register-biometrics" class="w-full flex justify-center items-center gap-2 rounded-xl bg-brand-50 px-4 py-2.5 text-sm font-semibold text-brand-700 shadow-sm transition-all hover:bg-brand-100 active:scale-95">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
@@ -111,7 +111,7 @@
   </script>
 
   <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80 lg:col-span-2">
-    <h2 class="mb-4 text-lg font-semibold text-gray-900">
+    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
       Enrolled Courses ({{ enrollments.count }})
     </h2>
     {% if enrollments %}

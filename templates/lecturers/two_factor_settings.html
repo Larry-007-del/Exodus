@@ -14,17 +14,17 @@
     </svg>
     Back to Lecturer Details
   </a>
-  <h1 class="text-2xl font-bold text-gray-900">2FA Settings</h1>
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">2FA Settings</h1>
   <p class="mt-1 text-gray-600">Manage two-factor authentication for {{ lecturer.name }}</p>
 </div>
 
-<div class="max-w-2xl rounded-lg bg-white p-6 shadow">
+<div class="max-w-2xl rounded-lg bg-white dark:bg-gray-800 p-6 shadow">
   <form method="post">
     {% csrf_token %}
 
     <div class="space-y-6">
       <div>
-        <h3 class="mb-4 text-lg font-medium text-gray-900">Global 2FA Settings</h3>
+        <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">Global 2FA Settings</h3>
 
         <div class="flex items-start">
           <div class="flex h-5 items-center">
@@ -37,7 +37,7 @@
             />
           </div>
           <div class="ml-3">
-            <label for="require_two_factor_auth" class="block text-sm font-medium text-gray-700">
+            <label for="require_two_factor_auth" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Require 2FA for all attendance sessions
             </label>
             <p class="mt-1 text-sm text-gray-500">
@@ -48,8 +48,8 @@
         </div>
       </div>
 
-      <div class="border-t border-gray-200 pt-4">
-        <h3 class="mb-4 text-lg font-medium text-gray-900">Current Status</h3>
+      <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+        <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">Current Status</h3>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
@@ -58,13 +58,13 @@
               {% if lecturer.is_two_factor_enabled %}
               <span class="rounded-full bg-green-100 px-2 py-1 text-sm text-green-800">Active</span>
               {% else %}
-              <span class="rounded-full bg-gray-100 px-2 py-1 text-sm text-gray-800">Inactive</span>
+              <span class="rounded-full bg-gray-100 px-2 py-1 text-sm text-gray-800 dark:text-gray-200">Inactive</span>
               {% endif %}
             </dd>
           </div>
           <div>
             <dt class="text-sm font-medium text-gray-500">Secret Key</dt>
-            <dd class="font-mono text-sm text-gray-900">
+            <dd class="font-mono text-sm text-gray-900 dark:text-white">
               {% if lecturer.two_factor_secret %} {{ lecturer.two_factor_secret }} {% else %} Not
               configured {% endif %}
             </dd>
@@ -72,8 +72,8 @@
         </div>
       </div>
 
-      <div class="border-t border-gray-200 pt-4">
-        <h3 class="mb-4 text-lg font-medium text-gray-900">Biometric Authentication</h3>
+      <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+        <h3 class="mb-4 text-lg font-medium text-gray-900 dark:text-white">Biometric Authentication</h3>
         <p class="text-sm text-gray-500">
           Students can use their device's biometric capabilities (fingerprint, face ID, etc.) to
           authenticate their identity during attendance marking. This provides an extra layer of
@@ -82,10 +82,10 @@
       </div>
     </div>
 
-    <div class="flex justify-end gap-4 border-t border-gray-200 pt-6">
+    <div class="flex justify-end gap-4 border-t border-gray-200 dark:border-gray-700 pt-6">
       <a
         href="{% url 'frontend:lecturer_detail' lecturer.pk %}"
-        class="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 hover:bg-gray-50"
+        class="rounded-lg border border-gray-300 px-6 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50"
         >Cancel</a
       >
       <button

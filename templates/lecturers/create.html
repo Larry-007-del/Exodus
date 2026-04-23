@@ -14,7 +14,7 @@
     </svg>
     Back to Lecturers
   </a>
-  <h1 class="text-2xl font-bold text-gray-900">Add New Lecturer</h1>
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Add New Lecturer</h1>
 </div>
 
 <div class="rounded-2xl border border-gray-200 bg-white/80 backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
@@ -24,7 +24,7 @@
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
       <!-- Username -->
       <div>
-        <label for="username" class="block text-sm font-medium text-gray-700">Username *</label>
+        <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username *</label>
         <input
           type="text"
           name="username"
@@ -36,7 +36,7 @@
 
       <!-- Email -->
       <div>
-        <label for="email" class="block text-sm font-medium text-gray-700">Email *</label>
+        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email *</label>
         <input
           type="email"
           name="email"
@@ -48,7 +48,7 @@
 
       <!-- Password -->
       <div>
-        <label for="password" class="block text-sm font-medium text-gray-700">Password *</label>
+        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password *</label>
         <input
           type="password"
           name="password"
@@ -60,7 +60,7 @@
 
       <!-- Staff ID -->
       <div>
-        <label for="staff_id" class="block text-sm font-medium text-gray-700">Staff ID *</label>
+        <label for="staff_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Staff ID *</label>
         <input
           type="text"
           name="staff_id"
@@ -72,7 +72,7 @@
 
       <!-- Name -->
       <div class="md:col-span-2">
-        <label for="name" class="block text-sm font-medium text-gray-700">Full Name *</label>
+        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name *</label>
         <input
           type="text"
           name="name"
@@ -84,7 +84,7 @@
 
       <!-- Profile Picture -->
       <div class="md:col-span-2">
-        <label for="profile_picture" class="block text-sm font-medium text-gray-700">Profile Picture</label>
+        <label for="profile_picture" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Profile Picture</label>
         <input
           type="file"
           name="profile_picture"
@@ -96,7 +96,7 @@
 
       <!-- Department -->
       <div>
-        <label for="department" class="block text-sm font-medium text-gray-700">Department</label>
+        <label for="department" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Department</label>
         <input
           type="text"
           name="department"
@@ -107,7 +107,7 @@
 
       <!-- Phone Number -->
       <div>
-        <label for="phone_number" class="block text-sm font-medium text-gray-700"
+        <label for="phone_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >Phone Number</label
         >
         <input
@@ -120,7 +120,7 @@
 
       <!-- Latitude -->
       <div>
-        <label for="latitude" class="block text-sm font-medium text-gray-700">Latitude</label>
+        <label for="latitude" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Latitude</label>
         <input
           type="number"
           step="any"
@@ -133,7 +133,7 @@
 
       <!-- Longitude -->
       <div>
-        <label for="longitude" class="block text-sm font-medium text-gray-700">Longitude</label>
+        <label for="longitude" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Longitude</label>
         <input
           type="number"
           step="any"
@@ -145,10 +145,10 @@
       </div>
     </div>
 
-    <div class="flex justify-end gap-4 border-t border-gray-100 pt-6">
+    <div class="flex justify-end gap-4 border-t border-gray-100 dark:border-gray-700 pt-6">
       <a
         href="{% url 'frontend:lecturer_list' %}"
-        class="rounded-xl border border-gray-200 bg-white/50 px-6 py-2.5 text-sm font-semibold text-gray-700 backdrop-blur-sm transition-all hover:bg-gray-50 active:scale-95"
+        class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 px-6 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 backdrop-blur-sm transition-all hover:bg-gray-50 active:scale-95"
       >
         Cancel
       </a>

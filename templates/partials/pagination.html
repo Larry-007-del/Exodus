@@ -1,10 +1,10 @@
 {% if page_obj.has_other_pages %}
 <nav
-  class="mt-4 flex items-center justify-between rounded-lg border-t border-gray-200 bg-white px-4 py-3 shadow sm:px-6"
+  class="mt-4 flex items-center justify-between rounded-lg border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 shadow sm:px-6"
   aria-label="Pagination"
 >
   <div class="hidden sm:block">
-    <p class="text-sm text-gray-700">
+    <p class="text-sm text-gray-700 dark:text-gray-300">
       Showing <span class="font-medium">{{ page_obj.start_index }}</span> to
       <span class="font-medium">{{ page_obj.end_index }}</span> of
       <span class="font-medium">{{ page_obj.paginator.count }}</span> results
@@ -14,7 +14,7 @@
     {% if page_obj.has_previous %}
     <a
       href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}"
-      class="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+      class="relative inline-flex items-center rounded-md bg-white dark:bg-gray-800 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
     >
       <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
@@ -34,13 +34,13 @@
     {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
     <a
       href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}"
-      class="relative hidden items-center rounded-md px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:inline-flex"
+      class="relative hidden items-center rounded-md px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:inline-flex"
       >{{ num }}</a
     >
     {% elif num == 1 or num == page_obj.paginator.num_pages %}
     <a
       href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}"
-      class="relative hidden items-center rounded-md px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:inline-flex"
+      class="relative hidden items-center rounded-md px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:inline-flex"
       >{{ num }}</a
     >
     {% elif num == 2 or num == page_obj.paginator.num_pages|add:"-1" %}
@@ -50,7 +50,7 @@
     {% endif %} {% endfor %} {% if page_obj.has_next %}
     <a
       href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}"
-      class="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+      class="relative inline-flex items-center rounded-md bg-white dark:bg-gray-800 px-3 py-2 text-sm font-semibold text-gray-900 dark:text-white ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
     >
       Next
       <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

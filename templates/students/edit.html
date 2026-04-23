@@ -14,7 +14,7 @@
     </svg>
     Back to Student
   </a>
-  <h1 class="text-2xl font-bold text-gray-900">Edit Student</h1>
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Edit Student</h1>
 </div>
 
 <div class="rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
@@ -23,23 +23,23 @@
 
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
       <div class="md:col-span-2">
-        <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
         <input
           type="text"
           name="name"
           id="name"
           value="{{ student.name }}"
           required
-          class="mt-1 block w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500"
+          class="mt-1 block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500"
         />
       </div>
 
       <!-- Profile Picture -->
       <div class="md:col-span-2">
-        <label for="profile_picture" class="block text-sm font-medium text-gray-700">Profile Picture</label>
+        <label for="profile_picture" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Profile Picture</label>
         {% if student.profile_picture %}
           <div class="mt-2 mb-3">
-            <img src="{{ student.profile_picture.url }}" alt="Profile Picture" class="h-16 w-16 rounded-full object-cover border border-gray-200 shadow-sm">
+            <img src="{{ student.profile_picture.url }}" alt="Profile Picture" class="h-16 w-16 rounded-full object-cover border border-gray-200 dark:border-gray-700 shadow-sm">
           </div>
         {% endif %}
         <input
@@ -52,7 +52,7 @@
       </div>
 
       <div>
-        <label for="programme_of_study" class="block text-sm font-medium text-gray-700"
+        <label for="programme_of_study" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >Programme of Study</label
         >
         <input
@@ -60,23 +60,23 @@
           name="programme_of_study"
           id="programme_of_study"
           value="{{ student.programme_of_study|default:'' }}"
-          class="mt-1 block w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500"
+          class="mt-1 block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500"
         />
       </div>
 
       <div>
-        <label for="year" class="block text-sm font-medium text-gray-700">Year</label>
+        <label for="year" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Year</label>
         <input
           type="text"
           name="year"
           id="year"
           value="{{ student.year|default:'' }}"
-          class="mt-1 block w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500"
+          class="mt-1 block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500"
         />
       </div>
 
       <div>
-        <label for="phone_number" class="block text-sm font-medium text-gray-700"
+        <label for="phone_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >Phone Number</label
         >
         <input
@@ -84,13 +84,13 @@
           name="phone_number"
           id="phone_number"
           value="{{ student.phone_number|default:'' }}"
-          class="mt-1 block w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500"
+          class="mt-1 block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500"
         />
       </div>
     </div>
 
-    <div class="mt-6 border-t border-gray-200 pt-6">
-      <h3 class="mb-4 text-lg font-semibold text-gray-900">Notification Preferences</h3>
+    <div class="mt-6 border-t border-gray-200 dark:border-gray-700 pt-6">
+      <h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Notification Preferences</h3>
 
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div>
@@ -102,18 +102,18 @@
               {% if student.is_notifications_enabled %}checked{% endif %}
               class="rounded border-gray-300 text-green-600 focus:ring-green-500"
             />
-            <span class="ml-2 text-sm font-medium text-gray-700">Enable Notifications</span>
+            <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Enable Notifications</span>
           </label>
         </div>
 
         <div>
-          <label for="notification_preference" class="block text-sm font-medium text-gray-700"
+          <label for="notification_preference" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >Notification Method</label
           >
           <select
             name="notification_preference"
             id="notification_preference"
-            class="mt-1 block w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500"
+            class="mt-1 block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500"
           >
             <option
               value="email"
@@ -144,10 +144,10 @@
       </div>
     </div>
 
-    <div class="flex justify-end gap-4 border-t border-gray-100 pt-6">
+    <div class="flex justify-end gap-4 border-t border-gray-100 dark:border-gray-700 pt-6">
       <a
         href="{% url 'frontend:student_detail' student.id %}"
-        class="rounded-xl border border-gray-200 bg-white/50 px-6 py-2.5 font-semibold text-gray-700 backdrop-blur-sm transition-all hover:bg-gray-50 active:scale-95"
+        class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 px-6 py-2.5 font-semibold text-gray-700 dark:text-gray-300 backdrop-blur-sm transition-all hover:bg-gray-50 active:scale-95"
         >Cancel</a
       >
       <button type="submit" class="rounded-xl bg-brand-600 px-6 py-2.5 font-semibold text-white shadow-lg shadow-brand-500/20 transition-all hover:-translate-y-0.5 hover:bg-brand-700 active:scale-95">

@@ -1,13 +1,13 @@
 {% for course in courses %}
-<div id="course-card-{{ course.id }}" class="rounded-lg bg-white shadow transition hover:shadow-lg">
+<div id="course-card-{{ course.id }}" class="rounded-lg bg-white dark:bg-gray-800 shadow transition hover:shadow-lg">
   <div class="p-6">
     <div class="mb-4 flex items-start justify-between">
       <div>
-        <h3 class="text-lg font-semibold text-gray-900">{{ course.name }}</h3>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ course.name }}</h3>
         <p class="text-sm text-gray-500">{{ course.course_code }}</p>
       </div>
       <span
-        class="{% if course.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %} rounded-full px-2.5 py-0.5 text-xs font-medium"
+        class="{% if course.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800 dark:text-gray-200{% endif %} rounded-full px-2.5 py-0.5 text-xs font-medium"
       >
         {% if course.is_active %}Active{% else %}Inactive{% endif %}
       </span>
@@ -41,7 +41,7 @@
     <div class="mt-4 flex gap-2">
       <a
         href="{% url 'frontend:course_detail' course.id %}"
-        class="flex-1 rounded-lg bg-gray-100 px-4 py-2 text-center text-gray-700 hover:bg-gray-200"
+        class="flex-1 rounded-lg bg-gray-100 px-4 py-2 text-center text-gray-700 dark:text-gray-300 hover:bg-gray-200"
         >View</a
       >
       <a
@@ -64,9 +64,9 @@
 {% empty %}
 <div class="col-span-full">
   <div
-    class="rounded-lg border-2 border-dashed border-gray-300 bg-white py-12 text-center shadow-sm"
+    class="rounded-lg border-2 border-dashed border-gray-300 bg-white dark:bg-gray-800 py-12 text-center shadow-sm"
   >
-    <h3 class="mt-2 text-sm font-medium text-gray-900">No courses found</h3>
+    <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No courses found</h3>
     <p class="mt-1 text-sm text-gray-500">No courses match your search criteria.</p>
   </div>
 </div>

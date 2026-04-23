@@ -1,13 +1,13 @@
 {% extends 'base.html' %} {% block title %}Courses - Exodus{% endblock %} {% block content %}
 <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
   <div>
-    <h1 class="text-2xl font-bold text-gray-900">Courses</h1>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Courses</h1>
     <p class="mt-1 text-gray-600">Manage course offerings</p>
   </div>
   <div class="mt-4 flex gap-2 md:mt-0">
     <a
       href="{% url 'frontend:upload_enrollments' %}"
-      class="inline-flex items-center rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm backdrop-blur-sm transition-all hover:bg-gray-50 active:scale-95"
+      class="inline-flex items-center rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm backdrop-blur-sm transition-all hover:bg-gray-50 active:scale-95"
     >
       <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path

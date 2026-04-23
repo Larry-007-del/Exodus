@@ -1,12 +1,12 @@
 {% extends 'base.html' %} {% block title %}Reports - Exodus{% endblock %} {% block content %}
 <div class="mb-6">
-  <h1 class="text-2xl font-bold text-gray-900">Reports</h1>
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Reports</h1>
   <p class="mt-1 text-gray-600">Analytics and data export</p>
 </div>
 
 <!-- Summary Cards -->
 <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-  <div class="rounded-lg bg-white p-5 shadow">
+  <div class="rounded-lg bg-white dark:bg-gray-800 p-5 shadow">
     <div class="flex items-center">
       <div class="flex-shrink-0 rounded-lg bg-indigo-100 p-3">
         <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -20,11 +20,11 @@
       </div>
       <div class="ml-4">
         <p class="text-sm font-medium text-gray-500">Total Sessions</p>
-        <p class="text-2xl font-bold text-gray-900">{{ total_records }}</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_records }}</p>
       </div>
     </div>
   </div>
-  <div class="rounded-lg bg-white p-5 shadow">
+  <div class="rounded-lg bg-white dark:bg-gray-800 p-5 shadow">
     <div class="flex items-center">
       <div class="flex-shrink-0 rounded-lg bg-indigo-100 p-3">
         <svg class="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -35,11 +35,11 @@
       </div>
       <div class="ml-4">
         <p class="text-sm font-medium text-gray-500">Courses</p>
-        <p class="text-2xl font-bold text-gray-900">{{ total_courses }}</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_courses }}</p>
       </div>
     </div>
   </div>
-  <div class="rounded-lg bg-white p-5 shadow">
+  <div class="rounded-lg bg-white dark:bg-gray-800 p-5 shadow">
     <div class="flex items-center">
       <div class="flex-shrink-0 rounded-lg bg-green-100 p-3">
         <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,11 +53,11 @@
       </div>
       <div class="ml-4">
         <p class="text-sm font-medium text-gray-500">Students</p>
-        <p class="text-2xl font-bold text-gray-900">{{ total_students }}</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_students }}</p>
       </div>
     </div>
   </div>
-  <div class="rounded-lg bg-white p-5 shadow">
+  <div class="rounded-lg bg-white dark:bg-gray-800 p-5 shadow">
     <div class="flex items-center">
       <div class="flex-shrink-0 rounded-lg bg-yellow-100 p-3">
         <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,7 +71,7 @@
       </div>
       <div class="ml-4">
         <p class="text-sm font-medium text-gray-500">Active Now</p>
-        <p class="text-2xl font-bold text-gray-900">{{ active_sessions }}</p>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ active_sessions }}</p>
       </div>
     </div>
   </div>
@@ -79,9 +79,9 @@
 
 <div class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
   <!-- Weekly Trend Chart -->
-  <div class="rounded-lg bg-white shadow lg:col-span-2">
-    <div class="border-b border-gray-200 p-5">
-      <h2 class="text-lg font-semibold text-gray-900">Weekly Sessions</h2>
+  <div class="rounded-lg bg-white dark:bg-gray-800 shadow lg:col-span-2">
+    <div class="border-b border-gray-200 dark:border-gray-700 p-5">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Weekly Sessions</h2>
       <p class="text-sm text-gray-500">Attendance sessions per week (last 8 weeks)</p>
     </div>
     <div class="p-5">
@@ -90,16 +90,16 @@
   </div>
 
   <!-- Course Performance -->
-  <div class="rounded-lg bg-white shadow">
-    <div class="border-b border-gray-200 p-5">
-      <h2 class="text-lg font-semibold text-gray-900">Course Attendance</h2>
+  <div class="rounded-lg bg-white dark:bg-gray-800 shadow">
+    <div class="border-b border-gray-200 dark:border-gray-700 p-5">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Course Attendance</h2>
       <p class="text-sm text-gray-500">Average attendance rate by course</p>
     </div>
     <div class="max-h-[400px] space-y-4 overflow-y-auto p-5">
       {% for cs in course_stats %}
       <div>
         <div class="mb-1 flex items-center justify-between">
-          <span class="truncate text-sm font-medium text-gray-700" title="{{ cs.name }}"
+          <span class="truncate text-sm font-medium text-gray-700 dark:text-gray-300" title="{{ cs.name }}"
             >{{ cs.code }}</span
           >
           <span
@@ -127,9 +127,9 @@
 <!-- Recent Sessions & Export -->
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
   <!-- Recent Sessions -->
-  <div class="rounded-lg bg-white shadow lg:col-span-2">
-    <div class="border-b border-gray-200 p-5">
-      <h2 class="text-lg font-semibold text-gray-900">Recent Sessions</h2>
+  <div class="rounded-lg bg-white dark:bg-gray-800 shadow lg:col-span-2">
+    <div class="border-b border-gray-200 dark:border-gray-700 p-5">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Sessions</h2>
     </div>
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
@@ -145,7 +145,7 @@
           {% for session in recent_sessions %}
           <tr class="hover:bg-gray-50">
             <td class="whitespace-nowrap px-5 py-3">
-              <div class="text-sm font-medium text-gray-900">{{ session.course.name }}</div>
+              <div class="text-sm font-medium text-gray-900 dark:text-white">{{ session.course.name }}</div>
               <div class="text-xs text-gray-500">{{ session.course.course_code }}</div>
             </td>
             <td class="whitespace-nowrap px-5 py-3 text-sm text-gray-600">{{ session.date }}</td>
@@ -184,15 +184,15 @@
   </div>
 
   <!-- Export Panel -->
-  <div class="rounded-lg bg-white shadow">
-    <div class="border-b border-gray-200 p-5">
-      <h2 class="text-lg font-semibold text-gray-900">Export Data</h2>
+  <div class="rounded-lg bg-white dark:bg-gray-800 shadow">
+    <div class="border-b border-gray-200 dark:border-gray-700 p-5">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Export Data</h2>
       <p class="text-sm text-gray-500">Download attendance records</p>
     </div>
     <div class="p-5">
       <form method="get" action="{% url 'frontend:reports_export' %}" class="space-y-4">
         <div>
-          <label for="course" class="mb-1 block text-sm font-medium text-gray-700">Course</label>
+          <label for="course" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Course</label>
           <select
             name="course"
             id="course"
@@ -205,7 +205,7 @@
           </select>
         </div>
         <div>
-          <label for="date_from" class="mb-1 block text-sm font-medium text-gray-700">From</label>
+          <label for="date_from" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">From</label>
           <input
             type="date"
             name="date_from"
@@ -214,7 +214,7 @@
           />
         </div>
         <div>
-          <label for="date_to" class="mb-1 block text-sm font-medium text-gray-700">To</label>
+          <label for="date_to" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">To</label>
           <input
             type="date"
             name="date_to"

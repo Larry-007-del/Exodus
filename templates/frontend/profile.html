@@ -17,7 +17,7 @@
         <span class="text-4xl font-bold text-white">{{ avatar_initials }}</span>
         {% endif %}
       </div>
-      <h3 class="text-lg font-semibold text-gray-900">{{ profile.name }}</h3>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ profile.name }}</h3>
       <p class="text-sm text-gray-500">{{ user.email }}</p>
 
       {% if profile_type == 'student' %}
@@ -35,7 +35,7 @@
       {% endif %}
 
       <!-- Stats -->
-      <div class="mt-6 space-y-3 border-t border-gray-100 pt-4 text-left">
+      <div class="mt-6 space-y-3 border-t border-gray-100 dark:border-gray-700 pt-4 text-left">
         {% if profile_type == 'student' %}
         <div class="flex justify-between">
           <span class="text-sm text-gray-500">Attendance Rate</span>
@@ -46,26 +46,26 @@
         </div>
         <div class="flex justify-between">
           <span class="text-sm text-gray-500">Sessions Attended</span>
-          <span class="text-sm font-semibold text-gray-800"
+          <span class="text-sm font-semibold text-gray-800 dark:text-gray-200"
             >{{ stats.attended_sessions }} / {{ stats.total_sessions }}</span
           >
         </div>
         <div class="flex justify-between">
           <span class="text-sm text-gray-500">Enrolled Courses</span>
-          <span class="text-sm font-semibold text-gray-800">{{ stats.enrolled_courses }}</span>
+          <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ stats.enrolled_courses }}</span>
         </div>
         {% elif profile_type == 'lecturer' %}
         <div class="flex justify-between">
           <span class="text-sm text-gray-500">Sessions Taken</span>
-          <span class="text-sm font-semibold text-gray-800">{{ stats.total_sessions }}</span>
+          <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ stats.total_sessions }}</span>
         </div>
         <div class="flex justify-between">
           <span class="text-sm text-gray-500">Courses</span>
-          <span class="text-sm font-semibold text-gray-800">{{ stats.total_courses }}</span>
+          <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ stats.total_courses }}</span>
         </div>
         <div class="flex justify-between">
           <span class="text-sm text-gray-500">Total Students</span>
-          <span class="text-sm font-semibold text-gray-800">{{ stats.total_students }}</span>
+          <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ stats.total_students }}</span>
         </div>
         {% endif %}
       </div>
@@ -74,8 +74,8 @@
 
   <!-- Edit Form -->
   <div class="lg:col-span-2">
-    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-      <h3 class="mb-6 text-lg font-semibold text-gray-900">Edit Profile</h3>
+    <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 shadow-xl shadow-brand-500/5 backdrop-blur-md dark:border-gray-700/50 dark:bg-gray-800/80">
+      <h3 class="mb-6 text-lg font-semibold text-gray-900 dark:text-white">Edit Profile</h3>
       <form method="post" action="{% url 'frontend:profile' %}">
         {% csrf_token %}
 
@@ -86,7 +86,7 @@
           </h4>
           <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Username</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
               <input
                 type="text"
                 value="{{ user.username }}"
@@ -95,7 +95,7 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Email</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
               <input
                 type="email"
                 name="email"
@@ -104,7 +104,7 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">First Name</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
               <input
                 type="text"
                 name="first_name"
@@ -113,7 +113,7 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Last Name</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
               <input
                 type="text"
                 name="last_name"
@@ -131,7 +131,7 @@
           </h4>
           <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Full Name</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
               <input
                 type="text"
                 name="name"
@@ -140,7 +140,7 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Phone Number</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number</label>
               <input
                 type="text"
                 name="phone_number"
@@ -151,7 +151,7 @@
 
             {% if profile_type == 'student' %}
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Student ID</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Student ID</label>
               <input
                 type="text"
                 value="{{ profile.student_id }}"
@@ -160,7 +160,7 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Programme of Study</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Programme of Study</label>
               <input
                 type="text"
                 name="programme_of_study"
@@ -169,7 +169,7 @@
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Year</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Year</label>
               <select
                 name="year"
                 class="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900/50"
@@ -183,7 +183,7 @@
               </select>
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700"
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
                 >Notification Preference</label
               >
               <select
@@ -224,21 +224,21 @@
                   {% if profile.is_notifications_enabled %}checked{% endif %}
                   class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                 />
-                <span class="ml-2 text-sm text-gray-700">Enable notifications</span>
+                <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Enable notifications</span>
               </label>
             </div>
             {% endif %} {% if profile_type == 'lecturer' %}
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Staff ID</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Staff ID</label>
               <input
                 type="text"
                 value="{{ profile.staff_id }}"
                 disabled
-                class="w-full cursor-not-allowed rounded-xl border border-gray-200 bg-gray-50/50 px-4 py-2.5 text-gray-500"
+                class="w-full cursor-not-allowed rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 px-4 py-2.5 text-gray-500"
               />
             </div>
             <div>
-              <label class="mb-1 block text-sm font-medium text-gray-700">Department</label>
+              <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Department</label>
               <input
                 type="text"
                 name="department"
@@ -250,10 +250,10 @@
           </div>
         </div>
 
-        <div class="flex justify-end gap-3 border-t border-gray-100 pt-6">
+        <div class="flex justify-end gap-3 border-t border-gray-100 dark:border-gray-700 pt-6">
           <a
             href="{% url 'frontend:change_password' %}"
-            class="rounded-xl border border-gray-200 bg-white/50 px-6 py-2.5 text-sm font-semibold text-gray-700 backdrop-blur-sm transition-all hover:bg-gray-50 active:scale-95"
+            class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 px-6 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 backdrop-blur-sm transition-all hover:bg-gray-50 active:scale-95"
           >
             Change Password
           </a>

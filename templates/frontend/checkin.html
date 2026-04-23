@@ -34,7 +34,7 @@
     </button>
 
     <div id="qr-scanner" class="mb-4 hidden">
-      <video id="video" class="h-64 w-64 rounded-xl border-2 border-brand-200 bg-white shadow-inner"></video>
+      <video id="video" class="h-64 w-64 rounded-xl border-2 border-brand-200 bg-white dark:bg-gray-800 shadow-inner"></video>
       <canvas id="canvas" class="hidden"></canvas>
     </div>
   </div>
@@ -51,7 +51,7 @@
         id="attendance-token"
         name="token"
         placeholder="Enter 6-digit token"
-        class="mb-4 w-64 rounded-xl border border-gray-200 bg-white/50 px-4 py-3 text-center font-mono text-xl tracking-widest backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500"
+        class="mb-4 w-64 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 px-4 py-3 text-center font-mono text-xl tracking-widest backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500"
         maxlength="6"
         minlength="6"
       />
@@ -100,7 +100,7 @@
     <h3 class="mb-4 text-center text-lg font-semibold text-gray-900 dark:text-white">
       Your Location
     </h3>
-    <div id="map" class="z-0 h-64 w-full rounded-2xl border border-gray-100 shadow-2xl shadow-brand-500/5"></div>
+    <div id="map" class="z-0 h-64 w-full rounded-2xl border border-gray-100 dark:border-gray-700 shadow-2xl shadow-brand-500/5"></div>
   </div>
 </div>
 

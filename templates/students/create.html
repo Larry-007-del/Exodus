@@ -14,7 +14,7 @@
     </svg>
     Back to Students
   </a>
-  <h1 class="text-2xl font-bold text-gray-900">Add New Student</h1>
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Add New Student</h1>
 </div>
 
 <div class="rounded-2xl border border-gray-200 bg-white/80 backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
@@ -23,7 +23,7 @@
 
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
       <div>
-        <label for="username" class="block text-sm font-medium text-gray-700">Username *</label>
+        <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username *</label>
         <input
           type="text"
           name="username"
@@ -34,7 +34,7 @@
       </div>
 
       <div>
-        <label for="email" class="block text-sm font-medium text-gray-700">Email *</label>
+        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email *</label>
         <input
           type="email"
           name="email"
@@ -45,7 +45,7 @@
       </div>
 
       <div>
-        <label for="password" class="block text-sm font-medium text-gray-700">Password *</label>
+        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password *</label>
         <input
           type="password"
           name="password"
@@ -56,7 +56,7 @@
       </div>
 
       <div>
-        <label for="student_id" class="block text-sm font-medium text-gray-700">Student ID *</label>
+        <label for="student_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Student ID *</label>
         <input
           type="text"
           name="student_id"
@@ -67,7 +67,7 @@
       </div>
 
       <div class="md:col-span-2">
-        <label for="name" class="block text-sm font-medium text-gray-700">Full Name *</label>
+        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name *</label>
         <input
           type="text"
           name="name"
@@ -79,7 +79,7 @@
 
       <!-- Profile Picture -->
       <div class="md:col-span-2">
-        <label for="profile_picture" class="block text-sm font-medium text-gray-700">Profile Picture</label>
+        <label for="profile_picture" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Profile Picture</label>
         <input
           type="file"
           name="profile_picture"
@@ -90,7 +90,7 @@
       </div>
 
       <div>
-        <label for="programme_of_study" class="block text-sm font-medium text-gray-700"
+        <label for="programme_of_study" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >Programme of Study</label
         >
         <input
@@ -102,7 +102,7 @@
       </div>
 
       <div>
-        <label for="year" class="block text-sm font-medium text-gray-700">Year</label>
+        <label for="year" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Year</label>
         <input
           type="text"
           name="year"
@@ -113,7 +113,7 @@
       </div>
 
       <div>
-        <label for="phone_number" class="block text-sm font-medium text-gray-700"
+        <label for="phone_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300"
           >Phone Number</label
         >
         <input
@@ -125,10 +125,10 @@
       </div>
     </div>
 
-    <div class="flex justify-end gap-4 border-t border-gray-100 pt-6">
+    <div class="flex justify-end gap-4 border-t border-gray-100 dark:border-gray-700 pt-6">
       <a
         href="{% url 'frontend:student_list' %}"
-        class="rounded-xl border border-gray-200 bg-white/50 px-6 py-2.5 text-sm font-semibold text-gray-700 backdrop-blur-sm transition-all hover:bg-gray-50 active:scale-95"
+        class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 px-6 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 backdrop-blur-sm transition-all hover:bg-gray-50 active:scale-95"
       >
         Cancel
       </a>

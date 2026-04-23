@@ -14,25 +14,25 @@
     </svg>
     Back to History
   </a>
-  <h1 class="text-2xl font-bold text-gray-900">{{ attendance.course.name }}</h1>
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">{{ attendance.course.name }}</h1>
   <p class="text-gray-600" title="{{ attendance.date }}">{{ attendance.date|timesince }} ago</p>
 </div>
 
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
   <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
-    <h2 class="mb-4 text-lg font-semibold text-gray-900">Session Details</h2>
+    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Session Details</h2>
     <dl class="space-y-4">
       <div>
         <dt class="text-sm font-medium text-gray-500">Course</dt>
-        <dd class="text-gray-900">{{ attendance.course.name }}</dd>
+        <dd class="text-gray-900 dark:text-white">{{ attendance.course.name }}</dd>
       </div>
       <div>
         <dt class="text-sm font-medium text-gray-500">Course Code</dt>
-        <dd class="text-gray-900">{{ attendance.course.course_code }}</dd>
+        <dd class="text-gray-900 dark:text-white">{{ attendance.course.course_code }}</dd>
       </div>
       <div>
         <dt class="text-sm font-medium text-gray-500">Date</dt>
-        <dd class="text-gray-900" title="{{ attendance.date }}">{{ attendance.date|timesince }} ago</dd>
+        <dd class="text-gray-900 dark:text-white" title="{{ attendance.date }}">{{ attendance.date|timesince }} ago</dd>
       </div>
       <div>
         <dt class="text-sm font-medium text-gray-500">Status</dt>
@@ -40,14 +40,14 @@
           {% if attendance.is_active %}<span
             class="rounded-full bg-green-100 px-2 py-1 text-sm text-green-800"
             >Active</span
-          >{% else %}<span class="rounded-full bg-gray-100 px-2 py-1 text-sm text-gray-800"
+          >{% else %}<span class="rounded-full bg-gray-100 px-2 py-1 text-sm text-gray-800 dark:text-gray-200"
             >Ended</span
           >{% endif %}
         </dd>
       </div>
       <div>
         <dt class="text-sm font-medium text-gray-500">Present</dt>
-        <dd class="text-gray-900">{{ attendance.present_students.count }} students</dd>
+        <dd class="text-gray-900 dark:text-white">{{ attendance.present_students.count }} students</dd>
       </div>
       <div>
         <dt class="text-sm font-medium text-gray-500">2FA Required</dt>
@@ -55,14 +55,14 @@
           {% if require_two_factor_auth %}<span
             class="rounded-full bg-indigo-100 px-2 py-1 text-sm text-indigo-800"
             >Yes</span
-          >{% else %}<span class="rounded-full bg-gray-100 px-2 py-1 text-sm text-gray-800">No</span
+          >{% else %}<span class="rounded-full bg-gray-100 px-2 py-1 text-sm text-gray-800 dark:text-gray-200">No</span
           >{% endif %}
         </dd>
       </div>
       {% if token %}
       <div>
         <dt class="text-sm font-medium text-gray-500">Attendance Token</dt>
-        <dd class="font-mono text-lg text-gray-900">{{ token }}</dd>
+        <dd class="font-mono text-lg text-gray-900 dark:text-white">{{ token }}</dd>
       </div>
       {% endif %}
     </dl>
@@ -77,7 +77,7 @@
   </div>
 
   <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80 lg:col-span-2">
-    <h2 class="mb-4 text-lg font-semibold text-gray-900">
+    <h2 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
       Present Students ({{ present_students_with_location|length }})
     </h2>
     {% if present_students_with_location %}
@@ -95,7 +95,7 @@
         <tbody class="divide-y divide-gray-200">
           {% for item in present_students_with_location %}
           <tr>
-            <td class="px-4 py-2 text-sm text-gray-900">{{ item.student.name }}</td>
+            <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">{{ item.student.name }}</td>
             <td class="px-4 py-2 text-sm text-gray-500">{{ item.student.student_id }}</td>
             <td class="px-4 py-2">
               {% if item.is_within_perimeter %}
@@ -121,7 +121,7 @@
     <!-- Absent Students -->
     {% if absent_students %}
     <div class="mt-6">
-      <h3 class="text-md mb-3 font-semibold text-gray-900">
+      <h3 class="text-md mb-3 font-semibold text-gray-900 dark:text-white">
         Absent Students ({{ absent_students|length }})
       </h3>
       <div class="overflow-x-auto">
@@ -135,7 +135,7 @@
           <tbody class="divide-y divide-gray-200">
             {% for student in absent_students %}
             <tr>
-              <td class="px-4 py-2 text-sm text-gray-900">{{ student.name }}</td>
+              <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">{{ student.name }}</td>
               <td class="px-4 py-2 text-sm text-gray-500">{{ student.student_id }}</td>
             </tr>
             {% endfor %}
