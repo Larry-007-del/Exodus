@@ -80,8 +80,8 @@
               />
               <label
                 for="username"
-                class="absolute left-10 pointer-events-none transition-all duration-200 text-indigo-200/70"
-                :class="(focused || hasValue) ? '-translate-y-8 bg-transparent text-xs uppercase tracking-wider font-bold text-white shadow-none border-none outline-none' : 'top-1/2 -translate-y-1/2 text-sm font-medium'"
+                class="absolute left-10 pointer-events-none transition-all duration-200 text-indigo-200/70 origin-left"
+                :class="(focused || hasValue) ? 'login-label-float text-xs uppercase tracking-wider font-bold text-white' : 'top-1/2 -translate-y-1/2 text-sm font-medium'"
               >
                 Your Username
               </label>
@@ -112,25 +112,20 @@
                 </button>
                 <label
                   for="password"
-                  class="absolute left-10 pointer-events-none transition-all duration-200 text-indigo-200/70"
-                  :class="(focused || hasValue) ? '-translate-y-8 bg-transparent text-xs uppercase tracking-wider font-bold text-white shadow-none border-none outline-none' : 'top-1/2 -translate-y-1/2 text-sm font-medium'"
+                  class="absolute left-10 pointer-events-none transition-all duration-200 text-indigo-200/70 origin-left"
+                  :class="(focused || hasValue) ? 'login-label-float text-xs uppercase tracking-wider font-bold text-white' : 'top-1/2 -translate-y-1/2 text-sm font-medium'"
                 >
                   Password
                 </label>
               </div>
             </div>
 
-            {% if messages %} 
-              {% for message in messages %}
-              <div class="rounded-xl bg-red-500/20 border border-red-500/50 p-4 text-sm text-red-100 backdrop-blur-md" role="alert">
-                {{ message }}
-              </div>
-              {% endfor %} 
-            {% endif %} 
-            
-            {% if form.errors %}
-              <div class="rounded-xl bg-red-500/20 border border-red-500/50 p-4 text-sm text-red-100 backdrop-blur-md">
-                Username or password incorrect.
+            {% if form.errors or messages %}
+              <div class="rounded-xl bg-red-500/20 border border-red-500/50 p-4 text-sm text-red-100 backdrop-blur-md flex items-center gap-2" role="alert">
+                <svg class="h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                Invalid username or password.
               </div>
             {% endif %}
 
@@ -140,7 +135,7 @@
 
             <button
               type="submit"
-              class="w-full rounded-xl bg-gradient-to-r from-brand-500 to-purple-600 px-5 py-3.5 text-center text-sm font-bold text-white shadow-lg shadow-brand-500/30 hover:shadow-brand-500/50 hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-4 focus:ring-brand-500/50"
+              class="w-full rounded-xl bg-gradient-to-r from-brand-500 to-purple-600 px-5 py-3.5 text-center text-sm font-bold text-white shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-4 focus:ring-brand-500/50"
             >
               Sign in
             </button>
@@ -173,6 +168,11 @@
       }
       input:focus {
         outline: none;
+      }
+      /* Floating label: move fully above input when focused/filled */
+      .login-label-float {
+        top: -0.5rem;
+        transform: translateY(-100%);
       }
     </style>
   </body>

@@ -75,7 +75,6 @@ def login_view(request):
             return redirect('frontend:dashboard')
         else:
             cache.set(cache_key, attempts + 1, 300)  # 5-minute window
-            messages.error(request, "Invalid username or password.")
     else:
         form = AuthenticationForm()
 
@@ -179,7 +178,7 @@ def dashboard(request):
         context['total_students'] = Student.objects.count()
         context['total_lecturers'] = Lecturer.objects.count()
         context['total_courses'] = Course.objects.count()
-        context['active_sessions'] = Attendance.objects.filter(is_active=True, date=timezone.localdate()).count()
+        context['active_sessions'] = Attendance.objects.filter(is_active=True).count()
         context['recent_activity'] = Attendance.objects.select_related('course').order_by('-date', '-created_at')[:6]
     elif hasattr(request.user, 'lecturer'):
         try:
@@ -360,7 +359,7 @@ def ajax_dashboard_stats(request):
             'total_students': Student.objects.count(),
             'total_courses': Course.objects.count(),
             'active_courses': Course.objects.filter(is_active=True).count(),
-            'today_attendance': Attendance.objects.filter(date=timezone.localdate()).count(),
+            'today_attendance': Attendance.objects.filter(is_active=True).count(),
         }
         cache.set(cache_key, stats, 60)
         

@@ -116,9 +116,9 @@
           <span class="block text-gray-500 dark:text-gray-400">Staff ID</span>
           <span class="font-medium text-gray-900 dark:text-gray-200">{{ lecturer.staff_id }}</span>
         </div>
-        <div>
+        <div class="col-span-2">
           <span class="block text-gray-500 dark:text-gray-400">Department</span>
-          <span class="font-medium text-gray-900 dark:text-gray-200">{{ lecturer.department|default:"-" }}</span>
+          <span class="font-medium text-gray-900 dark:text-gray-200 break-words">{{ lecturer.department|default:"-" }}</span>
         </div>
       </div>
       

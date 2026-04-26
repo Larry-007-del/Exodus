@@ -513,7 +513,7 @@
       </div>
 
       <!-- Sidebar user card (sticky bottom) -->
-      <div class="sticky bottom-0 border-t border-gray-200/70 bg-white/80 px-3 py-3 backdrop-blur dark:border-gray-700/50 dark:bg-gray-800/80">
+      <div class="sticky bottom-0 z-10 border-t border-gray-200/70 bg-white/95 px-3 py-3 backdrop-blur-sm dark:border-gray-700/50 dark:bg-gray-800/95">
         <a
           href="{% url 'frontend:profile' %}"
           class="group flex items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -628,6 +628,16 @@
           });
         }
       })();
+    </script>
+
+    <!-- Close sidebar on HTMX navigation (mobile) -->
+    <script>
+      document.body.addEventListener('htmx:afterSettle', function() {
+        if (window.innerWidth < 640) {
+          var sidebar = document.getElementById('logo-sidebar');
+          if (sidebar) sidebar.classList.add('-translate-x-full');
+        }
+      });
     </script>
 
     <!-- Active sidebar highlighting -->
