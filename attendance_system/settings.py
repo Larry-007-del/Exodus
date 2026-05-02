@@ -39,6 +39,10 @@ else:
 # Allowed hosts — default to localhost in dev; MUST be set via env var in production
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
+# Allow all hosts in debug mode (required for Replit proxy)
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
+
 # Strict CORS origin bounds
 cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS')
 if cors_origins:
@@ -51,6 +55,17 @@ RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
     CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_EXTERNAL_HOSTNAME}']
+
+# Replit proxy support: trust all HTTPS origins in dev
+if DEBUG:
+    REPLIT_DEV_DOMAIN = os.environ.get('REPLIT_DEV_DOMAIN', '')
+    CSRF_TRUSTED_ORIGINS = [
+        'https://*.replit.dev',
+        'https://*.repl.co',
+        'https://*.replit.app',
+    ]
+    if REPLIT_DEV_DOMAIN:
+        CSRF_TRUSTED_ORIGINS.append(f'https://{REPLIT_DEV_DOMAIN}')
 
 # Security Settings for Production
 if not DEBUG:
