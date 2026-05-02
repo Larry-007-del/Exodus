@@ -306,6 +306,9 @@ REST_FRAMEWORK = {
         'burst': '60/minute',
         'student_login': '5/minute',
         'staff_login': '5/minute',
+        'staff_api': '300/hour',        # Lecturers/admin calling the REST API
+        'generate_token': '20/hour',    # Token generation — once per session
+        'take_attendance': '60/hour',   # Students marking attendance
     },
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',

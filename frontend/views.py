@@ -68,6 +68,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
+            request.session['last_authenticated'] = timezone.now().isoformat()
             cache.delete(cache_key)  # Reset on successful login
             next_url = request.POST.get('next', '')
             if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
@@ -140,8 +141,8 @@ def register_view(request):
             first_name=username,
         )
 
-        # Auto-generate student_id (STU + zero-padded pk)
-        student_id = f'STU{user.pk:05d}'
+        # Auto-generate student_id (STU + zero-padded pk + random hex for unpredictability)
+        student_id = f'STU{user.pk:05d}{secrets.token_hex(2).upper()}'
         Student.objects.create(
             user=user,
             student_id=student_id,
@@ -200,7 +201,8 @@ def dashboard(request):
                     context['next_class'] = f"{active_session.course.name} (Live now)"
                     context['active_session'] = active_session
                 else:
-                    context['next_class'] = f"{taught_courses.count()} course{'s' if taught_courses.count() != 1 else ''} assigned"
+                    course_count = taught_courses.count()
+                    context['next_class'] = f"{course_count} course{'s' if course_count != 1 else ''} assigned"
         except Lecturer.DoesNotExist:
             pass
     elif hasattr(request.user, 'student'):

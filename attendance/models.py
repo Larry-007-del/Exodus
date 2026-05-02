@@ -221,7 +221,10 @@ class Attendance(models.Model):
     def is_within_radius(self, student_lat, student_lon, radius_meters=None):
         """Check if student is within radius of lecturer's location."""
         if not self.lecturer_latitude or not self.lecturer_longitude:
-            return True  # Allow if lecturer location not set
+            logger.warning(
+                "Attendance %s has no lecturer GPS — check-in denied for safety.", self.pk
+            )
+            return False  # Deny if lecturer location was never captured
         radius = radius_meters if radius_meters is not None else self.radius_meters
         lecturer_coords = (self.lecturer_latitude, self.lecturer_longitude)
         student_coords = (student_lat, student_lon)

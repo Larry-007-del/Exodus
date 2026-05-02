@@ -31,8 +31,22 @@ def get_origin(request):
 @login_required
 def register_begin(request):
     """Generate options for WebAuthn registration"""
+    from django.utils import timezone as tz
+    from datetime import timedelta, datetime
+    last_auth_str = request.session.get('last_authenticated')
+    if not last_auth_str:
+        return JsonResponse({"error": "Please log in again before registering a biometric device."}, status=403)
+    try:
+        last_auth = datetime.fromisoformat(last_auth_str)
+        if last_auth.tzinfo is None:
+            last_auth = last_auth.replace(tzinfo=tz.utc)
+        if tz.now() - last_auth > timedelta(minutes=30):
+            return JsonResponse({"error": "Session too old. Please log in again to register a biometric device."}, status=403)
+    except (ValueError, TypeError):
+        return JsonResponse({"error": "Invalid session state. Please log in again."}, status=403)
+
     user = request.user
-    
+
     # Existing credentials to prevent re-registration of the same authenticator
     credentials = WebAuthnCredential.objects.filter(user=user)
     exclude_credentials = [{"id": base64url_to_bytes(c.credential_id), "type": "public-key"} for c in credentials]

@@ -70,7 +70,7 @@ class Command(BaseCommand):
         for session in expired_sessions:
             # Close the session
             session.is_active = False
-            session.ended_at = session.created_at + timedelta(hours=session.duration_hours)
+            session.ended_at = now
             session.save(update_fields=['is_active', 'ended_at', 'updated_at'])
             closed_count += 1
 

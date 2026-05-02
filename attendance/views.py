@@ -72,6 +72,8 @@ class LecturerViewSet(viewsets.ModelViewSet):
     queryset = Lecturer.objects.select_related('user').all().order_by('name')
     serializer_class = LecturerSerializer
     permission_classes = [IsAdminOrReadOnly]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'staff_api'
 
     @action(detail=False, methods=['get'], url_path='my-courses')
     def my_courses(self, request):
@@ -106,8 +108,11 @@ class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.select_related('lecturer', 'lecturer__user').prefetch_related('students', 'students__user').all().order_by('name')
     serializer_class = CourseSerializer
     permission_classes = [IsStaffOrAdmin]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'staff_api'
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'],
+            throttle_classes=[ScopedRateThrottle], throttle_scope='generate_token')
     def generate_attendance_token(self, request, pk=None):
         course = self.get_object()
         
@@ -134,25 +139,25 @@ class CourseViewSet(viewsets.ModelViewSet):
         except (ValueError, TypeError):
             return api_error('Invalid latitude or longitude.', APIErrorCode.INVALID_GPS_COORDINATES, status.HTTP_400_BAD_REQUEST)
 
-        # CRITICAL FIX: Create/Update the Attendance record immediately so students can find it
-        # We use get_or_create to prevent duplicates if the button is clicked twice
+        # Get the current active session for this course today, or create a brand-new one.
+        # We explicitly include is_active=True so that a previously-ended same-day session
+        # does NOT get recycled — a fresh record is created instead.
         attendance, created = Attendance.objects.get_or_create(
             course=course,
             date=timezone.localdate(),
+            is_active=True,
             defaults={
                 'lecturer_latitude': latitude,
                 'lecturer_longitude': longitude,
-                'is_active': True,
                 'created_by': request.user
             }
         )
 
-        # If it already existed, update the location and ensure it is active
+        # If an active session already exists for today, refresh its location only
         if not created:
             attendance.lecturer_latitude = latitude
             attendance.lecturer_longitude = longitude
-            attendance.is_active = True
-            attendance.save()
+            attendance.save(update_fields=['lecturer_latitude', 'lecturer_longitude'])
 
         # Now create the token — expiry matches the attendance session duration
         AttendanceToken.objects.create(
@@ -178,7 +183,8 @@ class CourseViewSet(viewsets.ModelViewSet):
 
         return Response({'status': 'Token generated and session started', 'token': token_value})
 
-    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated],
+            throttle_classes=[ScopedRateThrottle], throttle_scope='take_attendance')
     def take_attendance(self, request):
         """Allow any authenticated student to submit attendance via token."""
         token = request.data.get('token')
@@ -240,6 +246,8 @@ class AttendanceViewSet(viewsets.ModelViewSet):
     queryset = Attendance.objects.select_related('course', 'course__lecturer', 'course__lecturer__user').prefetch_related('present_students', 'present_students__user', 'course__students', 'course__students__user').all().order_by('-date')
     serializer_class = AttendanceSerializer
     permission_classes = [IsStaffOrAdmin]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'staff_api'
 
     @action(detail=False, methods=['get'])
     def generate_excel(self, request):

@@ -132,6 +132,7 @@ def process_student_upload(self, student_data_list, uploader_email):
     try:
         count = 0
         skipped = 0
+        failed_rows = []
         from django.http import HttpRequest
 
         dummy_request = HttpRequest()
@@ -150,49 +151,59 @@ def process_student_upload(self, student_data_list, uploader_email):
             student_id = row.get('student_id', '').strip()
 
             if not all([first_name, last_name, email, student_id]):
-                skipped += 1
+                missing = [f for f, v in [('first_name', first_name), ('last_name', last_name), ('email', email), ('student_id', student_id)] if not v]
+                failed_rows.append({'row': i + 1, 'student_id': student_id or '—', 'reason': f'Missing fields: {", ".join(missing)}'})
                 continue
 
             if not User.objects.filter(username=student_id).exists():
-                random_password = secrets.token_urlsafe(12)
-                user = User.objects.create_user(
-                    username=student_id,
-                    email=email,
-                    password=random_password,
-                    first_name=first_name,
-                    last_name=last_name,
-                )
-
-                Student.objects.create(
-                    user=user,
-                    student_id=student_id,
-                    name=f'{first_name} {last_name}',
-                )
-
-                reset_form = PasswordResetForm({'email': user.email})
-                if reset_form.is_valid():
-                    reset_form.save(
-                        request=dummy_request,
-                        use_https=True,
-                        email_template_name='registration/password_reset_email.html',
+                try:
+                    random_password = secrets.token_urlsafe(12)
+                    user = User.objects.create_user(
+                        username=student_id,
+                        email=email,
+                        password=random_password,
+                        first_name=first_name,
+                        last_name=last_name,
                     )
 
-                count += 1
+                    Student.objects.create(
+                        user=user,
+                        student_id=student_id,
+                        name=f'{first_name} {last_name}',
+                    )
+
+                    reset_form = PasswordResetForm({'email': user.email})
+                    if reset_form.is_valid():
+                        reset_form.save(
+                            request=dummy_request,
+                            use_https=True,
+                            email_template_name='registration/password_reset_email.html',
+                        )
+
+                    count += 1
+                except Exception as row_exc:
+                    logger.warning('Failed to create student for row %d (%s): %s', i + 1, student_id, row_exc)
+                    failed_rows.append({'row': i + 1, 'student_id': student_id, 'reason': str(row_exc)})
             else:
                 skipped += 1
 
-        logger.info('Student upload complete: %d created, %d skipped, %d total.', count, skipped, total)
+        logger.info('Student upload complete: %d created, %d skipped, %d failed, %d total.', count, skipped, len(failed_rows), total)
 
         if uploader_email:
+            body = f'Your CSV upload has finished processing.\n\n✅ Created: {count}\n⏭ Skipped (already exists): {skipped}\n❌ Failed: {len(failed_rows)}\n\nTotal rows: {total}'
+            if failed_rows:
+                body += '\n\nFailed rows:\n' + '\n'.join(
+                    f'  Row {r["row"]} ({r["student_id"]}): {r["reason"]}' for r in failed_rows
+                )
             send_mail(
                 subject='Student Bulk Upload Complete',
-                message=f'Your CSV upload has finished processing. {count} new students were successfully registered ({skipped} skipped).',
+                message=body,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[uploader_email],
                 fail_silently=True,
             )
 
-        return {'created': count, 'skipped': skipped, 'total': total}
+        return {'created': count, 'skipped': skipped, 'failed': len(failed_rows), 'failed_rows': failed_rows, 'total': total}
 
     except Exception as exc:
         logger.exception('Student upload failed (attempt %d/%d): %s', self.request.retries + 1, self.max_retries + 1, exc)
