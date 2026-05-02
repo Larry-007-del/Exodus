@@ -1,56 +1,37 @@
 {% extends 'base.html' %} {% block title %}Mark Attendance - Exodus{% endblock %} {% block content %}
 <div class="flex min-h-[80vh] items-center justify-center">
-  <div class="w-full max-w-md rounded-lg bg-white dark:bg-gray-800 p-8 shadow-lg">
+  <div class="w-full max-w-md rounded-2xl border border-gray-100/60 bg-white/80 backdrop-blur-md p-8 shadow-xl shadow-brand-500/10 dark:border-gray-700/50 dark:bg-gray-800/80">
     <div class="mb-8 text-center">
-      <div
-        class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100"
-      >
-        <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-          ></path>
+      <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 ring-4 ring-emerald-100 dark:ring-emerald-900/20">
+        <svg class="h-8 w-8 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
         </svg>
       </div>
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Mark Attendance</h1>
-      <p class="mt-2 text-gray-600">Enter the token provided by your lecturer</p>
+      <h1 class="text-2xl font-extrabold text-gray-900 dark:text-white">Mark Attendance</h1>
+      <p class="mt-1.5 text-sm text-gray-500 dark:text-gray-400">Enter the token provided by your lecturer</p>
     </div>
 
     <div class="mb-6">
       <div class="my-8 flex items-center justify-center" id="gps-radar">
         <div class="relative flex h-24 w-24 items-center justify-center">
-          <span
-            class="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"
-          ></span>
-          <span
-            class="relative inline-flex h-12 w-12 items-center justify-center rounded-full bg-indigo-600 text-white"
-          >
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-400 opacity-75"></span>
+          <span class="relative inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg shadow-brand-500/30">
             <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                clip-rule="evenodd"
-              ></path>
+              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
             </svg>
           </span>
         </div>
       </div>
-      <p class="mt-2 animate-pulse text-center text-sm text-gray-500">
-        Acquiring satellite location...
-      </p>
+      <p class="mt-2 animate-pulse text-center text-sm text-gray-400">Acquiring satellite location...</p>
     </div>
 
-    <form method="post" class="space-y-6" id="markForm" hx-boost="true" x-data="{ loading: false }" @submit="loading = true" @reset-data="loading = false">
+    <form method="post" class="space-y-4" id="markForm" hx-boost="true" x-data="{ loading: false }" @submit="loading = true" @reset-data="loading = false">
       {% csrf_token %}
       <input type="hidden" name="latitude" id="latitude" />
       <input type="hidden" name="longitude" id="longitude" />
 
       <div>
-        <label for="token" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >Attendance Token</label
-        >
+        <label for="token" class="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-300">Attendance Token</label>
         <input
           type="text"
           name="token"
@@ -59,35 +40,29 @@
           maxlength="6"
           minlength="6"
           placeholder="Enter 6-character token"
-          class="w-full rounded-lg border-2 border-gray-300 px-4 py-4 text-center font-mono text-2xl uppercase tracking-widest focus:border-green-500 focus:ring-green-500"
+          class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700 px-4 py-3.5 text-center font-mono text-2xl uppercase tracking-widest transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30"
         />
       </div>
 
       <!-- QR Code Scanner Button -->
-      <div>
-        <button
-          type="button"
-          onclick="startQRScanner()"
-          class="flex w-full items-center justify-center gap-2 rounded-lg bg-indigo-600 py-4 text-lg font-semibold text-white hover:bg-indigo-700"
-        >
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
-            ></path>
-          </svg>
-          Scan QR Code
-        </button>
-      </div>
+      <button
+        type="button"
+        onclick="startQRScanner()"
+        class="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-200 dark:border-brand-800 bg-brand-50 dark:bg-brand-900/20 px-4 py-3 text-sm font-semibold text-brand-700 dark:text-brand-300 transition-all hover:bg-brand-100 dark:hover:bg-brand-900/40 active:scale-95"
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+        Scan QR Code
+      </button>
 
       <button
         type="submit"
         :disabled="loading"
-        class="flex w-full items-center justify-center rounded-lg bg-green-600 py-4 text-lg font-semibold text-white hover:bg-green-700 disabled:opacity-75 disabled:cursor-wait"
+        class="flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 px-4 py-3.5 text-base font-bold text-white shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-0.5 hover:from-emerald-700 hover:to-teal-800 active:scale-95 disabled:opacity-75 disabled:cursor-wait"
       >
-        <svg style="display: none;" x-show="loading" class="mr-2 h-6 w-6 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <svg style="display: none;" x-show="loading" class="mr-2 h-5 w-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
@@ -97,237 +72,144 @@
     </form>
 
     <!-- QR Scanner Modal -->
-    <div
-      id="qrScannerModal"
-      class="fixed inset-0 z-50 flex hidden items-center justify-center bg-black bg-opacity-50"
-    >
-      <div class="mx-4 w-full max-w-md rounded-lg bg-white dark:bg-gray-800 p-6">
+    <div id="qrScannerModal" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div class="mx-4 w-full max-w-md rounded-2xl border border-white/10 bg-gray-900/90 backdrop-blur-xl p-6 shadow-2xl">
         <div class="mb-4 flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Scan QR Code</h3>
-          <button onclick="stopQRScanner()" class="text-gray-500 hover:text-gray-700 dark:text-gray-300">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
+          <h3 class="text-base font-bold text-white">Scan QR Code</h3>
+          <button onclick="stopQRScanner()" class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10 text-gray-300 hover:bg-white/20 transition-colors">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
           </button>
         </div>
-        <div class="mb-4 rounded-lg bg-gray-100 p-4">
-          <video id="qrScannerVideo" class="w-full rounded-lg" autoplay playsinline></video>
+        <div class="mb-3 overflow-hidden rounded-xl bg-black">
+          <video id="qrScannerVideo" class="w-full rounded-xl" autoplay playsinline></video>
           <canvas id="qrScannerCanvas" class="hidden"></canvas>
         </div>
-        <p class="text-center text-sm text-gray-500">Position the QR code within the frame</p>
+        <p class="text-center text-xs text-gray-400">Position the QR code within the frame</p>
       </div>
     </div>
 
-    <script>
-      let scanner = null;
-
-      function startQRScanner() {
-        const modal = document.getElementById('qrScannerModal');
-        const video = document.getElementById('qrScannerVideo');
-
-        modal.classList.remove('hidden');
-
-        // Access camera
-        navigator.mediaDevices
-          .getUserMedia({ video: { facingMode: 'environment' } })
-          .then((stream) => {
-            video.srcObject = stream;
-
-            // Initialize QR scanner
-            const canvas = document.getElementById('qrScannerCanvas');
-            const context = canvas.getContext('2d');
-
-            scanner = setInterval(() => {
-              if (video.readyState === video.HAVE_ENOUGH_DATA) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                // Use JSQR library for scanning
-                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
-
-                if (qrCode) {
-                  stopQRScanner();
-                  const token = qrCode.data.replace('attendance_token:', '');
-                  document.getElementById('token').value = token;
-                  document.getElementById('token').focus();
-                  document.getElementById('token').select();
-                  window.showToast('QR code scanned successfully! Token: ' + token, 'success');
-                }
-              }
-            }, 100);
-          })
-          .catch((error) => {
-            console.error('Error accessing camera:', error);
-            window.showToast('Unable to access camera. Please check permissions.', 'error');
-            modal.classList.add('hidden');
-          });
-      }
-
-      function stopQRScanner() {
-        const modal = document.getElementById('qrScannerModal');
-        const video = document.getElementById('qrScannerVideo');
-
-        modal.classList.add('hidden');
-
-        if (scanner) {
-          clearInterval(scanner);
-          scanner = null;
-        }
-
-        if (video.srcObject) {
-          const tracks = video.srcObject.getTracks();
-          tracks.forEach((track) => track.stop());
-          video.srcObject = null;
-        }
-      }
-
-      // Close modal on escape key
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          stopQRScanner();
-        }
-      });
-
-      // Geolocation Logic
-      document.addEventListener('DOMContentLoaded', () => {
-        const markForm = document.getElementById('markForm');
-        const latInput = document.getElementById('latitude');
-        const lngInput = document.getElementById('longitude');
-        const statusText = document.querySelector('.animate-pulse');
-        const radarPing = document.querySelector('.animate-ping');
-        const submitButton = markForm.querySelector('button[type="submit"]');
-
-        // Do not disable submit button even if location is not found
-        // submitButton.disabled = true;
-        // submitButton.classList.add('opacity-50', 'cursor-not-allowed');
-
-        window.acquireLocationMark = function() {
-          if (!('geolocation' in navigator)) {
-            statusText.textContent = 'Geolocation is not supported by your browser.';
-            statusText.className = 'mt-2 text-center text-sm text-red-500 font-medium';
-            return;
-          }
-
-          statusText.textContent = 'Acquiring satellite location...';
-          statusText.className = 'mt-2 animate-pulse text-center text-sm text-gray-500';
-          
-          if (radarPing) radarPing.classList.add('animate-ping');
-
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              latInput.value = position.coords.latitude.toFixed(6);
-              lngInput.value = position.coords.longitude.toFixed(6);
-
-              // Update UI
-              statusText.textContent = 'Location Secured';
-              statusText.className = 'mt-2 text-center text-sm text-green-600 font-medium';
-
-              if (radarPing) {
-                radarPing.classList.replace('bg-indigo-400', 'bg-green-400');
-                radarPing.classList.replace('bg-red-400', 'bg-green-400');
-              }
-              const radarCore = document.querySelector('#gps-radar > span:last-child');
-              if (radarCore) {
-                radarCore.classList.remove('bg-indigo-600', 'bg-red-600');
-                radarCore.classList.add('bg-green-600');
-              }
-
-              // Enable form
-              submitButton.disabled = false;
-              submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
-            },
-            (error) => {
-              console.error('Geolocation error:', error);
-              statusText.innerHTML =
-                'Failed to acquire location. <button type="button" onclick="acquireLocationMark()" class="underline font-semibold text-indigo-600 ml-1">Retry</button>';
-              statusText.className = 'mt-2 text-center text-sm text-red-500 font-medium';
-
-              if (radarPing) {
-                radarPing.classList.replace('bg-indigo-400', 'bg-red-400');
-                radarPing.classList.replace('bg-green-400', 'bg-red-400');
-                radarPing.classList.remove('animate-ping');
-              }
-              const radarCore = document.querySelector('#gps-radar > span:last-child');
-              if (radarCore) {
-                radarCore.classList.remove('bg-indigo-600', 'bg-green-600');
-                radarCore.classList.add('bg-red-600');
-              }
-            },
-            {
-              enableHighAccuracy: true,
-              timeout: 30000,
-              maximumAge: 0,
-            }
-          );
-        };
-
-        acquireLocationMark();
-      });
-    </script>
-
-    <!-- Load JSQR & SimpleWebAuthn library -->
-    <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
-    <script src="https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js"></script>
-
-    <script>
-      // Intercept the HTMX form submission to enforce Fingerprint verification if enabled
-      document.body.addEventListener('htmx:confirm', async function(evt) {
-        if (evt.target.id === 'markForm') {
-          evt.preventDefault(); // Pause the standard HTMX boost
-
-          const statusText = document.querySelector('.animate-pulse') || document.querySelector('.text-green-600');
-          const originalText = statusText.textContent;
-          statusText.textContent = 'Verifying Fingerprint...';
-          statusText.classList.remove('text-green-600');
-          statusText.classList.add('text-indigo-600');
-
-          try {
-            const resp = await fetch('/api/webauthn/authenticate/begin/');
-            if (!resp.ok) {
-              // No credentials registered or server warning. Proceed with standard form.
-              evt.detail.issueRequest();
-              return;
-            }
-            
-            const options = await resp.json();
-            const authResp = await SimpleWebAuthnBrowser.startAuthentication(options);
-            
-            const verifyResp = await fetch('/api/webauthn/authenticate/complete/', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(authResp)
-            });
-            
-            const verification = await verifyResp.json();
-            if (verification.status === 'success') {
-              // Successfully verified fingerprint, unlock the request
-              evt.detail.issueRequest();
-            } else {
-              window.showToast("Fingerprint verification failed: " + verification.error, 'error');
-              statusText.textContent = originalText;
-              document.getElementById('markForm').dispatchEvent(new Event('reset-data'));
-            }
-          } catch (err) {
-            console.error(err);
-            window.showToast("Fingerprint challenge was cancelled.", 'warning');
-            statusText.textContent = originalText;
-            document.getElementById('markForm').dispatchEvent(new Event('reset-data'));
-          }
-        }
-      });
-    </script>
-
-    <div class="mt-6 text-center text-sm text-gray-500">
-      <p>Token is case-insensitive</p>
-      <p class="mt-1">Contact your lecturer if you don't have a token</p>
+    <div class="mt-5 text-center text-xs text-gray-400">
+      <p>Token is case-insensitive &mdash; contact your lecturer if you don't have one</p>
     </div>
   </div>
 </div>
+
+<script>
+  let scanner = null;
+  function startQRScanner() {
+    const modal = document.getElementById('qrScannerModal');
+    const video = document.getElementById('qrScannerVideo');
+    modal.classList.remove('hidden');
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then((stream) => {
+      video.srcObject = stream;
+      const canvas = document.getElementById('qrScannerCanvas');
+      const context = canvas.getContext('2d');
+      scanner = setInterval(() => {
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+          const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+          if (qrCode) {
+            stopQRScanner();
+            const token = qrCode.data.replace('attendance_token:', '');
+            document.getElementById('token').value = token;
+            document.getElementById('token').focus();
+            document.getElementById('token').select();
+            window.showToast('QR code scanned successfully! Token: ' + token, 'success');
+          }
+        }
+      }, 100);
+    }).catch((error) => {
+      console.error('Error accessing camera:', error);
+      window.showToast('Unable to access camera. Please check permissions.', 'error');
+      modal.classList.add('hidden');
+    });
+  }
+  function stopQRScanner() {
+    const modal = document.getElementById('qrScannerModal');
+    const video = document.getElementById('qrScannerVideo');
+    modal.classList.add('hidden');
+    if (scanner) { clearInterval(scanner); scanner = null; }
+    if (video.srcObject) { video.srcObject.getTracks().forEach((track) => track.stop()); video.srcObject = null; }
+  }
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') stopQRScanner(); });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const markForm = document.getElementById('markForm');
+    const latInput = document.getElementById('latitude');
+    const lngInput = document.getElementById('longitude');
+    const statusText = document.querySelector('.animate-pulse');
+    const radarPing = document.querySelector('.animate-ping');
+    const submitButton = markForm.querySelector('button[type="submit"]');
+
+    window.acquireLocationMark = function() {
+      if (!('geolocation' in navigator)) {
+        statusText.textContent = 'Geolocation is not supported by your browser.';
+        statusText.className = 'mt-2 text-center text-sm text-red-500 font-medium';
+        return;
+      }
+      statusText.textContent = 'Acquiring satellite location...';
+      statusText.className = 'mt-2 animate-pulse text-center text-sm text-gray-400';
+      if (radarPing) radarPing.classList.add('animate-ping');
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          latInput.value = position.coords.latitude.toFixed(6);
+          lngInput.value = position.coords.longitude.toFixed(6);
+          statusText.textContent = 'Location Secured';
+          statusText.className = 'mt-2 text-center text-sm text-emerald-600 dark:text-emerald-400 font-semibold';
+          if (radarPing) { radarPing.classList.replace('bg-brand-400', 'bg-emerald-400'); radarPing.classList.replace('bg-red-400', 'bg-emerald-400'); }
+          const radarCore = document.querySelector('#gps-radar > span:last-child');
+          if (radarCore) { radarCore.classList.remove('bg-brand-600', 'bg-red-600'); radarCore.classList.add('bg-emerald-600'); }
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          statusText.innerHTML = 'Failed to acquire location. <button type="button" onclick="acquireLocationMark()" class="underline font-semibold text-brand-600 dark:text-brand-400 ml-1">Retry</button>';
+          statusText.className = 'mt-2 text-center text-sm text-red-500 font-medium';
+          if (radarPing) { radarPing.classList.replace('bg-brand-400', 'bg-red-400'); radarPing.classList.replace('bg-emerald-400', 'bg-red-400'); radarPing.classList.remove('animate-ping'); }
+          const radarCore = document.querySelector('#gps-radar > span:last-child');
+          if (radarCore) { radarCore.classList.remove('bg-brand-600', 'bg-emerald-600'); radarCore.classList.add('bg-red-600'); }
+        },
+        { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 }
+      );
+    };
+    acquireLocationMark();
+  });
+</script>
+
+<script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js"></script>
+<script>
+  document.body.addEventListener('htmx:confirm', async function(evt) {
+    if (evt.target.id === 'markForm') {
+      evt.preventDefault();
+      const statusText = document.querySelector('.animate-pulse') || document.querySelector('.text-emerald-600');
+      const originalText = statusText.textContent;
+      statusText.textContent = 'Verifying Fingerprint...';
+      try {
+        const resp = await fetch('/api/webauthn/authenticate/begin/');
+        if (!resp.ok) { evt.detail.issueRequest(); return; }
+        const options = await resp.json();
+        const authResp = await SimpleWebAuthnBrowser.startAuthentication(options);
+        const verifyResp = await fetch('/api/webauthn/authenticate/complete/', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(authResp)
+        });
+        const verification = await verifyResp.json();
+        if (verification.status === 'success') {
+          evt.detail.issueRequest();
+        } else {
+          window.showToast("Fingerprint verification failed: " + verification.error, 'error');
+          statusText.textContent = originalText;
+          document.getElementById('markForm').dispatchEvent(new Event('reset-data'));
+        }
+      } catch (err) {
+        console.error(err);
+        window.showToast("Fingerprint challenge was cancelled.", 'warning');
+        statusText.textContent = originalText;
+        document.getElementById('markForm').dispatchEvent(new Event('reset-data'));
+      }
+    }
+  });
+</script>
 {% endblock %}

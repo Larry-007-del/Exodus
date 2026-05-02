@@ -1,88 +1,77 @@
 {% extends 'base.html' %} {% block title %}Reports - Exodus{% endblock %} {% block content %}
+
+<!-- Page Header -->
 <div class="mb-6">
   <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Reports</h1>
-  <p class="mt-1 text-gray-600">Analytics and data export</p>
+  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Analytics and data export</p>
 </div>
 
-<!-- Summary Cards -->
-<div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-  <div class="rounded-lg bg-white dark:bg-gray-800 p-5 shadow">
-    <div class="flex items-center">
-      <div class="flex-shrink-0 rounded-lg bg-indigo-100 p-3">
-        <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-          ></path>
+<!-- Summary Stat Cards -->
+<div class="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+  <!-- Total Sessions -->
+  <div class="relative overflow-hidden rounded-2xl border border-brand-100/60 bg-white/80 backdrop-blur-md p-5 shadow-lg shadow-brand-200/20 transition-all hover:-translate-y-1 hover:shadow-xl dark:border-brand-900/40 dark:bg-gray-800/80">
+    <div class="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-brand-400 to-indigo-500"></div>
+    <div class="mb-3 flex items-start justify-between">
+      <p class="text-xs font-bold uppercase tracking-widest text-brand-400 dark:text-brand-300">Total Sessions</p>
+      <div class="rounded-xl bg-brand-50 p-2 dark:bg-brand-900/30">
+        <svg class="h-5 w-5 text-brand-500 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
         </svg>
       </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Total Sessions</p>
-        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_records }}</p>
-      </div>
     </div>
+    <p class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">{{ total_records }}</p>
   </div>
-  <div class="rounded-lg bg-white dark:bg-gray-800 p-5 shadow">
-    <div class="flex items-center">
-      <div class="flex-shrink-0 rounded-lg bg-indigo-100 p-3">
-        <svg class="h-6 w-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-          ></path>
+
+  <!-- Courses -->
+  <div class="relative overflow-hidden rounded-2xl border border-blue-100/60 bg-white/80 backdrop-blur-md p-5 shadow-lg shadow-blue-200/20 transition-all hover:-translate-y-1 hover:shadow-xl dark:border-blue-900/40 dark:bg-gray-800/80">
+    <div class="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-blue-400 to-cyan-500"></div>
+    <div class="mb-3 flex items-start justify-between">
+      <p class="text-xs font-bold uppercase tracking-widest text-blue-400 dark:text-blue-300">Courses</p>
+      <div class="rounded-xl bg-blue-50 p-2 dark:bg-blue-900/30">
+        <svg class="h-5 w-5 text-blue-500 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
         </svg>
       </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Courses</p>
-        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_courses }}</p>
-      </div>
     </div>
+    <p class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">{{ total_courses }}</p>
   </div>
-  <div class="rounded-lg bg-white dark:bg-gray-800 p-5 shadow">
-    <div class="flex items-center">
-      <div class="flex-shrink-0 rounded-lg bg-green-100 p-3">
-        <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-          ></path>
+
+  <!-- Students -->
+  <div class="relative overflow-hidden rounded-2xl border border-emerald-100/60 bg-white/80 backdrop-blur-md p-5 shadow-lg shadow-emerald-200/20 transition-all hover:-translate-y-1 hover:shadow-xl dark:border-emerald-900/40 dark:bg-gray-800/80">
+    <div class="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-emerald-400 to-teal-500"></div>
+    <div class="mb-3 flex items-start justify-between">
+      <p class="text-xs font-bold uppercase tracking-widest text-emerald-500 dark:text-emerald-300">Students</p>
+      <div class="rounded-xl bg-emerald-50 p-2 dark:bg-emerald-900/30">
+        <svg class="h-5 w-5 text-emerald-500 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
         </svg>
       </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Students</p>
-        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_students }}</p>
-      </div>
     </div>
+    <p class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">{{ total_students }}</p>
   </div>
-  <div class="rounded-lg bg-white dark:bg-gray-800 p-5 shadow">
-    <div class="flex items-center">
-      <div class="flex-shrink-0 rounded-lg bg-yellow-100 p-3">
-        <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M13 10V3L4 14h7v7l9-11h-7z"
-          ></path>
-        </svg>
-      </div>
-      <div class="ml-4">
-        <p class="text-sm font-medium text-gray-500">Active Now</p>
-        <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ active_sessions }}</p>
+
+  <!-- Active Now -->
+  <div class="relative overflow-hidden rounded-2xl border border-amber-100/60 bg-white/80 backdrop-blur-md p-5 shadow-lg shadow-amber-200/20 transition-all hover:-translate-y-1 hover:shadow-xl dark:border-amber-900/40 dark:bg-gray-800/80">
+    <div class="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-amber-400 to-orange-500"></div>
+    <div class="mb-3 flex items-start justify-between">
+      <p class="text-xs font-bold uppercase tracking-widest text-amber-500 dark:text-amber-300">Active Now</p>
+      <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-900/30">
+        <span class="relative flex h-3 w-3">
+          <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
+          <span class="relative inline-flex h-3 w-3 rounded-full bg-amber-500"></span>
+        </span>
       </div>
     </div>
+    <p class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">{{ active_sessions }}</p>
   </div>
 </div>
 
 <div class="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
   <!-- Weekly Trend Chart -->
-  <div class="rounded-lg bg-white dark:bg-gray-800 shadow lg:col-span-2">
-    <div class="border-b border-gray-200 dark:border-gray-700 p-5">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Weekly Sessions</h2>
-      <p class="text-sm text-gray-500">Attendance sessions per week (last 8 weeks)</p>
+  <div class="rounded-2xl border border-gray-100/60 bg-white/80 backdrop-blur-md shadow-lg shadow-gray-200/20 dark:border-gray-700/50 dark:bg-gray-800/80 overflow-hidden lg:col-span-2">
+    <div class="border-b border-gray-100 dark:border-gray-700/50 px-5 py-4">
+      <h2 class="text-base font-bold text-gray-900 dark:text-white">Weekly Sessions</h2>
+      <p class="text-xs text-gray-400 mt-0.5">Attendance sessions per week (last 8 weeks)</p>
     </div>
     <div class="p-5">
       <canvas id="weeklyChart" height="240"></canvas>
@@ -90,32 +79,22 @@
   </div>
 
   <!-- Course Performance -->
-  <div class="rounded-lg bg-white dark:bg-gray-800 shadow">
-    <div class="border-b border-gray-200 dark:border-gray-700 p-5">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Course Attendance</h2>
-      <p class="text-sm text-gray-500">Average attendance rate by course</p>
+  <div class="rounded-2xl border border-gray-100/60 bg-white/80 backdrop-blur-md shadow-lg shadow-gray-200/20 dark:border-gray-700/50 dark:bg-gray-800/80 overflow-hidden">
+    <div class="border-b border-gray-100 dark:border-gray-700/50 px-5 py-4">
+      <h2 class="text-base font-bold text-gray-900 dark:text-white">Course Attendance</h2>
+      <p class="text-xs text-gray-400 mt-0.5">Average attendance rate by course</p>
     </div>
     <div class="max-h-[400px] space-y-4 overflow-y-auto p-5">
       {% for cs in course_stats %}
       <div>
         <div class="mb-1 flex items-center justify-between">
-          <span class="truncate text-sm font-medium text-gray-700 dark:text-gray-300" title="{{ cs.name }}"
-            >{{ cs.code }}</span
-          >
-          <span
-            class="{% if cs.rate >= 75 %}text-green-600{% elif cs.rate >= 50 %}text-yellow-600{% else %}text-red-600{% endif %} text-sm font-semibold"
-            >{{ cs.rate }}%</span
-          >
+          <span class="truncate text-sm font-semibold text-gray-700 dark:text-gray-300" title="{{ cs.name }}">{{ cs.code }}</span>
+          <span class="ml-2 flex-shrink-0 text-sm font-bold {% if cs.rate >= 75 %}text-emerald-600 dark:text-emerald-400{% elif cs.rate >= 50 %}text-amber-600 dark:text-amber-400{% else %}text-red-600 dark:text-red-400{% endif %}">{{ cs.rate }}%</span>
         </div>
-        <div class="h-2.5 w-full rounded-full bg-gray-200">
-          <div
-            class="{% if cs.rate >= 75 %}bg-green-500{% elif cs.rate >= 50 %}bg-yellow-400{% else %}bg-red-500{% endif %} h-2.5 rounded-full"
-            style="width: {{ cs.rate }}%"
-          ></div>
+        <div class="h-2 w-full rounded-full bg-gray-100 dark:bg-gray-700">
+          <div class="h-2 rounded-full {% if cs.rate >= 75 %}bg-emerald-500{% elif cs.rate >= 50 %}bg-amber-400{% else %}bg-red-500{% endif %}" style="width: {{ cs.rate }}%"></div>
         </div>
-        <p class="mt-0.5 text-xs text-gray-400">
-          {{ cs.sessions }} session{{ cs.sessions|pluralize }} &middot; {{ cs.enrolled }} enrolled
-        </p>
+        <p class="mt-0.5 text-xs text-gray-400">{{ cs.sessions }} session{{ cs.sessions|pluralize }} &middot; {{ cs.enrolled }} enrolled</p>
       </div>
       {% empty %}
       <p class="py-4 text-center text-sm text-gray-500">No course data yet</p>
@@ -127,54 +106,48 @@
 <!-- Recent Sessions & Export -->
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
   <!-- Recent Sessions -->
-  <div class="rounded-lg bg-white dark:bg-gray-800 shadow lg:col-span-2">
-    <div class="border-b border-gray-200 dark:border-gray-700 p-5">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Recent Sessions</h2>
+  <div class="rounded-2xl border border-gray-100/60 bg-white/80 backdrop-blur-md shadow-lg shadow-gray-200/20 dark:border-gray-700/50 dark:bg-gray-800/80 overflow-hidden lg:col-span-2">
+    <div class="border-b border-gray-100 dark:border-gray-700/50 px-5 py-4">
+      <h2 class="text-base font-bold text-gray-900 dark:text-white">Recent Sessions</h2>
     </div>
     <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-5 py-3 text-left text-xs font-bold uppercase text-gray-800 dark:text-gray-300">Course</th>
-            <th class="px-5 py-3 text-left text-xs font-bold uppercase text-gray-800 dark:text-gray-300">Date</th>
-            <th class="px-5 py-3 text-left text-xs font-bold uppercase text-gray-800 dark:text-gray-300">Present</th>
-            <th class="px-5 py-3 text-left text-xs font-bold uppercase text-gray-800 dark:text-gray-300">Status</th>
+      <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-700">
+        <thead>
+          <tr class="bg-gray-50/80 dark:bg-gray-700/50">
+            <th class="px-5 py-3.5 text-left text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-400">Course</th>
+            <th class="px-5 py-3.5 text-left text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-400">Date</th>
+            <th class="px-5 py-3.5 text-left text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-400">Present</th>
+            <th class="px-5 py-3.5 text-left text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-400">Status</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200">
+        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
           {% for session in recent_sessions %}
-          <tr class="hover:bg-gray-50">
-            <td class="whitespace-nowrap px-5 py-3">
-              <div class="text-sm font-medium text-gray-900 dark:text-white">{{ session.course.name }}</div>
-              <div class="text-xs text-gray-500">{{ session.course.course_code }}</div>
+          <tr class="transition-colors hover:bg-brand-50/40 dark:hover:bg-brand-900/10">
+            <td class="whitespace-nowrap px-5 py-3.5">
+              <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ session.course.name }}</div>
+              <div class="text-xs text-gray-400">{{ session.course.course_code }}</div>
             </td>
-            <td class="whitespace-nowrap px-5 py-3 text-sm text-gray-600">{{ session.date }}</td>
-            <td class="whitespace-nowrap px-5 py-3">
-              <span
-                class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800"
-                >{{ session.present_students.count }}</span
-              >
+            <td class="whitespace-nowrap px-5 py-3.5 text-sm text-gray-500 dark:text-gray-400">{{ session.date }}</td>
+            <td class="whitespace-nowrap px-5 py-3.5">
+              <span class="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">{{ session.present_students.count }}</span>
             </td>
-            <td class="whitespace-nowrap px-5 py-3">
+            <td class="whitespace-nowrap px-5 py-3.5">
               {% if session.is_active %}
-              <span
-                class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800"
-              >
-                <span class="mr-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-yellow-500"></span
-                >Active
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 dark:bg-amber-900/40 px-2.5 py-0.5 text-xs font-semibold text-amber-700 dark:text-amber-300">
+                <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>Active
               </span>
               {% else %}
-              <span
-                class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600"
-                >Ended</span
-              >
+              <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-700 px-2.5 py-0.5 text-xs font-semibold text-gray-500 dark:text-gray-400">Ended</span>
               {% endif %}
             </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="4" class="px-5 py-8 text-center text-sm text-gray-500">
-              No sessions recorded yet
+            <td colspan="4" class="px-5 py-12 text-center">
+              <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-700">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+              </div>
+              <p class="text-sm text-gray-500">No sessions recorded yet</p>
             </td>
           </tr>
           {% endfor %}
@@ -184,20 +157,16 @@
   </div>
 
   <!-- Export Panel -->
-  <div class="rounded-lg bg-white dark:bg-gray-800 shadow">
-    <div class="border-b border-gray-200 dark:border-gray-700 p-5">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Export Data</h2>
-      <p class="text-sm text-gray-500">Download attendance records</p>
+  <div class="rounded-2xl border border-gray-100/60 bg-white/80 backdrop-blur-md shadow-lg shadow-gray-200/20 dark:border-gray-700/50 dark:bg-gray-800/80 overflow-hidden">
+    <div class="border-b border-gray-100 dark:border-gray-700/50 px-5 py-4">
+      <h2 class="text-base font-bold text-gray-900 dark:text-white">Export Data</h2>
+      <p class="text-xs text-gray-400 mt-0.5">Download attendance records</p>
     </div>
     <div class="p-5">
       <form method="get" action="{% url 'frontend:reports_export' %}" class="space-y-4">
         <div>
-          <label for="course" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Course</label>
-          <select
-            name="course"
-            id="course"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-          >
+          <label for="course" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Course</label>
+          <select name="course" id="course" class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-800 dark:text-gray-200 transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
             <option value="">All Courses</option>
             {% for course in courses %}
             <option value="{{ course.id }}">{{ course.name }}</option>
@@ -205,54 +174,20 @@
           </select>
         </div>
         <div>
-          <label for="date_from" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">From</label>
-          <input
-            type="date"
-            name="date_from"
-            id="date_from"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-          />
+          <label for="date_from" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">From</label>
+          <input type="date" name="date_from" id="date_from" class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-800 dark:text-gray-200 transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
         </div>
         <div>
-          <label for="date_to" class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">To</label>
-          <input
-            type="date"
-            name="date_to"
-            id="date_to"
-            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-          />
+          <label for="date_to" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">To</label>
+          <input type="date" name="date_to" id="date_to" class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-800 dark:text-gray-200 transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
         </div>
         <div class="space-y-2 pt-2">
-          <button
-            type="submit"
-            name="format"
-            value="csv"
-            class="flex w-full items-center justify-center rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-green-700"
-          >
-            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              ></path>
-            </svg>
+          <button type="submit" name="format" value="csv" class="flex w-full items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-700 active:scale-95">
+            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
             Download CSV
           </button>
-          <button
-            type="submit"
-            name="format"
-            value="xlsx"
-            class="flex w-full items-center justify-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-700"
-          >
-            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              ></path>
-            </svg>
+          <button type="submit" name="format" value="xlsx" class="flex w-full items-center justify-center rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-700 active:scale-95">
+            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
             Download Excel
           </button>
         </div>
@@ -267,16 +202,10 @@
   (function() {
       const canvas = document.getElementById('weeklyChart');
       if (!canvas) return;
-      
       const ctx = canvas.getContext('2d');
       const labels = {{ week_labels|safe }};
       const data = {{ week_counts|safe }};
-
-      // Destroy previous instances to prevent Canvas duplication errors under HTMX SPA
-      if (window.weeklyTrendChart) {
-          window.weeklyTrendChart.destroy();
-      }
-
+      if (window.weeklyTrendChart) { window.weeklyTrendChart.destroy(); }
       window.weeklyTrendChart = new Chart(ctx, {
           type: 'bar',
           data: {
@@ -287,7 +216,7 @@
                   backgroundColor: 'rgba(99, 102, 241, 0.7)',
                   borderColor: 'rgb(99, 102, 241)',
                   borderWidth: 1,
-                  borderRadius: 6,
+                  borderRadius: 8,
                   hoverBackgroundColor: 'rgba(99, 102, 241, 0.9)',
               }]
           },
@@ -296,31 +225,11 @@
               maintainAspectRatio: false,
               plugins: {
                   legend: { display: false },
-                  tooltip: {
-                      backgroundColor: '#1f2937',
-                      titleFont: { size: 13 },
-                      bodyFont: { size: 12 },
-                      padding: 10,
-                      cornerRadius: 8,
-                  }
+                  tooltip: { backgroundColor: '#1f2937', titleFont: { size: 13 }, bodyFont: { size: 12 }, padding: 10, cornerRadius: 8 }
               },
               scales: {
-                  y: {
-                      beginAtZero: true,
-                      ticks: {
-                          stepSize: 1,
-                          font: { size: 12 },
-                          color: '#6b7280'
-                      },
-                      grid: { color: '#f3f4f6' }
-                  },
-                  x: {
-                      ticks: {
-                          font: { size: 11 },
-                          color: '#6b7280'
-                      },
-                      grid: { display: false }
-                  }
+                  y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 12 }, color: '#6b7280' }, grid: { color: '#f3f4f6' } },
+                  x: { ticks: { font: { size: 11 }, color: '#6b7280' }, grid: { display: false } }
               }
           }
       });
