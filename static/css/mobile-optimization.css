@@ -44,11 +44,16 @@ button {
 
 button:active { opacity: 0.8; }
 
-/* ================= GPU ACCELERATION ================= */
-body, html {
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  will-change: transform;
+/* ================= SCROLL ================= */
+/* NOTE: Do NOT apply transform or will-change to html/body — it creates a new
+   stacking context that breaks native page scroll in Chrome, Safari, and Firefox. */
+html {
+  scroll-behavior: smooth;
+  overflow-y: auto;
+}
+body {
+  overflow-y: auto;
+  overscroll-behavior-y: auto;
 }
 
 /* ================= TOUCH OPTIMIZATION ================= */
