@@ -77,7 +77,6 @@ prompt_toolkit==3.0.52
 propcache==0.4.1
 proto-plus==1.27.2
 protobuf==6.33.6
-psycopg2==2.9.9
 psycopg2-binary==2.9.11
 pyasn1==0.6.3
 pyasn1_modules==0.4.2
@@ -117,5 +116,4 @@ vine==5.1.0
 wcwidth==0.6.0
 webauthn==2.7.1
 whitenoise==6.12.0
-win32_setctime==1.2.0
 yarl==1.23.0

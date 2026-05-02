@@ -1442,6 +1442,12 @@ def attendance_take(request):
                 duration_hours = 2
         except (ValueError, TypeError):
             duration_hours = 2
+        try:
+            radius_meters = int(request.POST.get('radius_meters', 50))
+            if radius_meters < 10 or radius_meters > 500:
+                radius_meters = 50
+        except (ValueError, TypeError):
+            radius_meters = 50
         
         # Validate token length
         if len(token_value) != 6:
@@ -1481,6 +1487,7 @@ def attendance_take(request):
             created_by=request.user,
             require_two_factor_auth=require_two_factor_auth,
             duration_hours=duration_hours,
+            radius_meters=radius_meters,
         )
         
         # Generate token with expiration based on attendance duration

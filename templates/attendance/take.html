@@ -339,6 +339,24 @@
             </select>
           </div>
 
+          <div>
+            <label for="radius_meters" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300"
+              >Geofencing Radius</label
+            >
+            <select
+              name="radius_meters"
+              id="radius_meters"
+              class="block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 py-2.5 pl-4 pr-10 text-base backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 sm:text-sm"
+            >
+              <option value="25">25 m — Small Room</option>
+              <option value="50" selected>50 m — Standard Classroom</option>
+              <option value="100">100 m — Large Hall</option>
+              <option value="200">200 m — Outdoor / Campus</option>
+              <option value="500">500 m — Wide Campus Area</option>
+            </select>
+            <p class="mt-1 text-xs text-gray-500">Students must be within this distance of you to check in.</p>
+          </div>
+
           <div class="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4">
             <div class="flex items-start">
               <div class="flex h-5 items-center">
@@ -471,8 +489,10 @@
         (position) => {
           latInput.value = position.coords.latitude.toFixed(6);
           lngInput.value = position.coords.longitude.toFixed(6);
+          var radius = document.getElementById('radius_meters');
+          var radiusLabel = radius ? radius.options[radius.selectedIndex].text : '50 m';
           statusLabel.textContent =
-            'Location securely captured. Students must be within 50 meters to mark attendance.';
+            'Location captured. Students must be within ' + radiusLabel + ' to mark attendance.';
           statusLabel.classList.remove('text-indigo-600');
           statusLabel.classList.add('text-green-600');
 

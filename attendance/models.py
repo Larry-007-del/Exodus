@@ -103,10 +103,11 @@ class WebAuthnCredential(models.Model):
 class Course(models.Model):
     name = models.CharField(max_length=100)
     course_code = models.CharField(max_length=10, unique=True)
+    join_code = models.CharField(max_length=10, unique=True, blank=True, null=True)
     lecturer = models.ForeignKey(Lecturer, on_delete=models.CASCADE, related_name='courses')
     students = models.ManyToManyField(Student, through='CourseEnrollment', related_name='enrolled_courses', blank=True)
-    is_active = models.BooleanField(default=False)  # Added field
-    require_two_factor_auth = models.BooleanField(default=False)  # Course-specific 2FA setting
+    is_active = models.BooleanField(default=False)
+    require_two_factor_auth = models.BooleanField(default=False)
 
     class Meta:
         indexes = [
@@ -180,8 +181,9 @@ class Attendance(models.Model):
     updated_by = models.ForeignKey(User, related_name='updated_attendances', on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    require_two_factor_auth = models.BooleanField(default=False)  # Whether 2FA was required for this session
-    duration_hours = models.IntegerField(default=2)  # Session duration in hours
+    require_two_factor_auth = models.BooleanField(default=False)
+    duration_hours = models.IntegerField(default=2)
+    radius_meters = models.PositiveIntegerField(default=50, help_text="Geofencing radius in meters for this session")
 
     class Meta:
         ordering = ['-date', '-created_at']
@@ -216,15 +218,15 @@ class Attendance(models.Model):
         time_limit = self.created_at + timedelta(hours=self.duration_hours)
         return timezone.now() < time_limit
 
-    def is_within_radius(self, student_lat, student_lon, radius_meters=50):
-        """Check if student is within radius of lecturer's location"""
+    def is_within_radius(self, student_lat, student_lon, radius_meters=None):
+        """Check if student is within radius of lecturer's location."""
         if not self.lecturer_latitude or not self.lecturer_longitude:
-            return True  # Allow attendance if lecturer location is not set
-
+            return True  # Allow if lecturer location not set
+        radius = radius_meters if radius_meters is not None else self.radius_meters
         lecturer_coords = (self.lecturer_latitude, self.lecturer_longitude)
         student_coords = (student_lat, student_lon)
         distance = geodesic(lecturer_coords, student_coords).meters
-        return distance <= radius_meters
+        return distance <= radius
 
 
 # M2M Signal for Attendance Audit Logging
@@ -235,11 +237,23 @@ from django.dispatch import receiver
 def log_attendance_change(sender, instance, action, pk_set, **kwargs):
     """
     Logs when a student is manually added/removed from attendance.
+    Also creates/removes AttendanceStudent records so timestamp and audit data stays in sync.
     """
-    if action in ["post_add", "post_remove"]:
-        verb = "Added" if action == "post_add" else "Removed"
+    if action == "post_add" and pk_set:
+        for student_pk in pk_set:
+            AttendanceStudent.objects.get_or_create(
+                attendance=instance,
+                student_id=student_pk,
+            )
         students = ", ".join([str(pk) for pk in pk_set])
-        logger.info("AUDIT: Students %s were %s from Attendance ID %s", students, verb, instance.id)
+        logger.info("AUDIT: Students %s were Added to Attendance ID %s", students, instance.id)
+    elif action == "post_remove" and pk_set:
+        AttendanceStudent.objects.filter(
+            attendance=instance,
+            student_id__in=pk_set,
+        ).delete()
+        students = ", ".join([str(pk) for pk in pk_set])
+        logger.info("AUDIT: Students %s were Removed from Attendance ID %s", students, instance.id)
 
 
 import qrcode
