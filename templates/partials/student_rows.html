@@ -25,7 +25,7 @@
     <div class="flex items-center justify-end space-x-3">
       <a
         href="{% url 'frontend:student_detail' student.id %}"
-        class="inline-flex items-center rounded-full border border-transparent bg-indigo-600 p-2 text-white shadow-sm hover:bg-indigo-700 focus:outline-none"
+        class="inline-flex items-center rounded-full border border-transparent bg-brand-600 p-2 text-white shadow-sm hover:bg-brand-700 focus:outline-none"
       >
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -36,7 +36,7 @@
       </a>
       <a
         href="{% url 'frontend:student_edit' student.id %}"
-        class="text-blue-600 transition-colors duration-200 hover:text-blue-900"
+        class="text-gray-500 transition-colors duration-200 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
         >Edit</a
       >
       <button
