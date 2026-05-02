@@ -2,7 +2,7 @@
 <div class="mb-6">
   <a
     href="{% url 'frontend:profile' %}"
-    class="mb-4 flex items-center text-indigo-600 hover:text-indigo-800"
+    class="mb-3 inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-800 dark:text-brand-400 transition-colors"
   >
     <svg class="mr-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path
@@ -37,10 +37,10 @@
   <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
     <div class="mb-4 flex items-center">
       <div
-        class="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900"
+        class="mr-3 flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-900/30"
       >
         <svg
-          class="h-5 w-5 text-indigo-600 dark:text-indigo-300"
+          class="h-5 w-5 text-brand-600 dark:text-brand-300"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -64,7 +64,7 @@
     <!-- Support detection message -->
     <template x-if="!webauthnSupported">
       <div
-        class="mb-4 rounded-lg border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-700 dark:bg-yellow-900/30"
+        class="mb-4 rounded-xl border border-yellow-200 bg-yellow-50/80 p-3 dark:border-yellow-700 dark:bg-yellow-900/30"
       >
         <p class="text-sm text-yellow-800 dark:text-yellow-300">
           <svg class="mr-1 inline h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
@@ -87,7 +87,7 @@
       </h3>
       <ul class="space-y-2">
         {% for cred in credentials %}
-        <li class="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
+        <li class="flex items-center justify-between rounded-xl bg-gray-50/80 p-3 dark:bg-gray-700/60">
           <div class="flex items-center">
             <svg class="mr-2 h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -123,7 +123,7 @@
         <button
           @click="registerFingerprint()"
           :disabled="registering"
-          class="flex w-full items-center justify-center rounded-lg bg-indigo-600 py-3 font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+          class="flex w-full items-center justify-center rounded-xl bg-brand-600 py-3 font-semibold text-white shadow-lg shadow-brand-500/20 transition-all hover:-translate-y-0.5 hover:bg-brand-700 active:scale-95 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:translate-y-0 disabled:shadow-none"
         >
           <template x-if="!registering">
             <span class="flex items-center">
@@ -175,7 +175,7 @@
   <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
     <div class="mb-4 flex items-center">
       <div
-        class="mr-3 flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900"
+        class="mr-3 flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-900/30"
       >
         <svg
           class="h-5 w-5 text-purple-600 dark:text-purple-300"
@@ -202,7 +202,7 @@
     {% if has_otp %}
     <!-- OTP is configured -->
     <div
-      class="mb-4 rounded-lg border border-green-200 bg-green-50 p-3 dark:border-green-700 dark:bg-green-900/30"
+      class="mb-4 rounded-xl border border-green-200 bg-green-50/80 p-3 dark:border-green-700 dark:bg-green-900/30"
     >
       <p class="flex items-center text-sm text-green-800 dark:text-green-300">
         <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
@@ -223,7 +223,7 @@
       {% csrf_token %}
       <button
         type="submit"
-        class="w-full rounded-lg bg-red-600 py-3 font-semibold text-white transition-colors hover:bg-red-700"
+        class="w-full rounded-xl bg-red-600 py-3 font-semibold text-white shadow-lg shadow-red-500/20 transition-all hover:-translate-y-0.5 hover:bg-red-700 active:scale-95"
       >
         Disable OTP
       </button>
@@ -235,7 +235,7 @@
       <button
         @click="beginOtpSetup()"
         :disabled="otpLoading"
-        class="w-full rounded-lg bg-purple-600 py-3 font-semibold text-white transition-colors hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+        class="w-full rounded-xl bg-purple-600 py-3 font-semibold text-white shadow-lg shadow-purple-500/20 transition-all hover:-translate-y-0.5 hover:bg-purple-700 active:scale-95 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:translate-y-0 disabled:shadow-none"
       >
         <span x-show="!otpLoading">Set Up OTP</span>
         <span x-show="otpLoading" class="flex items-center justify-center">
@@ -289,7 +289,7 @@
             maxlength="6"
             inputmode="numeric"
             pattern="[0-9]*"
-            class="w-full rounded-lg border border-gray-300 px-4 py-3 text-center font-mono text-lg focus:border-purple-500 focus:ring-purple-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white/60 dark:bg-gray-700/50 px-4 py-3 text-center font-mono text-lg backdrop-blur-sm transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 dark:text-white"
             placeholder="000000"
             @keyup.enter="verifyOtp()"
           />
@@ -297,7 +297,7 @@
         <button
           @click="verifyOtp()"
           :disabled="otpVerifying || otpCode.length !== 6"
-          class="w-full rounded-lg bg-purple-600 py-3 font-semibold text-white transition-colors hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+          class="w-full rounded-xl bg-purple-600 py-3 font-semibold text-white shadow-lg shadow-purple-500/20 transition-all hover:-translate-y-0.5 hover:bg-purple-700 active:scale-95 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:translate-y-0 disabled:shadow-none"
         >
           <span x-show="!otpVerifying">Verify & Enable OTP</span>
           <span x-show="otpVerifying">Verifying...</span>
@@ -322,26 +322,26 @@
   <h3 class="mb-3 text-lg font-semibold text-gray-900 dark:text-white">2FA Status</h3>
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
     <div
-      class="{% if has_webauthn %}bg-green-50 dark:bg-green-900/20{% else %}bg-gray-50 dark:bg-gray-700{% endif %} flex items-center rounded-lg p-3"
+      class="{% if has_webauthn %}bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/40{% else %}bg-gray-50/80 dark:bg-gray-700/40 border border-gray-100 dark:border-gray-700{% endif %} flex items-center rounded-xl p-3"
     >
       <span
-        class="{% if has_webauthn %}bg-green-500{% else %}bg-gray-300{% endif %} mr-3 h-3 w-3 rounded-full"
+        class="{% if has_webauthn %}bg-emerald-500{% else %}bg-gray-300{% endif %} mr-3 h-2.5 w-2.5 flex-shrink-0 rounded-full"
       ></span>
       <span
-        class="{% if has_webauthn %}text-green-800 dark:text-green-300{% else %}text-gray-500 dark:text-gray-400{% endif %} text-sm"
+        class="{% if has_webauthn %}text-emerald-800 dark:text-emerald-300{% else %}text-gray-500 dark:text-gray-400{% endif %} text-sm"
       >
         Fingerprint: {% if has_webauthn %}Active ({{ credentials.count }} credential{{
         credentials.count|pluralize }}){% else %}Not configured{% endif %}
       </span>
     </div>
     <div
-      class="{% if has_otp %}bg-green-50 dark:bg-green-900/20{% else %}bg-gray-50 dark:bg-gray-700{% endif %} flex items-center rounded-lg p-3"
+      class="{% if has_otp %}bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/40{% else %}bg-gray-50/80 dark:bg-gray-700/40 border border-gray-100 dark:border-gray-700{% endif %} flex items-center rounded-xl p-3"
     >
       <span
-        class="{% if has_otp %}bg-green-500{% else %}bg-gray-300{% endif %} mr-3 h-3 w-3 rounded-full"
+        class="{% if has_otp %}bg-emerald-500{% else %}bg-gray-300{% endif %} mr-3 h-2.5 w-2.5 flex-shrink-0 rounded-full"
       ></span>
       <span
-        class="{% if has_otp %}text-green-800 dark:text-green-300{% else %}text-gray-500 dark:text-gray-400{% endif %} text-sm"
+        class="{% if has_otp %}text-emerald-800 dark:text-emerald-300{% else %}text-gray-500 dark:text-gray-400{% endif %} text-sm"
       >
         OTP: {% if has_otp %}Active{% else %}Not configured{% endif %}
       </span>

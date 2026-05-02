@@ -1,246 +1,141 @@
 {% extends 'base.html' %} {% block title %}Two-Factor Authentication{% endblock %} {% block content %}
 <div class="flex min-h-[60vh] flex-col items-center justify-center" x-data="twoFactorChallenge()">
   <div class="mb-8 text-center">
-    <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Two-Factor Authentication</h2>
-    <p class="mt-2 text-gray-500 dark:text-gray-400">
-      Verify your identity to mark attendance for <strong>{{ course.name }}</strong>
+    <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white">Two-Factor Authentication</h2>
+    <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+      Verify your identity to mark attendance for <strong class="text-gray-700 dark:text-gray-200">{{ course.name }}</strong>
     </p>
   </div>
 
   {% if messages %}
-  <div class="mb-4 w-full max-w-md">
+  <div class="mb-4 w-full max-w-md space-y-2">
     {% for message in messages %}
-    <div
-      class="{% if message.tags == 'error' %}bg-red-100 dark:text-red-300{% else %}bg-blue-100 text-blue-800{% endif %} rounded-lg p-4 text-red-800 dark:bg-red-900/30"
-    >
+    <div class="flex items-start gap-3 rounded-xl border p-3.5 text-sm
+      {% if message.tags == 'error' %}bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800/40 dark:text-red-300
+      {% else %}bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800/40 dark:text-blue-300{% endif %}">
       {{ message }}
     </div>
     {% endfor %}
   </div>
   {% endif %}
 
-  <div class="w-full max-w-md rounded-lg bg-white p-8 shadow-lg dark:bg-gray-800">
-    <!-- ==================== WebAuthn Fingerprint Section ==================== -->
-    {% if has_webauthn %}
-    <div class="mb-6" data-webauthn-section x-show="!showWebAuthnError">
-      <div class="mb-4 text-center">
-        <div
-          class="mb-3 inline-flex h-16 w-16 items-center justify-center rounded-full"
-          :class="webauthnDone ? 'bg-green-100 dark:bg-green-900' : 'bg-indigo-100 dark:bg-indigo-900'"
-        >
-          <template x-if="!webauthnDone">
-            <svg
-              class="h-8 w-8 text-indigo-600 dark:text-indigo-300"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"
-              ></path>
-            </svg>
+  <div class="w-full max-w-md overflow-hidden rounded-2xl border border-gray-100/60 bg-white/80 backdrop-blur-md shadow-xl shadow-gray-200/20 dark:border-gray-700/50 dark:bg-gray-800/80">
+    <div class="h-1 w-full bg-gradient-to-r from-brand-500 to-purple-600"></div>
+    <div class="p-6 sm:p-8">
+
+      <!-- WebAuthn Fingerprint Section -->
+      {% if has_webauthn %}
+      <div class="mb-6" data-webauthn-section x-show="!showWebAuthnError">
+        <div class="mb-5 text-center">
+          <div class="mx-auto mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl transition-colors"
+            :class="webauthnDone ? 'bg-emerald-50 dark:bg-emerald-900/30' : 'bg-brand-50 dark:bg-brand-900/30'">
+            <template x-if="!webauthnDone">
+              <svg class="h-7 w-7 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
+              </svg>
+            </template>
+            <template x-if="webauthnDone">
+              <svg class="h-7 w-7 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </template>
+          </div>
+          <h3 class="text-base font-bold text-gray-900 dark:text-white">Fingerprint Verification</h3>
+        </div>
+
+        <button @click="authenticateFingerprint()" :disabled="authenticating || webauthnDone || !webauthnSupported"
+          class="flex w-full items-center justify-center rounded-xl py-3 font-semibold transition-all active:scale-95"
+          :class="!webauthnSupported ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 cursor-not-allowed' : webauthnDone ? 'bg-emerald-600 text-white' : 'bg-brand-600 text-white hover:bg-brand-700 shadow-lg shadow-brand-500/20 hover:-translate-y-0.5 disabled:bg-gray-400 disabled:cursor-not-allowed'">
+          <template x-if="!authenticating && !webauthnDone">
+            <span class="flex items-center gap-2">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path></svg>
+              Tap to Verify Fingerprint
+            </span>
+          </template>
+          <template x-if="authenticating">
+            <span class="flex items-center gap-2">
+              <svg class="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+              Touch your sensor…
+            </span>
           </template>
           <template x-if="webauthnDone">
-            <svg
-              class="h-8 w-8 text-green-600 dark:text-green-300"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 13l4 4L19 7"
-              ></path>
-            </svg>
+            <span class="flex items-center gap-2">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              Verified — Submitting…
+            </span>
           </template>
-        </div>
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-          Fingerprint Verification
-        </h3>
+        </button>
+
+        <template x-if="webauthnError && showWebAuthnError">
+          <div class="mt-4 rounded-xl border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-900/20 p-4">
+            <p class="text-sm font-semibold text-amber-800 dark:text-amber-200 mb-1">Biometric authentication unavailable</p>
+            <p class="text-xs text-amber-700 dark:text-amber-300 mb-2" x-text="webauthnError"></p>
+            <p class="text-xs text-amber-600 dark:text-amber-400"><strong>Solution:</strong> Please use the OTP method below.</p>
+          </div>
+        </template>
       </div>
 
-      <button
-        @click="authenticateFingerprint()"
-        :disabled="authenticating || webauthnDone || !webauthnSupported"
-        class="flex w-full items-center justify-center rounded-lg py-3 font-semibold transition-colors duration-200"
-        :class="!webauthnSupported ? 'bg-gray-400 text-gray-600 cursor-not-allowed' : webauthnDone ? 'bg-green-600 text-white' : 'bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed'"
-      >
-        <template x-if="!authenticating && !webauthnDone">
-          <span class="flex items-center">
-            <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"
-              ></path>
-            </svg>
-            Tap to Verify Fingerprint
-          </span>
-        </template>
-        <template x-if="authenticating">
-          <span class="flex items-center">
-            <svg class="mr-2 h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              ></circle>
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-              ></path>
-            </svg>
-            Touch your sensor...
-          </span>
-        </template>
-        <template x-if="webauthnDone">
-          <span class="flex items-center">
-            <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 13l4 4L19 7"
-              ></path>
-            </svg>
-            Verified — Submitting...
-          </span>
-        </template>
-      </button>
+      {% if has_otp %}
+      <div class="relative my-5 flex items-center">
+        <div class="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
+        <span class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">or</span>
+        <div class="flex-1 border-t border-gray-200 dark:border-gray-700"></div>
+      </div>
+      {% endif %}
+      {% endif %}
 
-      <template x-if="webauthnError && showWebAuthnError">
-        <div class="mt-4 rounded-lg bg-amber-50 p-3 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-800">
-          <p class="text-sm font-medium text-amber-900 dark:text-amber-200 mb-2">
-            Biometric authentication unavailable
-          </p>
-          <p class="text-sm text-amber-800 dark:text-amber-300 mb-3" x-text="webauthnError"></p>
-          <p class="text-xs text-amber-700 dark:text-amber-400">
-            <strong>Solution:</strong> Please use the OTP (One-Time Password) method below to complete authentication.
-          </p>
+      <!-- OTP Section -->
+      {% if has_otp %}
+      <div class="mb-4">
+        {% if not has_webauthn %}
+        <div class="mb-5 text-center">
+          <div class="mx-auto mb-3 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-50 dark:bg-purple-900/30">
+            <svg class="h-7 w-7 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+          </div>
+          <h3 class="text-base font-bold text-gray-900 dark:text-white">OTP Verification</h3>
         </div>
-      </template>
-    </div>
+        {% endif %}
 
-    {% if has_otp %}
-    <div class="my-4 flex items-center">
-      <div class="flex-1 border-t border-gray-300 dark:border-gray-600"></div>
-      <span class="px-3 text-sm text-gray-400">or</span>
-      <div class="flex-1 border-t border-gray-300 dark:border-gray-600"></div>
-    </div>
-    {% endif %} {% endif %}
-
-    <!-- ==================== OTP Section ==================== -->
-    {% if has_otp %}
-    <div class="mb-6">
-      {% if not has_webauthn %}
-      <div class="mb-4 text-center">
-        <div
-          class="mb-3 inline-flex h-16 w-16 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900"
-        >
-          <svg
-            class="h-8 w-8 text-purple-600 dark:text-purple-300"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-            ></path>
-          </svg>
-        </div>
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">OTP Verification</h3>
+        <form method="post" action="{% url 'frontend:attendance_mark' %}" id="otp-form">
+          {% csrf_token %}
+          <input type="hidden" name="token" value="{{ token }}" />
+          <input type="hidden" name="latitude" value="{{ latitude }}" />
+          <input type="hidden" name="longitude" value="{{ longitude }}" />
+          <input type="hidden" name="two_factor_completed" value="on" />
+          <input type="hidden" name="two_factor_method" value="otp" />
+          <div class="mb-4">
+            <label for="otp-code" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">6-digit code from your authenticator app</label>
+            <input type="text" id="otp-code" name="otp_code" maxlength="6" inputmode="numeric" pattern="[0-9]*" required
+              class="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-700/50 px-4 py-3.5 text-center font-mono text-xl tracking-[0.3em] backdrop-blur-sm transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 dark:text-white"
+              placeholder="000000" />
+          </div>
+          <button type="submit" class="w-full rounded-xl bg-purple-600 py-3 font-semibold text-white shadow-lg shadow-purple-500/20 transition-all hover:-translate-y-0.5 hover:bg-purple-700 active:scale-95">Verify OTP</button>
+        </form>
       </div>
       {% endif %}
 
-      <form method="post" action="{% url 'frontend:attendance_mark' %}" id="otp-form">
-        {% csrf_token %}
-        <input type="hidden" name="token" value="{{ token }}" />
-        <input type="hidden" name="latitude" value="{{ latitude }}" />
-        <input type="hidden" name="longitude" value="{{ longitude }}" />
-        <input type="hidden" name="two_factor_completed" value="on" />
-        <input type="hidden" name="two_factor_method" value="otp" />
-
-        <div class="mb-3">
-          <label
-            for="otp-code"
-            class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            Enter the 6-digit code from your authenticator app
-          </label>
-          <input
-            type="text"
-            id="otp-code"
-            name="otp_code"
-            maxlength="6"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            required
-            class="w-full rounded-lg border border-gray-300 px-4 py-3 text-center font-mono text-lg focus:border-purple-500 focus:ring-purple-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            placeholder="000000"
-          />
+      <!-- No biometric fallback notice -->
+      {% if has_webauthn and not has_otp %}
+      <template x-if="!webauthnSupported">
+        <div class="mb-4 rounded-xl border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-900/20 p-4">
+          <p class="text-sm text-amber-800 dark:text-amber-300">Your device does not support biometric auth. Please <a href="{% url 'frontend:student_setup_2fa' %}" class="font-semibold underline">set up OTP</a> as an alternative.</p>
         </div>
-        <button
-          type="submit"
-          class="w-full rounded-lg bg-purple-600 py-3 font-semibold text-white transition-colors hover:bg-purple-700"
-        >
-          Verify OTP
-        </button>
-      </form>
-    </div>
-    {% endif %}
+      </template>
+      {% endif %}
 
-    <!-- No biometric support fallback notice -->
-    {% if has_webauthn and not has_otp %}
-    <template x-if="!webauthnSupported">
-      <div
-        class="mb-4 rounded-lg border border-yellow-200 bg-yellow-50 p-3 dark:border-yellow-700 dark:bg-yellow-900/30"
-      >
-        <p class="text-sm text-yellow-800 dark:text-yellow-300">
-          Your device does not support biometric auth. Please
-          <a href="{% url 'frontend:student_setup_2fa' %}" class="font-medium underline"
-            >set up OTP</a
-          >
-          as an alternative method.
-        </p>
+      <!-- Cancel -->
+      <div class="mt-4">
+        <a href="{% url 'frontend:checkin' %}" class="block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-700/50 py-3 text-center text-sm font-semibold text-gray-600 dark:text-gray-300 transition-all hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-95">Cancel</a>
       </div>
-    </template>
-    {% endif %}
 
-    <!-- Cancel -->
-    <div class="mt-4">
-      <a
-        href="{% url 'frontend:checkin' %}"
-        class="block w-full rounded-lg bg-gray-200 py-3 text-center font-semibold text-gray-700 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-      >
-        Cancel
-      </a>
+      <p class="mt-4 text-center text-xs text-gray-400 dark:text-gray-500">This verification prevents proxy attendance.</p>
     </div>
-
-    <p class="mt-4 text-center text-xs text-gray-400 dark:text-gray-500">
-      This verification prevents proxy attendance.
-    </p>
   </div>
 
-  <!-- Hidden form for WebAuthn submission (submitted after fingerprint verification) -->
-  <form
-    method="post"
-    action="{% url 'frontend:attendance_mark' %}"
-    id="webauthn-submit-form"
-    class="hidden"
-  >
+  <!-- Hidden form for WebAuthn submission -->
+  <form method="post" action="{% url 'frontend:attendance_mark' %}" id="webauthn-submit-form" class="hidden">
     {% csrf_token %}
     <input type="hidden" name="token" value="{{ token }}" />
     <input type="hidden" name="latitude" value="{{ latitude }}" />
@@ -253,173 +148,53 @@
 
 <script>
   function twoFactorChallenge() {
-      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
-                      || '{{ csrf_token }}';
-      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      // Check if we are running inside the Flutter App AND it has the native biometric bridge injected
-      const isFlutterApp = navigator.userAgent.includes('ExodusMobile') || typeof window.ExodusNative !== 'undefined';
-      const isWebViewApp = navigator.userAgent.includes('ExodusMobile');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isFlutterApp = navigator.userAgent.includes('ExodusMobile') || typeof window.ExodusNative !== 'undefined';
 
-      return {
-          webauthnSupported: !!window.PublicKeyCredential || isFlutterApp,
-          isFlutterApp: isFlutterApp,
-          isMobileDevice: isMobileDevice,
-          authenticating: false,
-          webauthnDone: false,
-          webauthnError: '',
-          showWebAuthnError: false,
+    return {
+      webauthnSupported: !!window.PublicKeyCredential || isFlutterApp,
+      isFlutterApp, isMobileDevice,
+      authenticating: false, webauthnDone: false, webauthnError: '', showWebAuthnError: false,
 
-          base64urlToBuffer(base64url) {
-              const padding = '='.repeat((4 - base64url.length % 4) % 4);
-              const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/') + padding;
-              const binary = atob(base64);
-              const buffer = new ArrayBuffer(binary.length);
-              const view = new Uint8Array(buffer);
-              for (let i = 0; i < binary.length; i++) view[i] = binary.charCodeAt(i);
-              return buffer;
-          },
+      base64urlToBuffer(b) { const p='='.repeat((4-b.length%4)%4); const s=atob(b.replace(/-/g,'+').replace(/_/g,'/')+p); const buf=new ArrayBuffer(s.length); const v=new Uint8Array(buf); for(let i=0;i<s.length;i++)v[i]=s.charCodeAt(i); return buf; },
+      bufferToBase64url(buf) { const b=new Uint8Array(buf); let s=''; for(let i=0;i<b.length;i++)s+=String.fromCharCode(b[i]); return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); },
 
-          bufferToBase64url(buffer) {
-              const bytes = new Uint8Array(buffer);
-              let binary = '';
-              for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-              return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-          },
+      async authenticateFingerprint() {
+        this.authenticating = true; this.webauthnError = '';
+        if (this.isFlutterApp) {
+          window.onFlutterBiometricSuccess = () => { document.getElementById('two_factor_method_input').value='app_biometric'; document.getElementById('app_bypass_token_input').value='flutter_native_auth_verified_true'; this.webauthnDone=true; this.authenticating=false; setTimeout(()=>document.getElementById('webauthn-submit-form').submit(),600); };
+          window.onFlutterBiometricFailed = () => { this.webauthnError='Native biometric verification failed.'; this.authenticating=false; this.showWebAuthnError=true; };
+          window.onFlutterBiometricNotAvailable = () => { this.webauthnError='No secure biometrics enrolled. Please use OTP.'; this.authenticating=false; this.showWebAuthnError=true; };
+          if (window.ExodusNative) { window.ExodusNative.postMessage('authenticate_biometric'); } else { this.webauthnError='App bridge not ready.'; this.authenticating=false; this.showWebAuthnError=true; }
+          return;
+        }
+        try {
+          const optResp = await fetch('{% url "frontend:webauthn_auth_begin" %}', { method:'POST', headers:{'X-CSRFToken':csrfToken} });
+          if (!optResp.ok) { const e=await optResp.json(); throw new Error(e.error||'Failed to get auth options'); }
+          const options = await optResp.json();
+          const publicKey = { ...options, challenge: this.base64urlToBuffer(options.challenge) };
+          if (options.allowCredentials) publicKey.allowCredentials = options.allowCredentials.map(c=>({...c,id:this.base64urlToBuffer(c.id)}));
+          const assertion = await navigator.credentials.get({ publicKey });
+          const body = { id:assertion.id, rawId:this.bufferToBase64url(assertion.rawId), type:assertion.type, response:{ clientDataJSON:this.bufferToBase64url(assertion.response.clientDataJSON), authenticatorData:this.bufferToBase64url(assertion.response.authenticatorData), signature:this.bufferToBase64url(assertion.response.signature), userHandle:assertion.response.userHandle?this.bufferToBase64url(assertion.response.userHandle):null } };
+          const verifyResp = await fetch('{% url "frontend:webauthn_auth_complete" %}', { method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':csrfToken}, body:JSON.stringify(body) });
+          const result = await verifyResp.json();
+          if (!verifyResp.ok || !result.success) throw new Error(result.error||'Verification failed');
+          this.webauthnDone = true;
+          setTimeout(() => document.getElementById('webauthn-submit-form').submit(), 600);
+        } catch(e) {
+          if (e.name==='NotAllowedError') this.webauthnError='Authentication cancelled or timed out.';
+          else if (e.name==='NotSupportedError'||e.message?.includes('not supported')) { this.webauthnError='Your device does not support biometric auth. Please use OTP instead.'; this.showWebAuthnError=true; setTimeout(()=>{ const s=document.querySelector('[data-webauthn-section]'); if(s)s.style.display='none'; },2000); }
+          else { this.webauthnError=e.message||'Fingerprint verification failed. Please try OTP instead.'; this.showWebAuthnError=true; }
+        } finally { this.authenticating=false; }
+      },
 
-          async authenticateFingerprint() {
-              this.authenticating = true;
-              this.webauthnError = '';
-
-              if (this.isFlutterApp) {
-                  // FLUTTER NATIVE BYPASS
-                  window.onFlutterBiometricSuccess = (msg) => {
-                      document.getElementById('two_factor_method_input').value = 'app_biometric';
-                      document.getElementById('app_bypass_token_input').value = 'flutter_native_auth_verified_true';
-                      this.webauthnDone = true;
-                      this.authenticating = false;
-                      setTimeout(() => document.getElementById('webauthn-submit-form').submit(), 600);
-                  };
-                  window.onFlutterBiometricFailed = () => {
-                      this.webauthnError = 'Native biometric verification failed.';
-                      this.authenticating = false;
-                      this.showWebAuthnError = true;
-                  };
-                  window.onFlutterBiometricNotAvailable = () => {
-                      this.webauthnError = 'No secure biometrics enrolled on this device. Please use OTP.';
-                      this.authenticating = false;
-                      this.showWebAuthnError = true;
-                  };
-                  
-                  // Trigger Flutter's local_auth prompt
-                  if (window.ExodusNative) {
-                      window.ExodusNative.postMessage('authenticate_biometric');
-                  } else {
-                      this.webauthnError = 'App bridge not ready. Please try again.';
-                      this.authenticating = false;
-                      this.showWebAuthnError = true;
-                  }
-                  return;
-              }
-
-              try {
-                  // Step 1: Get auth challenge from server
-                  const optResp = await fetch('{% url "frontend:webauthn_auth_begin" %}', {
-                      method: 'POST',
-                      headers: { 'X-CSRFToken': csrfToken },
-                  });
-                  if (!optResp.ok) {
-                      const err = await optResp.json();
-                      throw new Error(err.error || 'Failed to get auth options');
-                  }
-                  const options = await optResp.json();
-
-                  // Step 2: Build publicKey for navigator.credentials.get()
-                  const publicKey = {
-                      ...options,
-                      challenge: this.base64urlToBuffer(options.challenge),
-                  };
-                  if (options.allowCredentials) {
-                      publicKey.allowCredentials = options.allowCredentials.map(c => ({
-                          ...c,
-                          id: this.base64urlToBuffer(c.id),
-                      }));
-                  }
-
-                  // Step 3: Prompt biometric
-                  const assertion = await navigator.credentials.get({ publicKey });
-
-                  // Step 4: Send assertion to server for verification
-                  const body = {
-                      id: assertion.id,
-                      rawId: this.bufferToBase64url(assertion.rawId),
-                      type: assertion.type,
-                      response: {
-                          clientDataJSON: this.bufferToBase64url(assertion.response.clientDataJSON),
-                          authenticatorData: this.bufferToBase64url(assertion.response.authenticatorData),
-                          signature: this.bufferToBase64url(assertion.response.signature),
-                          userHandle: assertion.response.userHandle
-                              ? this.bufferToBase64url(assertion.response.userHandle) : null,
-                      },
-                  };
-
-                  const verifyResp = await fetch('{% url "frontend:webauthn_auth_complete" %}', {
-                      method: 'POST',
-                      headers: {
-                          'Content-Type': 'application/json',
-                          'X-CSRFToken': csrfToken,
-                      },
-                      body: JSON.stringify(body),
-                  });
-
-                  const result = await verifyResp.json();
-                  if (!verifyResp.ok || !result.success) {
-                      throw new Error(result.error || 'Verification failed');
-                  }
-
-                  // Step 5: Submit the attendance form
-                  this.webauthnDone = true;
-                  setTimeout(() => {
-                      document.getElementById('webauthn-submit-form').submit();
-                  }, 600);
-
-              } catch (e) {
-                  console.error('WebAuthn Error:', e);
-                  if (e.name === 'NotAllowedError') {
-                      this.webauthnError = 'Authentication cancelled or timed out.';
-                  } else if (e.name === 'NotSupportedError' || e.message?.includes('not supported')) {
-                      this.webauthnError = 'Your device does not support biometric authentication. Please use OTP instead.';
-                      this.showWebAuthnError = true;
-                      // Auto-hide WebAuthn section after 2 seconds
-                      setTimeout(() => {
-                          const webauthnSection = document.querySelector('[data-webauthn-section]');
-                          if (webauthnSection) webauthnSection.style.display = 'none';
-                      }, 2000);
-                  } else if (e.message?.includes('PublicKeyCredential')) {
-                      this.webauthnError = 'Biometric authentication is not available on this device. Please use OTP.';
-                      this.showWebAuthnError = true;
-                  } else {
-                      this.webauthnError = e.message || 'Fingerprint verification failed. Please try OTP instead.';
-                      this.showWebAuthnError = true;
-                  }
-              } finally {
-                  this.authenticating = false;
-              }
-          },
-
-          init() {
-              // Auto-start fingerprint only on non-mobile devices with support
-              {% if has_webauthn %}
-              if (this.webauthnSupported && !this.isMobileDevice) {
-                  // Delay so page renders first
-                  setTimeout(() => this.authenticateFingerprint(), 500);
-              } else if (!this.webauthnSupported && !this.isMobileDevice) {
-                  // Desktop without WebAuthn
-                  console.warn('WebAuthn not supported on this device');
-              }
-              // On mobile: users must tap OTP button (safer UX)
-              {% endif %}
-          },
-      };
+      init() {
+        {% if has_webauthn %}
+        if (this.webauthnSupported && !this.isMobileDevice) setTimeout(()=>this.authenticateFingerprint(), 500);
+        {% endif %}
+      },
+    };
   }
 </script>
 {% endblock %}

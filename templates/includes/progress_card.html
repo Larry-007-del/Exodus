@@ -1,17 +1,17 @@
 {% if task_id %}
-<div id="progress-card" class="card shadow-sm mb-4 border-0" style="background: linear-gradient(135deg, #667eea22, #764ba222); border-radius: 12px;">
-  <div class="card-body p-4">
-    <div class="d-flex align-items-center mb-3">
-      <div id="progress-spinner" class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-      <h6 class="mb-0 fw-bold" id="progress-title">Processing Upload...</h6>
+<div id="progress-card" class="mb-6 overflow-hidden rounded-2xl border border-brand-100/60 bg-white/80 backdrop-blur-md shadow-lg shadow-brand-500/10 dark:border-brand-900/40 dark:bg-gray-800/80">
+  <div class="h-1 w-full bg-gradient-to-r from-brand-500 to-purple-600"></div>
+  <div class="p-5">
+    <div class="mb-3 flex items-center gap-3">
+      <div id="progress-spinner" class="h-4 w-4 animate-spin rounded-full border-2 border-brand-200 border-t-brand-600"></div>
+      <p class="text-sm font-bold text-gray-900 dark:text-white" id="progress-title">Processing Upload…</p>
     </div>
-    <p class="text-muted small mb-2" id="progress-status">Starting...</p>
-    <div class="progress mb-2" style="height: 8px; border-radius: 4px; background: #e9ecef;">
-      <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; border-radius: 4px; background: linear-gradient(90deg, #667eea, #764ba2);"></div>
+    <p class="mb-3 text-xs text-gray-500 dark:text-gray-400" id="progress-status">Starting…</p>
+    <div class="mb-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+      <div id="progress-bar" class="h-full rounded-full bg-gradient-to-r from-brand-500 to-indigo-600 transition-all duration-500" style="width:0%"></div>
     </div>
-    <small class="text-muted" id="progress-count"></small>
-    <!-- Result area (hidden until complete) -->
-    <div id="progress-result" class="mt-3" style="display:none;"></div>
+    <p class="text-xs text-gray-400" id="progress-count"></p>
+    <div id="progress-result" class="mt-3 hidden"></div>
   </div>
 </div>
 
@@ -28,51 +28,40 @@
   let pollInterval;
 
   function poll() {
-    fetch(statusUrl)
-      .then(r => r.json())
-      .then(data => {
-        if (data.state === 'PROGRESS') {
-          const pct = Math.round((data.current / data.total) * 100);
-          bar.style.width = pct + '%';
-          bar.setAttribute('aria-valuenow', pct);
-          statusEl.textContent = data.status || 'Processing...';
-          countEl.textContent = data.current + ' / ' + data.total;
-        } else if (data.state === 'SUCCESS') {
-          clearInterval(pollInterval);
-          bar.style.width = '100%';
-          bar.classList.remove('progress-bar-animated', 'progress-bar-striped');
-          bar.style.background = '#10b981';
-          spinner.style.display = 'none';
-          titleEl.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i> Upload Complete';
-          statusEl.textContent = 'All records have been processed.';
-          countEl.textContent = '';
-
-          // Show structured result
-          const r = data.result || {};
-          let html = '<div class="alert alert-success py-2 px-3 mb-0 small">';
-          if (r.created !== undefined) html += '<strong>' + r.created + '</strong> created';
-          if (r.enrolled !== undefined) html += '<strong>' + r.enrolled + '</strong> enrolled';
-          if (r.skipped !== undefined) html += ', <strong>' + r.skipped + '</strong> skipped';
-          if (r.total !== undefined) html += ' (of ' + r.total + ' total)';
-          if (r.course) html += ' in <strong>' + r.course + '</strong>';
-          html += '</div>';
-          resultEl.innerHTML = html;
-          resultEl.style.display = 'block';
-        } else if (data.state === 'FAILURE') {
-          clearInterval(pollInterval);
-          bar.style.width = '100%';
-          bar.classList.remove('progress-bar-animated', 'progress-bar-striped');
-          bar.style.background = '#ef4444';
-          spinner.style.display = 'none';
-          titleEl.innerHTML = '<i class="fas fa-exclamation-circle text-danger me-1"></i> Upload Failed';
-          statusEl.textContent = data.error || 'An error occurred during processing.';
-          countEl.textContent = '';
-        }
-        // PENDING — task hasn't started yet, keep waiting
-      })
-      .catch(() => {
-        statusEl.textContent = 'Checking status...';
-      });
+    fetch(statusUrl).then(r => r.json()).then(data => {
+      if (data.state === 'PROGRESS') {
+        const pct = Math.round((data.current / data.total) * 100);
+        bar.style.width = pct + '%';
+        statusEl.textContent = data.status || 'Processing…';
+        countEl.textContent = data.current + ' / ' + data.total;
+      } else if (data.state === 'SUCCESS') {
+        clearInterval(pollInterval);
+        bar.style.width = '100%';
+        bar.className = 'h-full rounded-full bg-emerald-500 transition-all duration-500';
+        spinner.style.display = 'none';
+        titleEl.textContent = 'Upload Complete';
+        statusEl.textContent = 'All records have been processed.';
+        countEl.textContent = '';
+        const r = data.result || {};
+        let html = '<div class="rounded-xl border border-emerald-200 dark:border-emerald-800/40 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200">';
+        if (r.created !== undefined) html += '<strong>' + r.created + '</strong> created';
+        if (r.enrolled !== undefined) html += '<strong>' + r.enrolled + '</strong> enrolled';
+        if (r.skipped !== undefined) html += ', <strong>' + r.skipped + '</strong> skipped';
+        if (r.total !== undefined) html += ' (of ' + r.total + ' total)';
+        if (r.course) html += ' in <strong>' + r.course + '</strong>';
+        html += '</div>';
+        resultEl.innerHTML = html;
+        resultEl.classList.remove('hidden');
+      } else if (data.state === 'FAILURE') {
+        clearInterval(pollInterval);
+        bar.style.width = '100%';
+        bar.className = 'h-full rounded-full bg-red-500 transition-all duration-500';
+        spinner.style.display = 'none';
+        titleEl.textContent = 'Upload Failed';
+        statusEl.textContent = data.error || 'An error occurred during processing.';
+        countEl.textContent = '';
+      }
+    }).catch(() => { statusEl.textContent = 'Checking status…'; });
   }
 
   poll();

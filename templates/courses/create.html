@@ -2,7 +2,7 @@
 <div class="mb-6">
   <a
     href="{% url 'frontend:course_list' %}"
-    class="mb-4 flex items-center text-indigo-600 hover:text-indigo-800"
+    class="mb-3 inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-800 dark:text-brand-400 transition-colors"
   >
     <svg class="mr-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path
@@ -66,7 +66,7 @@
           type="checkbox"
           name="is_active"
           id="is_active"
-          class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-indigo-500"
+          class="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
         />
         <label for="is_active" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Active</label>
       </div>
@@ -83,7 +83,7 @@
             type="checkbox"
             name="students"
             value="{{ student.id }}"
-            class="rounded border-gray-300 text-blue-600 focus:ring-indigo-500"
+            class="rounded border-gray-300 text-brand-600 focus:ring-brand-500"
           />
           <span class="text-sm text-gray-700 dark:text-gray-300">{{ student.name }}</span>
         </label>

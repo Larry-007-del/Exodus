@@ -1,141 +1,96 @@
 {% extends 'base.html' %} {% block title %}Upload Enrollments - Exodus{% endblock %} {% block content %}
 <div class="mb-6">
   <div class="mb-2 flex items-center gap-2 text-sm text-gray-500">
-    <a href="{% url 'frontend:course_list' %}" class="hover:text-indigo-600">Courses</a>
-    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-    </svg>
-    <span class="text-gray-900 dark:text-white">Upload Enrollments</span>
+    <a href="{% url 'frontend:course_list' %}" class="hover:text-brand-600 transition-colors">Courses</a>
+    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+    <span class="text-gray-900 dark:text-white font-medium">Upload Enrollments</span>
   </div>
-  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Upload Course Enrollments</h1>
-  <p class="mt-1 text-gray-500">
-    Import student enrollments from a CSV file onto a particular course.
-  </p>
+  <h1 class="text-2xl font-extrabold text-gray-900 dark:text-white">Upload Course Enrollments</h1>
+  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Import student enrollments from a CSV file onto a particular course.</p>
 </div>
 
-<div class="mx-auto max-w-xl">
+<div class="mx-auto max-w-xl space-y-4">
   {% include 'includes/progress_card.html' %}
-  <form method="post" enctype="multipart/form-data" id="upload-form">
-    {% csrf_token %}
 
-    <div class="mb-6 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
-      <label
-        for="{{ form.course.id_for_label }}"
-        class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
-        >Select Course</label
-      >
-      {{ form.course }} {% if form.course.errors %}
-      <p class="mt-1 text-sm text-red-500">{{ form.course.errors.0 }}</p>
-      {% endif %}
+  <div class="overflow-hidden rounded-2xl border border-gray-100/60 bg-white/80 backdrop-blur-md shadow-lg shadow-gray-200/20 dark:border-gray-700/50 dark:bg-gray-800/80">
+    <div class="h-1 w-full bg-gradient-to-r from-brand-500 to-indigo-600"></div>
+    <div class="p-6">
+      <form method="post" enctype="multipart/form-data" id="upload-form">
+        {% csrf_token %}
+
+        <!-- Course select -->
+        <div class="mb-5">
+          <label for="{{ form.course.id_for_label }}" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">Select Course</label>
+          <div id="course-select-wrapper">
+            {{ form.course }}
+          </div>
+          {% if form.course.errors %}
+          <p class="mt-1 text-sm text-red-500">{{ form.course.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Drop zone -->
+        <label for="csv-file" id="drop-zone"
+          class="mb-5 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-600 bg-gray-50/60 dark:bg-gray-700/30 p-10 text-center transition-all hover:border-brand-400 hover:bg-brand-50/40 dark:hover:border-brand-600 dark:hover:bg-brand-900/20">
+          <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-900/30">
+            <svg class="h-6 w-6 text-brand-600 dark:text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+          </div>
+          <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+            Drag and drop your CSV here, or <span class="text-brand-600 dark:text-brand-400">click to browse</span>
+          </p>
+          <p class="mt-2 text-xs text-gray-400" id="file-name">No file selected</p>
+          <input type="file" name="file" id="csv-file" accept=".csv" class="hidden" />
+        </label>
+
+        {% if form.file.errors %}
+        <p class="mb-3 text-center text-sm text-red-500">{{ form.file.errors.0 }}</p>
+        {% endif %}
+
+        <div class="flex items-center justify-between gap-4">
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            Expected column: <span class="font-semibold text-gray-700 dark:text-gray-300">Student ID</span> (first column only)
+          </p>
+          <button type="submit" id="upload-btn" disabled
+            class="inline-flex flex-shrink-0 items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-500/20 transition-all hover:-translate-y-0.5 hover:bg-brand-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+            Upload Enrollments
+          </button>
+        </div>
+      </form>
     </div>
-
-    <label
-      for="csv-file"
-      class="block cursor-pointer rounded-lg border-2 border-dashed border-gray-300 bg-white dark:bg-gray-800 p-12 text-center transition-colors hover:border-indigo-500"
-      id="drop-zone"
-    >
-      <svg
-        class="mx-auto h-12 w-12 text-gray-400"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-      >
-        <path
-          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-        />
-      </svg>
-      <p class="mt-4 text-sm text-gray-600">
-        Drag and drop your CSV here, or
-        <span class="font-medium text-indigo-600">click to browse</span>
-      </p>
-      <p class="mt-1 text-xs text-gray-400" id="file-name">No file selected</p>
-      <input type="file" name="file" id="csv-file" accept=".csv" class="hidden" />
-    </label>
-
-    {% if form.file.errors %}
-    <p class="mt-2 text-center text-sm text-red-500">{{ form.file.errors.0 }}</p>
-    {% endif %}
-
-    <div class="mt-4 flex items-center justify-between">
-      <p class="text-xs text-gray-500">
-        Expected columns: <span class="font-medium">Student ID</span> (only the first column is
-        read).
-      </p>
-      <button
-        type="submit"
-        class="inline-flex items-center rounded-lg bg-indigo-600 px-6 py-2 font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
-        id="upload-btn"
-        disabled
-      >
-        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-          ></path>
-        </svg>
-        Upload Enrollments
-      </button>
-    </div>
-  </form>
+  </div>
 </div>
 
 <script>
-  (function () {
+  (function() {
     var fileInput = document.getElementById('csv-file');
     var fileName = document.getElementById('file-name');
     var uploadBtn = document.getElementById('upload-btn');
     var dropZone = document.getElementById('drop-zone');
     var courseSelect = document.querySelector('select[name="course"]');
 
-    // Add Tailwind styles to Django's generated select
     if (courseSelect) {
-      courseSelect.classList.add(
-        'w-full',
-        'rounded-md',
-        'border-gray-300',
-        'shadow-sm',
-        'focus:border-indigo-500',
-        'focus:ring-indigo-500'
-      );
+      courseSelect.className = 'w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-700/50 px-4 py-2.5 text-sm backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 dark:text-white';
     }
 
-    function checkFormValidity() {
-      if (fileInput.files.length > 0 && courseSelect && courseSelect.value) {
-        uploadBtn.disabled = false;
-      } else {
-        uploadBtn.disabled = true;
-      }
+    function checkValidity() {
+      uploadBtn.disabled = !(fileInput.files.length > 0 && courseSelect && courseSelect.value);
     }
-
-    if (courseSelect) {
-      courseSelect.addEventListener('change', checkFormValidity);
-    }
-
-    fileInput.addEventListener('change', function () {
+    if (courseSelect) courseSelect.addEventListener('change', checkValidity);
+    fileInput.addEventListener('change', function() {
       if (fileInput.files.length > 0) {
         fileName.textContent = fileInput.files[0].name;
-        fileName.classList.add('text-indigo-600', 'font-medium');
-        checkFormValidity();
+        fileName.classList.add('text-brand-600', 'font-semibold');
+        checkValidity();
       }
     });
-
-    dropZone.addEventListener('dragover', function (e) {
-      e.preventDefault();
-      dropZone.classList.add('border-indigo-500', 'bg-indigo-50');
-    });
-    dropZone.addEventListener('dragleave', function (e) {
-      e.preventDefault();
-      dropZone.classList.remove('border-indigo-500', 'bg-indigo-50');
-    });
-    dropZone.addEventListener('drop', function (e) {
-      e.preventDefault();
-      dropZone.classList.remove('border-indigo-500', 'bg-indigo-50');
-      if (e.dataTransfer.files.length > 0) {
-        fileInput.files = e.dataTransfer.files;
-        fileInput.dispatchEvent(new Event('change'));
-      }
+    dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('border-brand-400', 'bg-brand-50/60'); });
+    dropZone.addEventListener('dragleave', function(e) { e.preventDefault(); dropZone.classList.remove('border-brand-400', 'bg-brand-50/60'); });
+    dropZone.addEventListener('drop', function(e) {
+      e.preventDefault(); dropZone.classList.remove('border-brand-400', 'bg-brand-50/60');
+      if (e.dataTransfer.files.length > 0) { fileInput.files = e.dataTransfer.files; fileInput.dispatchEvent(new Event('change')); }
     });
   })();
 </script>
