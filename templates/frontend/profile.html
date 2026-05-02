@@ -1,71 +1,68 @@
 {% extends 'base.html' %} {% block title %}My Profile - Exodus{% endblock %} {% block content %}
-<div class="mb-6">
-  <h1 class="text-2xl font-bold text-gray-900 dark:text-white">My Profile</h1>
-  <p class="mt-1 text-gray-500">View and manage your account information</p>
+
+<!-- Profile Banner -->
+<div class="relative mb-6 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 via-indigo-600 to-purple-600 p-6 shadow-xl shadow-brand-500/20">
+  <div class="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
+  <div class="relative flex items-center gap-5">
+    <div class="flex-shrink-0">
+      <div class="flex h-16 w-16 items-center justify-center rounded-2xl {{ avatar_color }} ring-4 ring-white/20 shadow-xl">
+        {% if avatar_url %}
+        <img src="{{ avatar_url }}" alt="Avatar" class="h-full w-full rounded-2xl object-cover" />
+        {% else %}
+        <span class="text-2xl font-extrabold text-white">{{ avatar_initials }}</span>
+        {% endif %}
+      </div>
+    </div>
+    <div>
+      <p class="mb-0.5 text-xs font-semibold uppercase tracking-widest text-indigo-200">My Profile</p>
+      <h1 class="text-xl font-extrabold text-white">{{ profile.name|default:user.username }}</h1>
+      <p class="mt-0.5 text-sm text-indigo-200">{{ user.email }}</p>
+    </div>
+    <div class="ml-auto flex-shrink-0">
+      {% if profile_type == 'student' %}
+      <span class="rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20">Student · {{ profile.student_id }}</span>
+      {% elif profile_type == 'lecturer' %}
+      <span class="rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white ring-1 ring-white/20">Lecturer · {{ profile.staff_id }}</span>
+      {% endif %}
+    </div>
+  </div>
 </div>
 
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-  <!-- Profile Card -->
+  <!-- Stats Card -->
   <div class="lg:col-span-1">
-    <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 text-center backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
-      <div
-        class="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full {{ avatar_color }} ring-4 ring-white shadow-xl dark:ring-gray-800"
-      >
-        {% if avatar_url %}
-        <img src="{{ avatar_url }}" alt="Avatar" class="h-full w-full rounded-full object-cover" />
-        {% else %}
-        <span class="text-4xl font-bold text-white">{{ avatar_initials }}</span>
-        {% endif %}
+    <div class="rounded-2xl border border-gray-100/60 bg-white/80 backdrop-blur-md shadow-lg shadow-gray-200/30 dark:border-gray-700/50 dark:bg-gray-800/80 overflow-hidden">
+      <div class="border-b border-gray-100 dark:border-gray-700/50 px-5 py-4">
+        <h3 class="text-sm font-bold text-gray-700 dark:text-gray-300">Quick Stats</h3>
       </div>
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ profile.name }}</h3>
-      <p class="text-sm text-gray-500">{{ user.email }}</p>
-
-      {% if profile_type == 'student' %}
-      <span
-        class="mt-2 inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700"
-        >Student</span
-      >
-      <p class="mt-2 text-sm text-gray-500">{{ profile.student_id }}</p>
-      {% elif profile_type == 'lecturer' %}
-      <span
-        class="mt-2 inline-block rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-blue-700"
-        >Lecturer</span
-      >
-      <p class="mt-2 text-sm text-gray-500">{{ profile.staff_id }}</p>
-      {% endif %}
-
-      <!-- Stats -->
-      <div class="mt-6 space-y-3 border-t border-gray-100 dark:border-gray-700 pt-4 text-left">
+      <div class="p-5 space-y-3">
         {% if profile_type == 'student' %}
-        <div class="flex justify-between">
-          <span class="text-sm text-gray-500">Attendance Rate</span>
-          <span
-            class="{% if stats.attendance_rate >= 75 %}text-green-600{% elif stats.attendance_rate >= 50 %}text-yellow-600{% else %}text-red-600{% endif %} text-sm font-semibold"
-            >{{ stats.attendance_rate }}%</span
-          >
+        <div class="flex items-center justify-between rounded-xl bg-gray-50/80 dark:bg-gray-700/40 px-4 py-3">
+          <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Attendance Rate</span>
+          <span class="text-sm font-extrabold {% if stats.attendance_rate >= 75 %}text-emerald-600 dark:text-emerald-400{% elif stats.attendance_rate >= 50 %}text-amber-600 dark:text-amber-400{% else %}text-red-600 dark:text-red-400{% endif %}">
+            {{ stats.attendance_rate }}%
+          </span>
         </div>
-        <div class="flex justify-between">
-          <span class="text-sm text-gray-500">Sessions Attended</span>
-          <span class="text-sm font-semibold text-gray-800 dark:text-gray-200"
-            >{{ stats.attended_sessions }} / {{ stats.total_sessions }}</span
-          >
+        <div class="flex items-center justify-between rounded-xl bg-gray-50/80 dark:bg-gray-700/40 px-4 py-3">
+          <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Sessions Attended</span>
+          <span class="text-sm font-extrabold text-gray-800 dark:text-gray-200">{{ stats.attended_sessions }} / {{ stats.total_sessions }}</span>
         </div>
-        <div class="flex justify-between">
-          <span class="text-sm text-gray-500">Enrolled Courses</span>
-          <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ stats.enrolled_courses }}</span>
+        <div class="flex items-center justify-between rounded-xl bg-gray-50/80 dark:bg-gray-700/40 px-4 py-3">
+          <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Enrolled Courses</span>
+          <span class="text-sm font-extrabold text-gray-800 dark:text-gray-200">{{ stats.enrolled_courses }}</span>
         </div>
         {% elif profile_type == 'lecturer' %}
-        <div class="flex justify-between">
-          <span class="text-sm text-gray-500">Sessions Taken</span>
-          <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ stats.total_sessions }}</span>
+        <div class="flex items-center justify-between rounded-xl bg-gray-50/80 dark:bg-gray-700/40 px-4 py-3">
+          <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Sessions Taken</span>
+          <span class="text-sm font-extrabold text-gray-800 dark:text-gray-200">{{ stats.total_sessions }}</span>
         </div>
-        <div class="flex justify-between">
-          <span class="text-sm text-gray-500">Courses</span>
-          <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ stats.total_courses }}</span>
+        <div class="flex items-center justify-between rounded-xl bg-gray-50/80 dark:bg-gray-700/40 px-4 py-3">
+          <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Courses</span>
+          <span class="text-sm font-extrabold text-gray-800 dark:text-gray-200">{{ stats.total_courses }}</span>
         </div>
-        <div class="flex justify-between">
-          <span class="text-sm text-gray-500">Total Students</span>
-          <span class="text-sm font-semibold text-gray-800 dark:text-gray-200">{{ stats.total_students }}</span>
+        <div class="flex items-center justify-between rounded-xl bg-gray-50/80 dark:bg-gray-700/40 px-4 py-3">
+          <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Total Students</span>
+          <span class="text-sm font-extrabold text-gray-800 dark:text-gray-200">{{ stats.total_students }}</span>
         </div>
         {% endif %}
       </div>
@@ -74,16 +71,18 @@
 
   <!-- Edit Form -->
   <div class="lg:col-span-2">
-    <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 shadow-xl shadow-brand-500/5 backdrop-blur-md dark:border-gray-700/50 dark:bg-gray-800/80">
-      <h3 class="mb-6 text-lg font-semibold text-gray-900 dark:text-white">Edit Profile</h3>
+    <div class="rounded-2xl border border-gray-100/60 bg-white/80 p-6 shadow-lg shadow-gray-200/30 backdrop-blur-md dark:border-gray-700/50 dark:bg-gray-800/80">
+      <h3 class="mb-6 text-base font-bold text-gray-900 dark:text-white">Edit Profile</h3>
       <form method="post" action="{% url 'frontend:profile' %}">
         {% csrf_token %}
 
         <!-- Account Fields -->
         <div class="mb-6">
-          <h4 class="mb-4 text-sm font-medium uppercase tracking-wide text-gray-500">
-            Account Information
-          </h4>
+          <div class="mb-4 flex items-center gap-2">
+            <div class="h-px flex-1 bg-gray-100 dark:bg-gray-700"></div>
+            <span class="text-xs font-bold uppercase tracking-widest text-gray-400">Account Information</span>
+            <div class="h-px flex-1 bg-gray-100 dark:bg-gray-700"></div>
+          </div>
           <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
@@ -126,9 +125,11 @@
 
         <!-- Profile Fields -->
         <div class="mb-6">
-          <h4 class="mb-4 text-sm font-medium uppercase tracking-wide text-gray-500">
-            Profile Details
-          </h4>
+          <div class="mb-4 flex items-center gap-2">
+            <div class="h-px flex-1 bg-gray-100 dark:bg-gray-700"></div>
+            <span class="text-xs font-bold uppercase tracking-widest text-gray-400">Profile Details</span>
+            <div class="h-px flex-1 bg-gray-100 dark:bg-gray-700"></div>
+          </div>
           <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>

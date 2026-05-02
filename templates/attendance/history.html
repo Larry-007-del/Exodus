@@ -1,89 +1,116 @@
 {% extends 'base.html' %}
-
 {% block title %}Attendance History - Exodus{% endblock %}
-
 {% block content %}
-<div class="mb-6">
+
+<!-- Page Header -->
+<div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
+  <div>
     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Attendance History</h1>
-    <p class="text-gray-600 mt-1">View past attendance records</p>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Browse and export past attendance records</p>
+  </div>
 </div>
 
 <!-- Filters -->
-<div class="rounded-2xl border border-gray-100 bg-white/80 p-4 backdrop-blur-md shadow-lg shadow-brand-500/5 mb-6 dark:border-gray-700/50 dark:bg-gray-800/80">
-    <form method="get" class="flex flex-col md:flex-row gap-4 items-end" hx-boost="true">
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Course</label>
-            <select name="course" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
-                <option value="">All Courses</option>
-                {% for course in courses %}
-                <option value="{{ course.id }}" {% if course_filter == course.id|stringformat:"s" %}selected{% endif %}>{{ course.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">From Date</label>
-            <input type="date" name="date_from" value="{{ date_from }}" 
-                   class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">To Date</label>
-            <input type="date" name="date_to" value="{{ date_to }}" 
-                   class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
-        </div>
-        <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-lg transition-transform hover:-translate-y-0.5 hover:shadow-lg hover:bg-indigo-700">Filter</button>
-        <a href="{% url 'frontend:attendance_history' %}" class="px-6 py-2 border border-gray-300 bg-white/50 rounded-lg transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:hover:bg-gray-700">Clear</a>
-        <button type="submit" name="export_csv" value="true" hx-boost="false" class="ml-auto flex items-center px-6 py-2 bg-green-600 text-white whitespace-nowrap rounded-lg transition-transform hover:-translate-y-0.5 hover:shadow-lg hover:bg-green-700">
-            <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-            Export CSV
-        </button>
-    </form>
+<div class="mb-6 rounded-2xl border border-gray-100/60 bg-white/80 backdrop-blur-md p-5 shadow-lg shadow-gray-200/20 dark:border-gray-700/50 dark:bg-gray-800/80">
+  <form method="get" class="flex flex-wrap gap-3 items-end" hx-boost="true">
+    <div class="flex flex-col gap-1 min-w-[140px]">
+      <label class="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Course</label>
+      <select name="course" class="rounded-xl border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700 px-3 py-2 text-sm text-gray-800 dark:text-gray-200 transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
+        <option value="">All Courses</option>
+        {% for course in courses %}
+        <option value="{{ course.id }}" {% if course_filter == course.id|stringformat:"s" %}selected{% endif %}>{{ course.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">From</label>
+      <input type="date" name="date_from" value="{{ date_from }}"
+             class="rounded-xl border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700 px-3 py-2 text-sm text-gray-800 dark:text-gray-200 transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">To</label>
+      <input type="date" name="date_to" value="{{ date_to }}"
+             class="rounded-xl border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700 px-3 py-2 text-sm text-gray-800 dark:text-gray-200 transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500">
+    </div>
+    <div class="flex gap-2 ml-auto flex-wrap">
+      <button type="submit" class="inline-flex items-center rounded-xl bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-700 active:scale-95">
+        <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
+        Filter
+      </button>
+      <a href="{% url 'frontend:attendance_history' %}" class="inline-flex items-center rounded-xl border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700 px-4 py-2 text-sm font-semibold text-gray-600 dark:text-gray-300 transition-all hover:bg-gray-50 dark:hover:bg-gray-600 active:scale-95">
+        Clear
+      </a>
+      <button type="submit" name="export_csv" value="true" hx-boost="false"
+              class="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-emerald-700 active:scale-95">
+        <svg class="mr-1.5 h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+        Export CSV
+      </button>
+    </div>
+  </form>
 </div>
 
-<!-- Results -->
-<div class="rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-md shadow-xl shadow-brand-500/5 overflow-hidden dark:border-gray-700/50 dark:bg-gray-800/80" hx-boost="true">
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 font-bold uppercase">Course</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 font-bold uppercase">Date</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 font-bold uppercase">Present</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-800 dark:text-gray-300 font-bold uppercase">Status</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-800 dark:text-gray-300 font-bold uppercase">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200">
-                {% for attendance in attendances %}
-                <tr class="transition-colors duration-200 hover:bg-brand-50/50 dark:hover:bg-brand-900/20">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900 dark:text-white">{{ attendance.course.name }}</div>
-                        <div class="text-sm text-gray-500">{{ attendance.course.course_code }}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white" title="{{ attendance.date }}">{{ attendance.date|timesince }} ago</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 py-1 text-sm font-medium bg-green-100 text-green-800 rounded-full">
-                            {{ attendance.present_students.count }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        {% if attendance.is_active %}
-                        <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">Active</span>
-                        {% else %}
-                        <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 dark:text-gray-200 rounded-full">Ended</span>
-                        {% endif %}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="{% url 'frontend:attendance_detail' attendance.id %}" class="text-indigo-600 hover:text-indigo-900">View</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">No attendance records found</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<!-- Results Table -->
+<div class="rounded-2xl border border-gray-100/60 bg-white/80 backdrop-blur-md shadow-xl shadow-gray-200/20 overflow-hidden dark:border-gray-700/50 dark:bg-gray-800/80" hx-boost="true">
+  <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-100 dark:divide-gray-700">
+      <thead>
+        <tr class="bg-gray-50/80 dark:bg-gray-700/50">
+          <th class="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-400">Course</th>
+          <th class="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-400">Date</th>
+          <th class="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-400">Present</th>
+          <th class="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-400">Status</th>
+          <th class="px-6 py-3.5 text-right text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-400">Action</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+        {% for attendance in attendances %}
+        <tr class="group transition-colors duration-150 hover:bg-brand-50/40 dark:hover:bg-brand-900/10">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-semibold text-gray-900 dark:text-white">{{ attendance.course.name }}</div>
+            <div class="text-xs text-gray-400 mt-0.5">{{ attendance.course.course_code }}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300" title="{{ attendance.date }}">
+            {{ attendance.date|timesince }} ago
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+              {{ attendance.present_students.count }} present
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            {% if attendance.is_active %}
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 dark:bg-amber-900/40 px-2.5 py-1 text-xs font-semibold text-amber-700 dark:text-amber-300">
+              <span class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span> Active
+            </span>
+            {% else %}
+            <span class="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-700 px-2.5 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400">
+              Ended
+            </span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-right">
+            <a href="{% url 'frontend:attendance_detail' attendance.id %}" class="inline-flex items-center gap-1 rounded-lg bg-brand-50 dark:bg-brand-900/30 px-3 py-1.5 text-xs font-semibold text-brand-600 dark:text-brand-300 transition-colors hover:bg-brand-100 dark:hover:bg-brand-900/50">
+              View
+              <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="px-6 py-16 text-center">
+            <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-700">
+              <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+            </div>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No attendance records found</p>
+            <p class="mt-1 text-xs text-gray-400">Try adjusting your filters</p>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 {% include 'partials/pagination.html' with page_obj=attendances %}
