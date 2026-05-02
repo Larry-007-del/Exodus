@@ -89,7 +89,7 @@
               </svg>
             </button>
             <a href="{% url 'frontend:dashboard' %}" class="ms-2 flex md:me-24">
-              <div class="mr-2 rounded bg-indigo-600 p-1 text-white">
+              <div class="mr-2 rounded-xl bg-gradient-to-br from-brand-500 to-purple-600 p-1.5 text-white shadow-sm">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     stroke-linecap="round"
@@ -545,8 +545,8 @@
       </div>
     </aside>
 
-    <main id="main-content" class="p-4 sm:ml-64 animate-fade-in-up" role="main">
-      <div class="mt-14 min-h-screen p-4">
+    <main id="main-content" class="sm:ml-64 animate-fade-in-up" role="main">
+      <div class="mt-14 min-h-screen p-4 sm:p-6">
         <div 
           class="fixed right-5 top-5 z-50 space-y-3 flex flex-col" 
           role="status" 
@@ -659,13 +659,17 @@
         });
 
         if (bestMatch) {
-          bestMatch.classList.add('bg-gray-100', 'dark:bg-gray-700');
-          bestMatch.classList.remove('hover:bg-gray-100');
+          bestMatch.classList.add('bg-brand-50', 'text-brand-700', 'font-semibold');
+          bestMatch.classList.remove('hover:bg-gray-100', 'text-gray-900');
+          var span = bestMatch.querySelector('span');
+          if (span) span.classList.add('text-brand-700');
           var svg = bestMatch.querySelector('svg');
           if (svg) {
-            svg.classList.add('text-indigo-600');
-            svg.classList.remove('text-gray-500');
+            svg.classList.add('text-brand-600');
+            svg.classList.remove('text-gray-500', 'text-gray-400');
           }
+          // Dark mode
+          bestMatch.classList.add('dark:bg-brand-900/30', 'dark:text-brand-300');
         }
       })();
     </script>
