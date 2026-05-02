@@ -1,564 +1,339 @@
 {% extends 'base.html' %} {% block title %}Take Attendance - Exodus{% endblock %} {% block content %}
-<div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-  <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-    <div>
-      <a
-        href="{% url 'frontend:attendance_index' %}"
-        class="mb-3 inline-flex items-center text-sm font-medium text-indigo-600 transition-colors duration-200 hover:text-indigo-800"
-      >
-        <svg class="mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M10 19l-7-7m0 0l7-7m-7 7h18"
-          ></path>
-        </svg>
-        Back to Dashboard
-      </a>
-      <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">Take Attendance</h1>
-      <p class="mt-2 text-sm text-gray-500">
-        Initiate and manage attendance sessions for your courses.
-      </p>
+
+<!-- Page Header -->
+<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+  <div>
+    <a href="{% url 'frontend:attendance_index' %}" class="mb-2 inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-800 dark:text-brand-400 transition-colors">
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+      Back to Dashboard
+    </a>
+    <h1 class="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white">Take Attendance</h1>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Initiate and manage attendance sessions for your courses.</p>
+  </div>
+</div>
+
+{% if active_session %}
+<!-- ═══════════ ACTIVE SESSION ═══════════ -->
+<div class="overflow-hidden rounded-2xl border border-gray-100/60 bg-white/80 backdrop-blur-md shadow-2xl shadow-brand-500/10 dark:border-gray-700/50 dark:bg-gray-800/80 transition-all hover:shadow-brand-500/20">
+  <!-- Live banner -->
+  <div class="flex items-center justify-between bg-gradient-to-r from-emerald-500 to-green-600 px-6 py-4">
+    <div class="flex items-center gap-3">
+      <span class="relative flex h-3 w-3">
+        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-200 opacity-75"></span>
+        <span class="relative inline-flex h-3 w-3 rounded-full bg-white"></span>
+      </span>
+      <h3 class="text-xl font-bold text-white">Live Session Active</h3>
     </div>
+    <span class="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur-sm">In Progress</span>
   </div>
 
-  {% if active_session %}
-  <div
-    class="mb-8 transform overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-700 bg-white/80 backdrop-blur-md shadow-2xl shadow-brand-500/10 transition-all hover:shadow-brand-500/20"
-  >
-    <div
-      class="flex items-center justify-between bg-gradient-to-r from-green-500 to-green-600 px-6 py-4"
-    >
-      <div class="flex items-center space-x-3">
-        <span class="relative flex h-3 w-3">
-          <span
-            class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-200 opacity-75"
-          ></span>
-          <span class="relative inline-flex h-3 w-3 rounded-full bg-white dark:bg-gray-800"></span>
-        </span>
-        <h3 class="text-xl font-bold text-white">Live Session Active</h3>
-      </div>
-      <span
-        class="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur-sm"
-        >In Progress</span
-      >
-    </div>
-
-    <div class="p-8">
-      <div class="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
-        <div class="space-y-6">
-          <div>
-            <span class="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-500"
-              >Course</span
-            >
-            <p class="flex items-center text-lg font-medium text-gray-900 dark:text-white">
-              <svg
-                class="mr-2 h-5 w-5 text-indigo-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                ></path>
-              </svg>
-              {{ active_session.course.name }}
-              <span class="ml-2 rounded-xl bg-gray-100/50 px-2 py-0.5 text-sm text-gray-500 backdrop-blur-sm"
-                >{{ active_session.course.course_code }}</span
-              >
-            </p>
-          </div>
-
-          <div>
-            <span class="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-500"
-              >Attendance Token</span
-            >
-            <div class="group relative">
-              <div
-                class="rounded-xl border border-brand-100 bg-white/50 py-4 text-center font-mono text-3xl font-bold tracking-[0.2em] text-brand-700 backdrop-blur-sm shadow-inner"
-              >
-                {{ active_session.token }}
-              </div>
-              <p class="mt-2 text-center text-xs text-gray-400">
-                Students must enter this token to mark their attendance.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="flex flex-col items-center justify-center rounded-xl border border-gray-100 dark:border-gray-700 bg-white/30 p-6 backdrop-blur-sm"
-        >
-          <span class="mb-4 block text-xs font-semibold uppercase tracking-wider text-gray-500"
-            >Scan QR Code</span
-          >
-          <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 shadow-sm">
-            <img
-              src="{{ active_session.qr_code.url }}"
-              alt="QR Code"
-              class="h-48 w-48 object-contain"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
-        <form
-          method="post"
-          action="{% url 'frontend:end_attendance' %}"
-          onsubmit="return confirm('Are you sure you want to end this attendance session?');"
-          hx-boost="true"
-        >
-          {% csrf_token %}
-          <input type="hidden" name="course_id" value="{{ active_session.course.id }}" />
-          <button
-            type="submit"
-            class="flex w-full items-center justify-center rounded-xl border border-transparent bg-red-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-red-500/20 transition-all hover:-translate-y-0.5 hover:bg-red-700 active:scale-95"
-          >
-            <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"
-              ></path>
+  <div class="p-6 md:p-8">
+    <div class="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
+      <!-- Left: token + course info -->
+      <div class="space-y-6">
+        <div>
+          <span class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-400">Course</span>
+          <p class="flex items-center text-lg font-semibold text-gray-900 dark:text-white">
+            <svg class="mr-2 h-5 w-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
             </svg>
-            End Attendance Session
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-  {% else %}
-  <div class="overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl">
-    <div class="border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 px-6 py-5">
-      <h3 class="flex items-center text-lg font-bold text-gray-900 dark:text-white">
-        <svg
-          class="mr-2 h-5 w-5 text-indigo-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-          ></path>
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          ></path>
-        </svg>
-        New Session Configuration
-      </h3>
-    </div>
-
-    <form id="attendanceForm" method="post" class="space-y-6" hx-boost="true" x-data="{ loading: false }" @submit="loading = true">
-      {% csrf_token %}
-
-      <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
-        <!-- Left Column -->
-        <div class="space-y-6 md:border-r md:border-gray-100 dark:border-gray-700 md:pr-8">
-          <div>
-            <label for="course" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300"
-              >Select Course <span class="text-red-500">*</span></label
-            >
-            <div class="relative">
-              <select
-                name="course"
-                id="course"
-                required
-                class="block w-full rounded-xl border-gray-300 bg-gray-50 py-3 pl-4 pr-10 text-base shadow-sm transition-shadow hover:bg-white dark:bg-gray-800 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-              >
-                <option value="" disabled selected>— Choose a course —</option>
-                {% for course in courses %}
-                <option value="{{ course.id }}">
-                  {{ course.name }} ({{ course.course_code }})
-                </option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label for="token" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300"
-              >Create Attendance Token <span class="text-red-500">*</span></label
-            >
-            <div class="relative">
-              <input
-                type="text"
-                name="token"
-                id="token"
-                required
-                maxlength="6"
-                minlength="4"
-                placeholder="e.g., AB12X"
-                class="block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 px-4 py-4 text-center font-mono text-2xl uppercase tracking-[0.2em] backdrop-blur-sm transition-all hover:bg-white/80 focus:border-brand-500 focus:ring-brand-500"
-                style="text-transform: uppercase"
-              />
-              <button
-                type="button"
-                onclick="generateRandomToken()"
-                class="absolute right-3 top-1/2 -translate-y-1/2 transform rounded-xl bg-brand-50 p-2 text-brand-600 transition-colors hover:text-brand-800"
-                title="Generate Random Token"
-              >
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  ></path>
-                </svg>
-              </button>
-            </div>
-            <p class="mt-2 flex items-center text-xs text-gray-500">
-              <svg
-                class="mr-1 h-4 w-4 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                ></path>
-              </svg>
-              Used by students to verify presence
-            </p>
-          </div>
+            {{ active_session.course.name }}
+            <span class="ml-2 rounded-xl bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs font-semibold text-gray-500 dark:text-gray-400">{{ active_session.course.course_code }}</span>
+          </p>
         </div>
 
-        <!-- Right Column -->
-        <div class="space-y-6">
-          <div>
-            <div class="mb-2 flex items-center justify-between">
-              <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300"
-                >Location Verification <span class="text-red-500">*</span></label
-              >
-              <button
-                type="button"
-                onclick="getLocation()"
-                class="flex items-center rounded-md bg-indigo-50 px-2 py-1 text-xs font-medium text-indigo-600 transition-colors hover:text-indigo-800"
-              >
-                <svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  ></path>
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  ></path>
-                </svg>
-                Refresh Location
-              </button>
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <input
-                  type="number"
-                  step="any"
-                  name="latitude"
-                  id="latitude"
-                  placeholder="Detecting..."
-                  class="block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 sm:text-sm"
-                  readonly
-                />
-              </div>
-              <div>
-                <input
-                  type="number"
-                  step="any"
-                  name="longitude"
-                  id="longitude"
-                  placeholder="Detecting..."
-                  class="block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 px-4 py-2.5 backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 sm:text-sm"
-                  readonly
-                />
-              </div>
-            </div>
-            <p class="mt-2 text-xs text-gray-500" id="locationStatus">
-              Verifying your current location...
-            </p>
+        <div>
+          <span class="mb-2 block text-xs font-bold uppercase tracking-wider text-gray-400">Attendance Token</span>
+          <div class="rounded-xl border border-brand-200/60 dark:border-brand-800/40 bg-brand-50/60 dark:bg-brand-900/20 py-5 text-center font-mono text-3xl font-extrabold tracking-[0.25em] text-brand-700 dark:text-brand-300 shadow-inner">
+            {{ active_session.token }}
           </div>
-
-          <div>
-            <label for="duration_hours" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300"
-              >Session Duration</label
-            >
-            <select
-              name="duration_hours"
-              id="duration_hours"
-              class="block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 py-2.5 pl-4 pr-10 text-base backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 sm:text-sm"
-            >
-              <option value="1">1 Hour</option>
-              <option value="2" selected>2 Hours (Standard)</option>
-              <option value="3">3 Hours</option>
-              <option value="4">4 Hours</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="radius_meters" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300"
-              >Geofencing Radius</label
-            >
-            <select
-              name="radius_meters"
-              id="radius_meters"
-              class="block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 py-2.5 pl-4 pr-10 text-base backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-brand-500 sm:text-sm"
-            >
-              <option value="25">25 m — Small Room</option>
-              <option value="50" selected>50 m — Standard Classroom</option>
-              <option value="100">100 m — Large Hall</option>
-              <option value="200">200 m — Outdoor / Campus</option>
-              <option value="500">500 m — Wide Campus Area</option>
-            </select>
-            <p class="mt-1 text-xs text-gray-500">Students must be within this distance of you to check in.</p>
-          </div>
-
-          <div class="rounded-xl border border-indigo-100 bg-indigo-50/50 p-4">
-            <div class="flex items-start">
-              <div class="flex h-5 items-center">
-                <input
-                  type="checkbox"
-                  name="require_two_factor_auth"
-                  id="require_two_factor_auth"
-                  {% if lecturer.require_two_factor_auth %}checked disabled{% endif %}
-                  class="h-4 w-4 cursor-pointer rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                />
-              </div>
-              <div class="ml-3 text-sm">
-                <label
-                  for="require_two_factor_auth"
-                  class="flex cursor-pointer items-center font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Enforce biometric verification (2FA) {% if lecturer.require_two_factor_auth %}
-                  <span
-                    class="ml-2 inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-800"
-                  >
-                    Forced by Profile
-                  </span>
-                  {% endif %}
-                </label>
-                <p class="mt-1 text-gray-500">
-                  Students must scan fingerprint/face to mark present.
-                </p>
-              </div>
-            </div>
-          </div>
+          <p class="mt-2 text-center text-xs text-gray-400">Students must enter this token to mark their attendance.</p>
         </div>
       </div>
 
-      <div class="border-t border-gray-100 dark:border-gray-700 pt-6">
-        <button
-          type="submit"
-          :disabled="loading"
-          class="flex w-full transform items-center justify-center rounded-xl border border-transparent bg-gradient-to-r from-indigo-600 to-blue-700 px-4 py-4 text-lg font-bold text-white shadow-lg transition-transform hover:-translate-y-0.5 hover:from-indigo-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-75 disabled:cursor-wait"
-        >
-          <svg x-show="!loading" class="mr-2 h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-            ></path>
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
+      <!-- Right: QR code -->
+      <div class="flex flex-col items-center justify-center rounded-2xl border border-gray-100 dark:border-gray-700 bg-white/40 dark:bg-gray-700/30 p-6 backdrop-blur-sm">
+        <span class="mb-4 block text-xs font-bold uppercase tracking-wider text-gray-400">Scan QR Code</span>
+        <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 shadow-md">
+          <img src="{{ active_session.qr_code.url }}" alt="QR Code" class="h-48 w-48 object-contain" />
+        </div>
+      </div>
+    </div>
+
+    <!-- End session -->
+    <div class="mt-8 border-t border-gray-100 dark:border-gray-700 pt-6">
+      <form method="post" action="{% url 'frontend:end_attendance' %}" onsubmit="return confirm('Are you sure you want to end this attendance session?');" hx-boost="true">
+        {% csrf_token %}
+        <input type="hidden" name="course_id" value="{{ active_session.course.id }}" />
+        <button type="submit" class="flex w-full items-center justify-center rounded-xl bg-red-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-red-500/20 transition-all hover:-translate-y-0.5 hover:bg-red-700 active:scale-95">
+          <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
           </svg>
-          <svg style="display: none;" x-show="loading" class="mr-2 h-6 w-6 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span x-show="!loading">Start Attendance Session</span>
-          <span style="display: none;" x-show="loading">Starting Session...</span>
+          End Attendance Session
         </button>
-      </div>
-    </form>
-  </div>
-
-  <script>
-    function generateRandomToken() {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      let token = '';
-      for (let i = 0; i < 6; i++) {
-        token += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      document.getElementById('token').value = token;
-    }
-
-    // Initialize with random token on load and automatically detect location
-    window.addEventListener('DOMContentLoaded', () => {
-      const tokenInput = document.getElementById('token');
-      if (tokenInput && !tokenInput.value) {
-        generateRandomToken();
-      }
-
-      // Automatically get location on page load
-      getLocation();
-    });
-
-    // Auto-uppercase token input
-    const tokenInput = document.getElementById('token');
-    if (tokenInput) {
-      tokenInput.addEventListener('input', function (e) {
-        this.value = this.value.toUpperCase();
-      });
-    }
-
-    // Form validation
-    const form = document.getElementById('attendanceForm');
-    if (form) {
-      form.addEventListener('submit', function (e) {
-        if (tokenInput && tokenInput.value.length < 4) {
-          e.preventDefault();
-          tokenInput.focus();
-          // Optional: highlight input to show error visually
-          tokenInput.classList.add('border-red-500', 'ring-red-500');
-          setTimeout(() => tokenInput.classList.remove('border-red-500', 'ring-red-500'), 2000);
-        }
-      });
-    }
-
-    function getLocation() {
-      const statusLabel = document.getElementById('locationStatus');
-      const latInput = document.getElementById('latitude');
-      const lngInput = document.getElementById('longitude');
-      const submitButton = document.querySelector('button[type="submit"]');
-
-      if (!navigator.geolocation) {
-        statusLabel.textContent =
-          'Geolocation is not supported by your browser. Please use a modern browser.';
-        statusLabel.classList.add('text-red-500');
-        return;
-      }
-
-      statusLabel.textContent = 'Locating...';
-      statusLabel.classList.remove('text-red-500', 'text-green-600');
-      statusLabel.classList.add('text-indigo-600');
-      latInput.placeholder = "Detecting...";
-      lngInput.placeholder = "Detecting...";
-      latInput.value = "";
-      lngInput.value = "";
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          latInput.value = position.coords.latitude.toFixed(6);
-          lngInput.value = position.coords.longitude.toFixed(6);
-          var radius = document.getElementById('radius_meters');
-          var radiusLabel = radius ? radius.options[radius.selectedIndex].text : '50 m';
-          statusLabel.textContent =
-            'Location captured. Students must be within ' + radiusLabel + ' to mark attendance.';
-          statusLabel.classList.remove('text-indigo-600');
-          statusLabel.classList.add('text-green-600');
-
-          if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
-          }
-        },
-        (error) => {
-          let errorMsg = 'Unable to retrieve your location';
-          if (error.code === error.PERMISSION_DENIED) {
-            errorMsg =
-              'Location permission denied. Please enable location services to start attendance.';
-          } else if (error.code === error.POSITION_UNAVAILABLE) {
-            errorMsg = 'Location information unavailable. Please check your GPS.';
-          } else if (error.code === error.TIMEOUT) {
-            errorMsg = 'Location request timed out. Please try again.';
-          }
-
-          statusLabel.textContent = errorMsg;
-          statusLabel.classList.remove('text-indigo-600');
-          statusLabel.classList.add('text-red-500');
-
-          latInput.placeholder = "Failed";
-          lngInput.placeholder = "Failed";
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0,
-        }
-      );
-    }
-  </script>
-  {% endif %}
-
-  <div
-    class="mt-8 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-blue-50 p-6 shadow-sm md:p-8"
-  >
-    <div class="flex items-start">
-      <div class="flex-shrink-0">
-        <div
-          class="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-indigo-600"
-        >
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
-          </svg>
-        </div>
-      </div>
-      <div class="ml-4">
-        <h3 class="mb-2 text-lg font-bold text-indigo-900">How Attendance Works</h3>
-        <ul class="mt-4 space-y-4">
-          <li class="flex items-center">
-            <span
-              class="mr-3 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-sm font-bold text-indigo-700"
-              >1</span
-            >
-            <span class="text-sm text-indigo-800"
-              >Select a course and hit <strong>Start Attendance Session</strong> to generate a unique QR code.</span
-            >
-          </li>
-          <li class="flex items-center">
-            <span
-              class="mr-3 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-sm font-bold text-indigo-700"
-              >2</span
-            >
-            <span class="text-sm text-indigo-800"
-              >Project the live QR code on the screen or share the 6-character token with your class.</span
-            >
-          </li>
-          <li class="flex items-center">
-            <span
-              class="mr-3 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-indigo-200 text-sm font-bold text-indigo-700"
-              >3</span
-            >
-            <span class="text-sm text-indigo-800"
-              >Students use their portals to scan the code or enter the token, verifying their presence.</span
-            >
-          </li>
-        </ul>
-      </div>
+      </form>
     </div>
   </div>
 </div>
+
+{% else %}
+<!-- ═══════════ NEW SESSION CONFIGURATION ═══════════ -->
+<div class="overflow-hidden rounded-2xl border border-gray-100/60 bg-white/80 backdrop-blur-md shadow-xl shadow-gray-200/20 dark:border-gray-700/50 dark:bg-gray-800/80">
+  <!-- Card header with accent stripe -->
+  <div class="h-1 w-full bg-gradient-to-r from-brand-500 to-indigo-600"></div>
+  <div class="flex items-center gap-3 border-b border-gray-100 dark:border-gray-700/50 px-6 py-5">
+    <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 dark:bg-brand-900/30">
+      <svg class="h-5 w-5 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </div>
+    <h3 class="text-base font-bold text-gray-900 dark:text-white">New Session Configuration</h3>
+  </div>
+
+  <form id="attendanceForm" method="post" class="p-6 md:p-8 space-y-0" hx-boost="true" x-data="{ loading: false }" @submit="loading = true">
+    {% csrf_token %}
+
+    <div class="grid grid-cols-1 gap-x-10 gap-y-7 md:grid-cols-2">
+
+      <!-- ── Left column ── -->
+      <div class="space-y-7 md:border-r md:border-gray-100 dark:md:border-gray-700/50 md:pr-10">
+
+        <!-- Course select -->
+        <div>
+          <label for="course" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+            Select Course <span class="text-red-500">*</span>
+          </label>
+          <select name="course" id="course" required
+            class="block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-700/50 py-3 pl-4 pr-10 text-sm text-gray-900 dark:text-white shadow-sm backdrop-blur-sm transition-all hover:bg-white dark:hover:bg-gray-700 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30">
+            <option value="" disabled selected>— Choose a course —</option>
+            {% for course in courses %}
+            <option value="{{ course.id }}">{{ course.name }} ({{ course.course_code }})</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Token -->
+        <div>
+          <label for="token" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+            Attendance Token <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <input
+              type="text" name="token" id="token" required maxlength="6" minlength="4"
+              placeholder="e.g. AB12X"
+              class="block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-700/50 px-4 py-4 text-center font-mono text-2xl uppercase tracking-[0.2em] backdrop-blur-sm transition-all hover:bg-white dark:hover:bg-gray-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30"
+              style="text-transform:uppercase"
+            />
+            <button type="button" onclick="generateRandomToken()" title="Generate random token"
+              class="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl bg-brand-50 dark:bg-brand-900/30 p-2 text-brand-600 dark:text-brand-400 transition-colors hover:bg-brand-100 dark:hover:bg-brand-900/50">
+              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+            </button>
+          </div>
+          <p class="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
+            <svg class="h-4 w-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Used by students to verify presence (auto-generated)
+          </p>
+        </div>
+      </div>
+
+      <!-- ── Right column ── -->
+      <div class="space-y-7">
+
+        <!-- Location -->
+        <div>
+          <div class="mb-2 flex items-center justify-between">
+            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Location Verification <span class="text-red-500">*</span>
+            </label>
+            <button type="button" onclick="getLocation()"
+              class="inline-flex items-center gap-1.5 rounded-xl bg-brand-50 dark:bg-brand-900/30 px-3 py-1.5 text-xs font-semibold text-brand-600 dark:text-brand-400 transition-all hover:bg-brand-100 dark:hover:bg-brand-900/50 active:scale-95">
+              <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              Refresh Location
+            </button>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <input type="number" step="any" name="latitude" id="latitude" placeholder="Detecting…" readonly
+              class="block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-700/50 px-4 py-2.5 text-sm backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30" />
+            <input type="number" step="any" name="longitude" id="longitude" placeholder="Detecting…" readonly
+              class="block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-700/50 px-4 py-2.5 text-sm backdrop-blur-sm transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30" />
+          </div>
+          <p class="mt-2 text-xs text-gray-500 dark:text-gray-400" id="locationStatus">Verifying your current location…</p>
+        </div>
+
+        <!-- Duration -->
+        <div>
+          <label for="duration_hours" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">Session Duration</label>
+          <select name="duration_hours" id="duration_hours"
+            class="block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-700/50 py-2.5 pl-4 pr-10 text-sm backdrop-blur-sm transition-all hover:bg-white dark:hover:bg-gray-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30">
+            <option value="1">1 Hour</option>
+            <option value="2" selected>2 Hours (Standard)</option>
+            <option value="3">3 Hours</option>
+            <option value="4">4 Hours</option>
+          </select>
+        </div>
+
+        <!-- Radius -->
+        <div>
+          <label for="radius_meters" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">Geofencing Radius</label>
+          <select name="radius_meters" id="radius_meters"
+            class="block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-700/50 py-2.5 pl-4 pr-10 text-sm backdrop-blur-sm transition-all hover:bg-white dark:hover:bg-gray-700 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30">
+            <option value="25">25 m — Small Room</option>
+            <option value="50" selected>50 m — Standard Classroom</option>
+            <option value="100">100 m — Large Hall</option>
+            <option value="200">200 m — Outdoor / Campus</option>
+            <option value="500">500 m — Wide Campus Area</option>
+          </select>
+          <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">Students must be within this distance of you to check in.</p>
+        </div>
+
+        <!-- 2FA checkbox -->
+        <div class="rounded-xl border border-brand-100 dark:border-brand-900/40 bg-brand-50/60 dark:bg-brand-900/20 p-4">
+          <label class="flex cursor-pointer items-start gap-3">
+            <input type="checkbox" name="require_two_factor_auth" id="require_two_factor_auth"
+              {% if lecturer.require_two_factor_auth %}checked disabled{% endif %}
+              class="mt-0.5 h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 cursor-pointer flex-shrink-0" />
+            <div class="text-sm">
+              <div class="flex flex-wrap items-center gap-2 font-semibold text-gray-700 dark:text-gray-200">
+                Enforce biometric verification (2FA)
+                {% if lecturer.require_two_factor_auth %}
+                <span class="rounded-full bg-brand-100 dark:bg-brand-900/50 px-2 py-0.5 text-xs font-semibold text-brand-700 dark:text-brand-300">Forced by Profile</span>
+                {% endif %}
+              </div>
+              <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Students must scan fingerprint/face to mark present.</p>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="mt-8 border-t border-gray-100 dark:border-gray-700/50 pt-6">
+      <button type="submit" :disabled="loading"
+        class="flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-brand-600 to-indigo-700 px-4 py-4 text-base font-bold text-white shadow-lg shadow-brand-500/25 transition-all hover:-translate-y-0.5 hover:from-brand-700 hover:to-indigo-800 hover:shadow-brand-500/40 focus:outline-none focus:ring-4 focus:ring-brand-500/30 disabled:cursor-wait disabled:opacity-70 active:scale-[0.98]">
+        <svg x-show="!loading" class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <svg style="display:none;" x-show="loading" class="mr-2 h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span x-show="!loading">Start Attendance Session</span>
+        <span style="display:none;" x-show="loading">Starting Session…</span>
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  function generateRandomToken() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let token = '';
+    for (let i = 0; i < 6; i++) token += chars.charAt(Math.floor(Math.random() * chars.length));
+    document.getElementById('token').value = token;
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const tokenInput = document.getElementById('token');
+    if (tokenInput && !tokenInput.value) generateRandomToken();
+    getLocation();
+  });
+
+  const tokenInput = document.getElementById('token');
+  if (tokenInput) tokenInput.addEventListener('input', function() { this.value = this.value.toUpperCase(); });
+
+  const form = document.getElementById('attendanceForm');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      if (tokenInput && tokenInput.value.length < 4) {
+        e.preventDefault();
+        tokenInput.focus();
+        tokenInput.classList.add('border-red-500', 'ring-red-500');
+        setTimeout(() => tokenInput.classList.remove('border-red-500', 'ring-red-500'), 2000);
+      }
+    });
+  }
+
+  function getLocation() {
+    const statusLabel = document.getElementById('locationStatus');
+    const latInput = document.getElementById('latitude');
+    const lngInput = document.getElementById('longitude');
+    const submitButton = document.querySelector('button[type="submit"]');
+
+    if (!navigator.geolocation) {
+      statusLabel.textContent = 'Geolocation is not supported by your browser.';
+      statusLabel.classList.add('text-red-500');
+      return;
+    }
+
+    statusLabel.textContent = 'Locating…';
+    statusLabel.classList.remove('text-red-500', 'text-green-600');
+    statusLabel.classList.add('text-brand-600');
+    latInput.placeholder = 'Detecting…';
+    lngInput.placeholder = 'Detecting…';
+    latInput.value = '';
+    lngInput.value = '';
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        latInput.value = position.coords.latitude.toFixed(6);
+        lngInput.value = position.coords.longitude.toFixed(6);
+        const radius = document.getElementById('radius_meters');
+        const radiusLabel = radius ? radius.options[radius.selectedIndex].text : '50 m';
+        statusLabel.textContent = 'Location captured. Students must be within ' + radiusLabel + ' to mark attendance.';
+        statusLabel.classList.remove('text-brand-600');
+        statusLabel.classList.add('text-emerald-600');
+        if (submitButton) { submitButton.disabled = false; submitButton.classList.remove('opacity-50', 'cursor-not-allowed'); }
+      },
+      (error) => {
+        const msgs = { [error.PERMISSION_DENIED]: 'Location permission denied. Please enable location services.', [error.POSITION_UNAVAILABLE]: 'Location unavailable. Check your GPS.', [error.TIMEOUT]: 'Location request timed out. Please try again.' };
+        statusLabel.textContent = msgs[error.code] || 'Unable to retrieve your location.';
+        statusLabel.classList.remove('text-brand-600');
+        statusLabel.classList.add('text-red-500');
+        latInput.placeholder = 'Failed';
+        lngInput.placeholder = 'Failed';
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }
+</script>
+{% endif %}
+
+<!-- How it works -->
+<div class="mt-8 rounded-2xl border border-brand-100/60 dark:border-brand-900/40 bg-gradient-to-br from-brand-50/80 to-indigo-50/80 dark:from-brand-900/20 dark:to-indigo-900/20 p-6 md:p-8 backdrop-blur-sm">
+  <div class="flex items-start gap-4">
+    <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-100 dark:bg-brand-900/40">
+      <svg class="h-5 w-5 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </div>
+    <div>
+      <h3 class="text-base font-bold text-brand-900 dark:text-brand-100">How Attendance Works</h3>
+      <ul class="mt-4 space-y-3">
+        {% for step, text in "1,Select a course and hit Start Attendance Session to generate a unique QR code.|2,Project the live QR code on the screen or share the 6-character token with your class.|3,Students use their portals to scan the code or enter the token to verify their presence."|split:"|" %}
+        {% endfor %}
+        <li class="flex items-start gap-3">
+          <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-brand-200 dark:bg-brand-800 text-xs font-bold text-brand-700 dark:text-brand-300">1</span>
+          <span class="text-sm text-brand-800 dark:text-brand-200">Select a course and hit <strong>Start Attendance Session</strong> to generate a unique QR code.</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-brand-200 dark:bg-brand-800 text-xs font-bold text-brand-700 dark:text-brand-300">2</span>
+          <span class="text-sm text-brand-800 dark:text-brand-200">Project the live QR code on the screen or share the 6-character token with your class.</span>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-brand-200 dark:bg-brand-800 text-xs font-bold text-brand-700 dark:text-brand-300">3</span>
+          <span class="text-sm text-brand-800 dark:text-brand-200">Students use their portals to scan the code or enter the token to verify their presence.</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
