@@ -1,0 +1,50 @@
+2026-05-02T18:54:48.15805635Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/engine.py", line 159, in find_template
+2026-05-02T18:54:48.15805946Z     template = loader.get_template(name, skip=skip)
+2026-05-02T18:54:48.1580624Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-02T18:54:48.158065271Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/loaders/cached.py", line 57, in get_template
+2026-05-02T18:54:48.15806832Z     template = super().get_template(template_name, skip)
+2026-05-02T18:54:48.158071461Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-02T18:54:48.158074601Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/loaders/base.py", line 28, in get_template
+2026-05-02T18:54:48.158077951Z     return Template(
+2026-05-02T18:54:48.158080981Z            ^^^^^^^^^
+2026-05-02T18:54:48.158083781Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/base.py", line 154, in __init__
+2026-05-02T18:54:48.158086811Z     self.nodelist = self.compile_nodelist()
+2026-05-02T18:54:48.158089911Z                     ^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-02T18:54:48.158093101Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/base.py", line 196, in compile_nodelist
+2026-05-02T18:54:48.158113682Z     nodelist = parser.parse()
+2026-05-02T18:54:48.158117462Z                ^^^^^^^^^^^^^^
+2026-05-02T18:54:48.158120682Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+2026-05-02T18:54:48.158123792Z     raise self.error(token, e)
+2026-05-02T18:54:48.158127102Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+2026-05-02T18:54:48.158130032Z     compiled_result = compile_func(self, token)
+2026-05-02T18:54:48.158132842Z                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-02T18:54:48.158142062Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/loader_tags.py", line 299, in do_extends
+2026-05-02T18:54:48.158145373Z     nodelist = parser.parse()
+2026-05-02T18:54:48.158148293Z                ^^^^^^^^^^^^^^
+2026-05-02T18:54:48.158151273Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+2026-05-02T18:54:48.158155103Z     raise self.error(token, e)
+2026-05-02T18:54:48.158158353Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+2026-05-02T18:54:48.158161433Z     compiled_result = compile_func(self, token)
+2026-05-02T18:54:48.158164263Z                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-02T18:54:48.158167623Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/loader_tags.py", line 234, in do_block
+2026-05-02T18:54:48.158170683Z     nodelist = parser.parse(("endblock",))
+2026-05-02T18:54:48.158173813Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-02T18:54:48.158177273Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/base.py", line 518, in parse
+2026-05-02T18:54:48.158180323Z     raise self.error(token, e)
+2026-05-02T18:54:48.158183183Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/base.py", line 516, in parse
+2026-05-02T18:54:48.158186274Z     compiled_result = compile_func(self, token)
+2026-05-02T18:54:48.158189224Z                       ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-02T18:54:48.158192194Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/defaulttags.py", line 861, in do_for
+2026-05-02T18:54:48.158195074Z     sequence = parser.compile_filter(bits[in_index + 1])
+2026-05-02T18:54:48.158198114Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-02T18:54:48.158201504Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/base.py", line 609, in compile_filter
+2026-05-02T18:54:48.158204324Z     return FilterExpression(token, self)
+2026-05-02T18:54:48.158207414Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-02T18:54:48.158210354Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/base.py", line 705, in __init__
+2026-05-02T18:54:48.158231915Z     filter_func = parser.find_filter(filter_name)
+2026-05-02T18:54:48.158239685Z                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-05-02T18:54:48.158242905Z   File "/opt/render/project/src/.venv/lib/python3.11/site-packages/django/template/base.py", line 615, in find_filter
+2026-05-02T18:54:48.158245995Z     raise TemplateSyntaxError("Invalid filter: '%s'" % filter_name)
+2026-05-02T18:54:48.158249255Z django.template.exceptions.TemplateSyntaxError: Invalid filter: 'split'
+2026-05-02T18:54:48.158546713Z 127.0.0.1 - - [02/May/2026:18:54:48 +0000] "GET /attendance/take/ HTTP/1.1" 500 3855 "https://exodus-nsji.onrender.com/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-02T18:54:49.682018196Z [2026-05-02 18:54:49 +0000] [55] [INFO] Shutting down: Master
