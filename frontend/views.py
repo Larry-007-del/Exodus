@@ -1316,8 +1316,10 @@ def join_course(request):
             return redirect('frontend:join_course')
 
         try:
-            course = Course.objects.get(course_code=join_code)
-            
+            course = Course.objects.get(
+                Q(course_code=join_code) | Q(join_code=join_code)
+            )
+
             # Check if active
             if not course.is_active:
                 messages.warning(request, "This course is currently inactive.")
