@@ -18,8 +18,14 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datetime import timedelta
 import csv
 import io
+import json
+import base64
 import openpyxl
 from openpyxl import Workbook
+import pyotp
+import qrcode
+import qrcode.image.svg
+from io import BytesIO
 
 from attendance.models import Lecturer, Student, Course, Attendance, AttendanceToken, CourseEnrollment, AttendanceStudent, WebAuthnCredential
 from django.contrib.auth.models import User
@@ -2192,12 +2198,6 @@ def disabled_register_view_duplicate(request):
 
 # ==================== Two-Factor Authentication (WebAuthn + OTP) ====================
 
-import json
-import base64
-import pyotp
-import qrcode
-import qrcode.image.svg
-from io import BytesIO
 from webauthn import (
     generate_registration_options,
     verify_registration_response,

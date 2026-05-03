@@ -135,9 +135,20 @@ def process_student_upload(self, student_data_list, uploader_email):
         failed_rows = []
         from django.http import HttpRequest
 
+        # Build a dummy request with the real production hostname so that
+        # password-reset links in emails point to the live site, not localhost.
+        _render_host = getattr(settings, 'RENDER_EXTERNAL_HOSTNAME', None)
+        _allowed = [h for h in settings.ALLOWED_HOSTS if h not in ('*', 'localhost', '127.0.0.1', '')]
+        if _render_host:
+            _host, _port, _https = _render_host, '443', True
+        elif _allowed:
+            _host, _port, _https = _allowed[0], '443', True
+        else:
+            _host, _port, _https = 'localhost', '8000', False
+
         dummy_request = HttpRequest()
-        dummy_request.META['SERVER_NAME'] = 'localhost'
-        dummy_request.META['SERVER_PORT'] = '8000'
+        dummy_request.META['SERVER_NAME'] = _host
+        dummy_request.META['SERVER_PORT'] = _port
 
         for i, row in enumerate(student_data_list):
             self.update_state(state='PROGRESS', meta={
@@ -176,7 +187,7 @@ def process_student_upload(self, student_data_list, uploader_email):
                     if reset_form.is_valid():
                         reset_form.save(
                             request=dummy_request,
-                            use_https=True,
+                            use_https=_https,
                             email_template_name='registration/password_reset_email.html',
                         )
 
