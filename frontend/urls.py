@@ -93,6 +93,7 @@ urlpatterns = [
     path('api/charts/student-history/', views.chart_student_history, name='chart_student_history'),
     path('api/charts/student-course-breakdown/', views.chart_student_course_breakdown, name='chart_student_course_breakdown'),
     path('api/task-status/<str:task_id>/', views.task_status, name='task_status'),
+    path('api/session-status/', views.session_status_check, name='session_status_check'),
     
     # Two-Factor Authentication
     path('2fa/setup/', views.student_setup_2fa, name='student_setup_2fa'),

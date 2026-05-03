@@ -96,6 +96,17 @@
     <span class="text-sm font-medium" id="gps-status">GPS Signal: Strong (Accuracy: 5m)</span>
   </div>
 
+  <!-- Session closed banner (hidden until polling detects closure) -->
+  <div id="session-closed-banner" class="hidden mt-6 w-full max-w-md rounded-2xl border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800/40 p-4 flex items-start gap-3 shadow-lg">
+    <svg class="h-5 w-5 flex-shrink-0 text-red-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+    </svg>
+    <div>
+      <p class="text-sm font-semibold text-red-700 dark:text-red-300" id="session-closed-msg">Session has been closed.</p>
+      <p class="text-xs text-red-500 dark:text-red-400 mt-0.5">The lecturer has ended this attendance session. Check-in is no longer possible.</p>
+    </div>
+  </div>
+
   <!-- Map showing student location and geofence -->
   <div class="mt-8 w-full max-w-md">
     <h3 class="mb-4 text-center text-lg font-semibold text-gray-900 dark:text-white">
@@ -390,6 +401,68 @@
 
   // Start finding location on page load
   acquireLocation();
+
+  // ── Session status polling ────────────────────────────────────────────────
+  // Once a token is in the input, poll every 15 s to detect if the session
+  // was closed by the lecturer before the student submits.
+  let sessionPollInterval = null;
+  let sessionClosed = false;
+  const sessionBanner = document.getElementById('session-closed-banner');
+  const sessionClosedMsg = document.getElementById('session-closed-msg');
+  const submitBtn = form.querySelector('button[type="submit"]');
+
+  function startSessionPolling(token) {
+    if (sessionPollInterval) return; // already polling
+    sessionPollInterval = setInterval(() => {
+      const t = tokenInput.value.trim();
+      if (!t) { stopSessionPolling(); return; }
+      fetch('{% url "frontend:session_status_check" %}?token=' + encodeURIComponent(t))
+        .then(r => r.json())
+        .then(data => {
+          if (!data.active) {
+            sessionClosed = true;
+            sessionClosedMsg.textContent = data.message || 'Session has been closed.';
+            sessionBanner.classList.remove('hidden');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            stopSessionPolling();
+          }
+        })
+        .catch(() => {}); // silently ignore network errors
+    }, 15000);
+  }
+
+  function stopSessionPolling() {
+    if (sessionPollInterval) {
+      clearInterval(sessionPollInterval);
+      sessionPollInterval = null;
+    }
+  }
+
+  // Watch token input: start polling when a 6-char token appears
+  tokenInput.addEventListener('input', () => {
+    const t = tokenInput.value.trim();
+    if (t.length === 6) {
+      sessionClosed = false;
+      sessionBanner.classList.add('hidden');
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      startSessionPolling(t);
+    } else {
+      stopSessionPolling();
+    }
+  });
+
+  // Also start polling immediately after a QR scan fills the token
+  const _origStopScanner = stopScanner;
+  // Patch: after stopScanner fills token, kick off polling
+  // (token is set by the QR scanner right after stopScanner() returns)
+  const _qrPollCheck = setInterval(() => {
+    const t = tokenInput.value.trim();
+    if (t.length === 6 && !sessionPollInterval && !sessionClosed) {
+      startSessionPolling(t);
+    }
+  }, 1000);
 </script>
 
 {% endblock %}

@@ -1591,7 +1591,25 @@ def attendance_mark(request):
         longitude = request.POST.get('longitude')
         
         try:
-            att_token = AttendanceToken.objects.get(token=token, is_active=True)
+            # First, check if token exists at all (active or not) to give specific errors
+            try:
+                att_token = AttendanceToken.objects.get(token=token)
+            except AttendanceToken.DoesNotExist:
+                messages.error(request, 'Invalid token. Please check the code and try again.')
+                return render(request, 'attendance/mark.html')
+
+            # Enforce time-based expiry regardless of DB is_active flag
+            if att_token.expires_at and att_token.expires_at <= timezone.now():
+                if att_token.is_active:
+                    att_token.is_active = False
+                    att_token.save(update_fields=['is_active'])
+                messages.error(request, 'This attendance session has expired.')
+                return render(request, 'attendance/mark.html')
+
+            if not att_token.is_active:
+                messages.error(request, 'This attendance session has been closed by the lecturer.')
+                return render(request, 'attendance/mark.html')
+
             course = att_token.course
             
             # Check if student is enrolled
@@ -1608,7 +1626,7 @@ def attendance_mark(request):
                 ).first()
                 
                 if not attendance:
-                    messages.error(request, 'No active attendance session found for this course today.')
+                    messages.error(request, 'This attendance session has been closed.')
                     return render(request, 'attendance/mark.html')
                 
                 # Check if 2FA is required
@@ -1712,10 +1730,34 @@ def attendance_mark(request):
             except Student.DoesNotExist:
                 messages.error(request, 'Student profile not found!')
                 
-        except AttendanceToken.DoesNotExist:
-            messages.error(request, 'Invalid or expired token!')
+        except Exception as e:
+            messages.error(request, f'An error occurred: {str(e)}')
     
     return render(request, 'attendance/mark.html')
+
+
+@login_required
+def session_status_check(request):
+    """Lightweight JSON endpoint — lets the student check-in page poll whether a session is still active."""
+    token = request.GET.get('token', '').strip()
+    if not token:
+        return JsonResponse({'active': False, 'message': 'No token provided.'})
+    try:
+        att_token = AttendanceToken.objects.get(token=token)
+    except AttendanceToken.DoesNotExist:
+        return JsonResponse({'active': False, 'message': 'Invalid token.'})
+
+    if att_token.expires_at and att_token.expires_at <= timezone.now():
+        return JsonResponse({'active': False, 'message': 'This session has expired.'})
+
+    if not att_token.is_active:
+        return JsonResponse({'active': False, 'message': 'This session has been closed by the lecturer.'})
+
+    attendance = Attendance.objects.filter(course=att_token.course, is_active=True).first()
+    if not attendance:
+        return JsonResponse({'active': False, 'message': 'This session has been closed.'})
+
+    return JsonResponse({'active': True, 'message': 'Session is active.'})
 
 
 @login_required
