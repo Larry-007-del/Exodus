@@ -1,0 +1,50 @@
+2026-05-03T12:10:00.65395603Z ==> No open ports detected, continuing to scan...
+2026-05-03T12:10:00.89512309Z ==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+2026-05-03T12:10:15.627301214Z [2026-05-03 12:10:15 +0000] [55] [INFO] Using worker: sync
+2026-05-03T12:10:15.630328434Z [2026-05-03 12:10:15 +0000] [55] [INFO] Control socket listening at /opt/render/project/src/gunicorn.ctl
+2026-05-03T12:10:15.724243247Z [2026-05-03 12:10:15 +0000] [66] [INFO] Booting worker with pid: 66
+2026-05-03T12:10:15.82209387Z [2026-05-03 12:10:15 +0000] [67] [INFO] Booting worker with pid: 67
+2026-05-03T12:10:17.712558718Z ==> Your service is live 🎉
+2026-05-03T12:10:17.890029614Z ==> 
+2026-05-03T12:10:17.894895118Z ==> ///////////////////////////////////////////////////////////
+2026-05-03T12:10:17.897975782Z ==> 
+2026-05-03T12:10:17.900412994Z ==> Available at your primary URL https://exodus-nsji.onrender.com
+2026-05-03T12:10:17.903739007Z ==> 
+2026-05-03T12:10:17.908266804Z ==> ///////////////////////////////////////////////////////////
+2026-05-03T12:10:19.426249622Z 127.0.0.1 - - [03/May/2026:12:10:19 +0000] "HEAD / HTTP/1.1" 301 0 "-" "Go-http-client/1.1"
+2026-05-03T12:10:21.536972843Z 127.0.0.1 - - [03/May/2026:12:10:21 +0000] "GET / HTTP/1.1" 302 0 "-" "Go-http-client/2.0"
+2026-05-03T12:10:21.83394686Z 127.0.0.1 - - [03/May/2026:12:10:21 +0000] "GET /dashboard/ HTTP/1.1" 302 0 "https://exodus-nsji.onrender.com" "Go-http-client/2.0"
+2026-05-03T12:10:22.155979191Z 127.0.0.1 - - [03/May/2026:12:10:22 +0000] "GET /login/?next=/dashboard/ HTTP/1.1" 200 8939 "https://exodus-nsji.onrender.com/dashboard/" "Go-http-client/2.0"
+2026-05-03T12:11:16.904211009Z [2026-05-03 12:11:16 +0000] [55] [INFO] Handling signal: term
+2026-05-03T12:11:16.907138337Z [2026-05-03 12:11:16 +0000] [67] [INFO] Worker exiting (pid: 67)
+2026-05-03T12:11:16.927421883Z [2026-05-03 12:11:16 +0000] [66] [INFO] Worker exiting (pid: 66)
+2026-05-03T12:11:22.634141962Z [2026-05-03 12:11:22 +0000] [55] [INFO] Shutting down: Master
+2026-05-03T12:15:24.651337498Z ==> Detected service running on port 10000
+2026-05-03T12:15:24.829306182Z ==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+2026-05-03T12:26:22.149462531Z [2026-05-03 12:26:22 +0000] [55] [INFO] Handling signal: term
+2026-05-03T12:26:22.151763374Z [2026-05-03 12:26:22 +0000] [66] [INFO] Worker exiting (pid: 66)
+2026-05-03T12:26:22.151809725Z [2026-05-03 12:26:22 +0000] [67] [INFO] Worker exiting (pid: 67)
+2026-05-03T12:26:28.129514644Z [2026-05-03 12:26:28 +0000] [55] [INFO] Shutting down: Master
+2026-05-03T12:32:03.925026462Z ==> Running 'sh entrypoint.sh'
+2026-05-03T12:32:03.932685708Z 🔄 Running migrations...
+2026-05-03T12:32:30.733012971Z Operations to perform:
+2026-05-03T12:32:30.733046891Z   Apply all migrations: admin, attendance, auth, contenttypes, sessions, token_blacklist
+2026-05-03T12:32:30.733055381Z Running migrations:
+2026-05-03T12:32:30.733060601Z   No migrations to apply.
+2026-05-03T12:32:33.432293402Z 👤 Ensuring superuser exists...
+2026-05-03T12:32:40.757997175Z 16 objects imported automatically (use -v 2 for details).
+2026-05-03T12:32:40.758027615Z 
+2026-05-03T12:32:40.758033935Z Superuser "Kabuto" already exists, skipping.
+2026-05-03T12:32:42.830872883Z �🔥 Starting Gunicorn...
+2026-05-03T12:32:51.637009727Z [2026-05-03 12:32:51 +0000] [37] [INFO] Starting gunicorn 25.1.0
+2026-05-03T12:32:51.724292977Z [2026-05-03 12:32:51 +0000] [37] [INFO] Listening at: http://0.0.0.0:10000 (37)
+2026-05-03T12:32:51.724323287Z [2026-05-03 12:32:51 +0000] [37] [INFO] Using worker: sync
+2026-05-03T12:32:51.734425339Z [2026-05-03 12:32:51 +0000] [37] [INFO] Control socket listening at /opt/render/project/src/gunicorn.ctl
+2026-05-03T12:32:51.824024102Z [2026-05-03 12:32:51 +0000] [47] [INFO] Booting worker with pid: 47
+2026-05-03T12:32:51.827998623Z [2026-05-03 12:32:51 +0000] [48] [INFO] Booting worker with pid: 48
+2026-05-03T12:32:57.127869214Z 127.0.0.1 - - [03/May/2026:12:32:57 +0000] "GET /static/css/styles.css HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/?next=/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T12:33:56.924631189Z 127.0.0.1 - - [03/May/2026:12:33:56 +0000] "GET / HTTP/1.1" 302 0 "-" "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36 ExodusMobileApp"
+2026-05-03T12:33:57.709216077Z 127.0.0.1 - - [03/May/2026:12:33:57 +0000] "GET /dashboard/ HTTP/1.1" 302 0 "-" "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36 ExodusMobileApp"
+2026-05-03T12:33:58.340841349Z 127.0.0.1 - - [03/May/2026:12:33:58 +0000] "GET /login/?next=/dashboard/ HTTP/1.1" 200 8939 "-" "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36 ExodusMobileApp"
+2026-05-03T12:33:59.330768241Z 127.0.0.1 - - [03/May/2026:12:33:59 +0000] "GET /static/css/styles.css HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/?next=/dashboard/" "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36 ExodusMobileApp"
+2026-05-03T12:34:01.824600502Z 127.0.0.1 - - [03/May/2026:12:34:01 +0000] "GET /static/js/alpine.min.js HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/?next=/dashboard/" "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36 ExodusMobileApp"
