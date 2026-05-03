@@ -17,10 +17,6 @@
 input:focus,
 textarea:focus,
 select:focus {
-  /* Larger touch targets */
-  min-height: 48px;
-  min-width: 100%;
-  
   /* Prevent iOS zoom */
   font-size: 16px !important;
   
