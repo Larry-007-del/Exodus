@@ -1,0 +1,50 @@
+2026-05-03T09:32:25.282927134Z [2026-05-03 09:32:25 +0000] [63] [INFO] Worker exiting (pid: 63)
+2026-05-03T09:32:31.314854463Z [2026-05-03 09:32:31 +0000] [37] [INFO] Shutting down: Master
+2026-05-03T09:35:35.247384871Z ==> Running 'sh entrypoint.sh'
+2026-05-03T09:35:35.2560485Z 🔄 Running migrations...
+2026-05-03T09:36:07.848208635Z Operations to perform:
+2026-05-03T09:36:07.848239725Z   Apply all migrations: admin, attendance, auth, contenttypes, sessions, token_blacklist
+2026-05-03T09:36:07.848247075Z Running migrations:
+2026-05-03T09:36:07.848252435Z   No migrations to apply.
+2026-05-03T09:36:10.552484031Z � Collecting static files...
+2026-05-03T09:36:25.354886942Z Found another file with the destination path 'admin/js/cancel.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
+2026-05-03T09:36:25.354918682Z Found another file with the destination path 'admin/js/popup_response.js'. It will be ignored since only the first encountered file is collected. If this is not what you want, make sure every static file has a unique path.
+2026-05-03T09:36:25.354926993Z 
+2026-05-03T09:36:25.354932393Z 268 static files copied to '/opt/render/project/src/staticfiles', 250 post-processed.
+2026-05-03T09:36:27.054112235Z 👤 Ensuring superuser exists...
+2026-05-03T09:36:34.566538731Z 16 objects imported automatically (use -v 2 for details).
+2026-05-03T09:36:34.566569232Z 
+2026-05-03T09:36:34.566575702Z Superuser "Kabuto" already exists, skipping.
+2026-05-03T09:36:36.254950104Z �🔥 Starting Gunicorn...
+2026-05-03T09:36:45.145814426Z [2026-05-03 09:36:45 +0000] [37] [INFO] Starting gunicorn 25.1.0
+2026-05-03T09:36:45.147417036Z [2026-05-03 09:36:45 +0000] [37] [INFO] Listening at: http://0.0.0.0:10000 (37)
+2026-05-03T09:36:45.147542308Z [2026-05-03 09:36:45 +0000] [37] [INFO] Using worker: sync
+2026-05-03T09:36:45.245170951Z [2026-05-03 09:36:45 +0000] [37] [INFO] Control socket listening at /opt/render/project/src/gunicorn.ctl
+2026-05-03T09:36:45.347306777Z [2026-05-03 09:36:45 +0000] [63] [INFO] Booting worker with pid: 63
+2026-05-03T09:51:25.207332512Z [2026-05-03 09:51:25 +0000] [37] [INFO] Handling signal: term
+2026-05-03T09:51:25.209646814Z [2026-05-03 09:51:25 +0000] [63] [INFO] Worker exiting (pid: 63)
+2026-05-03T10:10:09.535760096Z [2026-05-03 10:10:09 +0000] [37] [INFO] Using worker: sync
+2026-05-03T10:10:09.558544466Z [2026-05-03 10:10:09 +0000] [37] [INFO] Control socket listening at /opt/render/project/src/gunicorn.ctl
+2026-05-03T10:10:09.636475654Z [2026-05-03 10:10:09 +0000] [62] [INFO] Booting worker with pid: 62
+2026-05-03T10:10:09.735052453Z [2026-05-03 10:10:09 +0000] [63] [INFO] Booting worker with pid: 63
+2026-05-03T10:10:15.135205093Z 127.0.0.1 - - [03/May/2026:10:10:15 +0000] "HEAD /attendance/take/ HTTP/1.1" 302 0 "https://exodus-nsji.onrender.com/attendance/take/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:15.444077384Z 127.0.0.1 - - [03/May/2026:10:10:15 +0000] "HEAD /login/?next=/attendance/take/ HTTP/1.1" 200 8945 "https://exodus-nsji.onrender.com/attendance/take/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:18.440301306Z 127.0.0.1 - - [03/May/2026:10:10:18 +0000] "GET /attendance/take/ HTTP/1.1" 302 0 "https://exodus-nsji.onrender.com/attendance/take/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:18.678801958Z 127.0.0.1 - - [03/May/2026:10:10:18 +0000] "HEAD /attendance/take/ HTTP/1.1" 302 0 "https://exodus-nsji.onrender.com/attendance/take/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:19.135538802Z 127.0.0.1 - - [03/May/2026:10:10:19 +0000] "GET /login/?next=/attendance/take/ HTTP/1.1" 200 8945 "https://exodus-nsji.onrender.com/attendance/take/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:19.395948041Z 127.0.0.1 - - [03/May/2026:10:10:19 +0000] "HEAD /login/?next=/attendance/take/ HTTP/1.1" 200 8945 "https://exodus-nsji.onrender.com/attendance/take/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:19.420695326Z 127.0.0.1 - - [03/May/2026:10:10:19 +0000] "GET /static/css/styles.css HTTP/1.1" 200 18518 "https://exodus-nsji.onrender.com/login/?next=/attendance/take/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:19.439320991Z 127.0.0.1 - - [03/May/2026:10:10:19 +0000] "GET /static/js/alpine.min.js HTTP/1.1" 200 16782 "https://exodus-nsji.onrender.com/login/?next=/attendance/take/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:43.623302547Z 127.0.0.1 - - [03/May/2026:10:10:43 +0000] "POST /login/ HTTP/1.1" 302 0 "https://exodus-nsji.onrender.com/login/?next=/attendance/take/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:43.891377798Z 127.0.0.1 - - [03/May/2026:10:10:43 +0000] "GET /attendance/take/ HTTP/1.1" 302 0 "https://exodus-nsji.onrender.com/login/?next=/attendance/take/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:44.264126306Z 127.0.0.1 - - [03/May/2026:10:10:44 +0000] "GET /dashboard/ HTTP/1.1" 200 36193 "https://exodus-nsji.onrender.com/login/?next=/attendance/take/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:44.593064761Z 127.0.0.1 - - [03/May/2026:10:10:44 +0000] "GET /static/css/mobile-optimization.css HTTP/1.1" 200 1000 "https://exodus-nsji.onrender.com/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:44.594325986Z 127.0.0.1 - - [03/May/2026:10:10:44 +0000] "GET /static/js/htmx.min.js HTTP/1.1" 200 16572 "https://exodus-nsji.onrender.com/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:45.00557199Z 127.0.0.1 - - [03/May/2026:10:10:45 +0000] "GET /static/js/flowbite.min.js HTTP/1.1" 200 29484 "https://exodus-nsji.onrender.com/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:45.743369073Z 127.0.0.1 - - [03/May/2026:10:10:45 +0000] "GET /api/charts/student-course-breakdown/ HTTP/1.1" 200 219 "https://exodus-nsji.onrender.com/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:45.845659135Z 127.0.0.1 - - [03/May/2026:10:10:45 +0000] "GET /api/charts/student-history/ HTTP/1.1" 200 577 "https://exodus-nsji.onrender.com/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:10:57.137449981Z 127.0.0.1 - - [03/May/2026:10:10:57 +0000] "GET /courses/my/ HTTP/1.1" 200 28852 "https://exodus-nsji.onrender.com/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:11:03.297019631Z 127.0.0.1 - - [03/May/2026:10:11:03 +0000] "GET /attendance/checkin/ HTTP/1.1" 200 39060 "https://exodus-nsji.onrender.com/courses/my/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:11:16.62967674Z 127.0.0.1 - - [03/May/2026:10:11:16 +0000] "POST /attendance/checkin/ HTTP/1.1" 200 39060 "https://exodus-nsji.onrender.com/attendance/checkin/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:11:33.4331398Z 127.0.0.1 - - [03/May/2026:10:11:33 +0000] "GET /courses/my/ HTTP/1.1" 200 28852 "https://exodus-nsji.onrender.com/attendance/checkin/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T10:11:37.728623884Z 127.0.0.1 - - [03/May/2026:10:11:37 +0000] "GET /attendance/checkin/ HTTP/1.1" 200 39060 "https://exodus-nsji.onrender.com/courses/my/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"

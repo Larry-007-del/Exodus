@@ -45,15 +45,13 @@ button {
 button:active { opacity: 0.8; }
 
 /* ================= SCROLL ================= */
-/* NOTE: Do NOT apply transform or will-change to html/body — it creates a new
-   stacking context that breaks native page scroll in Chrome, Safari, and Firefox. */
 html {
   scroll-behavior: smooth;
-  overflow-y: auto;
 }
 body {
   overflow-y: auto;
   overscroll-behavior-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ================= TOUCH OPTIMIZATION ================= */
