@@ -96,6 +96,17 @@
     <span class="text-sm font-medium" id="gps-status">GPS Signal: Strong (Accuracy: 5m)</span>
   </div>
 
+  <!-- 2FA required notice (hidden until polling detects it) -->
+  <div id="twofa-required-banner" class="hidden mt-6 w-full max-w-md rounded-2xl border border-blue-200 dark:border-blue-800/40 bg-blue-50 dark:bg-blue-900/20 p-4 flex items-start gap-3 shadow-lg">
+    <svg class="h-5 w-5 flex-shrink-0 text-blue-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+    </svg>
+    <div>
+      <p class="text-sm font-semibold text-blue-700 dark:text-blue-300">Biometric verification required</p>
+      <p class="text-xs text-blue-500 dark:text-blue-400 mt-0.5">This session requires 2FA. You will be asked to complete biometric or OTP verification after submitting your token.</p>
+    </div>
+  </div>
+
   <!-- Session closed banner (hidden until polling detects closure) -->
   <div id="session-closed-banner" class="hidden mt-6 w-full max-w-md rounded-2xl border border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800/40 p-4 flex items-start gap-3 shadow-lg">
     <svg class="h-5 w-5 flex-shrink-0 text-red-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -409,7 +420,24 @@
   let sessionClosed = false;
   const sessionBanner = document.getElementById('session-closed-banner');
   const sessionClosedMsg = document.getElementById('session-closed-msg');
+  const twofaBanner = document.getElementById('twofa-required-banner');
   const submitBtn = form.querySelector('button[type="submit"]');
+
+  function applySessionState(data) {
+    if (!data.active) {
+      sessionClosed = true;
+      sessionClosedMsg.textContent = data.message || 'Session has been closed.';
+      sessionBanner.classList.remove('hidden');
+      if (twofaBanner) twofaBanner.classList.add('hidden');
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      stopSessionPolling();
+    } else {
+      if (twofaBanner) {
+        data.require_2fa ? twofaBanner.classList.remove('hidden') : twofaBanner.classList.add('hidden');
+      }
+    }
+  }
 
   function startSessionPolling(token) {
     if (sessionPollInterval) return; // already polling
@@ -418,16 +446,7 @@
       if (!t) { stopSessionPolling(); return; }
       fetch('{% url "frontend:session_status_check" %}?token=' + encodeURIComponent(t))
         .then(r => r.json())
-        .then(data => {
-          if (!data.active) {
-            sessionClosed = true;
-            sessionClosedMsg.textContent = data.message || 'Session has been closed.';
-            sessionBanner.classList.remove('hidden');
-            submitBtn.disabled = true;
-            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            stopSessionPolling();
-          }
-        })
+        .then(applySessionState)
         .catch(() => {}); // silently ignore network errors
     }, 15000);
   }
@@ -439,27 +458,35 @@
     }
   }
 
+  function checkTokenStatus(t) {
+    fetch('{% url "frontend:session_status_check" %}?token=' + encodeURIComponent(t))
+      .then(r => r.json())
+      .then(applySessionState)
+      .catch(() => {});
+  }
+
   // Watch token input: start polling when a 6-char token appears
   tokenInput.addEventListener('input', () => {
     const t = tokenInput.value.trim();
     if (t.length === 6) {
       sessionClosed = false;
       sessionBanner.classList.add('hidden');
+      if (twofaBanner) twofaBanner.classList.add('hidden');
       submitBtn.disabled = false;
       submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      checkTokenStatus(t); // immediate check on first entry
       startSessionPolling(t);
     } else {
       stopSessionPolling();
+      if (twofaBanner) twofaBanner.classList.add('hidden');
     }
   });
 
   // Also start polling immediately after a QR scan fills the token
-  const _origStopScanner = stopScanner;
-  // Patch: after stopScanner fills token, kick off polling
-  // (token is set by the QR scanner right after stopScanner() returns)
   const _qrPollCheck = setInterval(() => {
     const t = tokenInput.value.trim();
     if (t.length === 6 && !sessionPollInterval && !sessionClosed) {
+      checkTokenStatus(t);
       startSessionPolling(t);
     }
   }, 1000);

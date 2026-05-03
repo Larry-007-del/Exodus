@@ -215,6 +215,18 @@
 
     <!-- Submit -->
     <div class="mt-8 border-t border-gray-100 dark:border-gray-700/50 pt-6">
+
+      <!-- GPS not-ready warning — visible until location is acquired -->
+      <div id="gps-required-warning" class="mb-4 flex items-start gap-3 rounded-xl border border-amber-200 dark:border-amber-800/40 bg-amber-50 dark:bg-amber-900/20 p-4 text-sm text-amber-800 dark:text-amber-300">
+        <svg class="h-5 w-5 flex-shrink-0 mt-0.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+        <div>
+          <p class="font-semibold">Waiting for GPS location</p>
+          <p class="mt-0.5 text-xs opacity-80">Your location must be confirmed before starting the session. If it's taking too long, click <strong>Refresh Location</strong> above.</p>
+        </div>
+      </div>
+
       <button type="submit" :disabled="loading"
         class="flex w-full items-center justify-center rounded-xl bg-gradient-to-r from-brand-600 to-indigo-700 px-4 py-4 text-base font-bold text-white shadow-lg shadow-brand-500/25 transition-all hover:-translate-y-0.5 hover:from-brand-700 hover:to-indigo-800 hover:shadow-brand-500/40 focus:outline-none focus:ring-4 focus:ring-brand-500/30 disabled:cursor-wait disabled:opacity-70 active:scale-[0.98]">
         <svg x-show="!loading" class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,6 +269,17 @@
         tokenInput.focus();
         tokenInput.classList.add('border-red-500', 'ring-red-500');
         setTimeout(() => tokenInput.classList.remove('border-red-500', 'ring-red-500'), 2000);
+        return;
+      }
+      const latVal = document.getElementById('latitude').value;
+      const lngVal = document.getElementById('longitude').value;
+      if (!latVal || !lngVal) {
+        e.preventDefault();
+        const warn = document.getElementById('gps-required-warning');
+        if (warn) {
+          warn.classList.remove('hidden');
+          warn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       }
     });
   }
@@ -291,6 +314,8 @@
         statusLabel.classList.remove('text-brand-600');
         statusLabel.classList.add('text-emerald-600');
         if (submitButton) { submitButton.disabled = false; submitButton.classList.remove('opacity-50', 'cursor-not-allowed'); }
+        const gpsWarn = document.getElementById('gps-required-warning');
+        if (gpsWarn) gpsWarn.classList.add('hidden');
       },
       (error) => {
         const msgs = { [error.PERMISSION_DENIED]: 'Location permission denied. Please enable location services.', [error.POSITION_UNAVAILABLE]: 'Location unavailable. Check your GPS.', [error.TIMEOUT]: 'Location request timed out. Please try again.' };

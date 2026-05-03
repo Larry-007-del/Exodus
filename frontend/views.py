@@ -26,6 +26,10 @@ import pyotp
 import qrcode
 import qrcode.image.svg
 from io import BytesIO
+from django.core.mail import send_mail
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
 
 from attendance.models import Lecturer, Student, Course, Attendance, AttendanceToken, CourseEnrollment, AttendanceStudent, WebAuthnCredential
 from django.contrib.auth.models import User
@@ -156,12 +160,54 @@ def register_view(request):
         )
 
         cache.delete(cache_key)
-        # Auto-login after registration
-        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        messages.success(request, f'Welcome to Exodus! Your Student ID is {student_id}.')
-        return redirect('frontend:dashboard')
+
+        # Deactivate until email is verified
+        user.is_active = False
+        user.save()
+
+        # Build and send verification email
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        verification_url = request.build_absolute_uri(
+            f'/verify-email/{uid}/{token}/'
+        )
+        send_mail(
+            subject='Verify your Exodus account',
+            message=(
+                f'Hi {username},\n\n'
+                f'Thanks for registering on Exodus. Please verify your email address by clicking the link below:\n\n'
+                f'{verification_url}\n\n'
+                f'This link expires in 3 days.\n\n'
+                f'Your Student ID is: {student_id}\n\n'
+                f'If you did not register for an Exodus account, you can safely ignore this email.\n\n'
+                f'— The Exodus Team'
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email],
+            fail_silently=True,
+        )
+
+        messages.success(request, f'Account created! Please check {email} for a verification link to activate your account.')
+        return redirect('frontend:login')
 
     return render(request, 'frontend/register.html')
+
+
+def verify_email(request, uidb64, token):
+    """Activate a student account via the emailed verification link."""
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, 'Email verified! Your account is now active — please sign in.')
+    else:
+        messages.error(request, 'This verification link is invalid or has expired. Please register again.')
+    return redirect('frontend:login')
 
 
 # ==================== Dashboard ====================
@@ -1763,7 +1809,7 @@ def session_status_check(request):
     if not attendance:
         return JsonResponse({'active': False, 'message': 'This session has been closed.'})
 
-    return JsonResponse({'active': True, 'message': 'Session is active.'})
+    return JsonResponse({'active': True, 'message': 'Session is active.', 'require_2fa': attendance.require_two_factor_auth})
 
 
 @login_required
