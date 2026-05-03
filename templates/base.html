@@ -603,6 +603,34 @@
           };
         </script>
 
+        <!-- Global HTMX loading bar -->
+        <div id="htmx-loading-bar"
+          class="pointer-events-none fixed top-0 left-0 z-[9999] h-0.5 w-0 bg-gradient-to-r from-brand-500 via-indigo-400 to-brand-500 transition-none"
+          aria-hidden="true"></div>
+        <script>
+          (function () {
+            const bar = document.getElementById('htmx-loading-bar');
+            let timer;
+            document.body.addEventListener('htmx:beforeRequest', () => {
+              clearTimeout(timer);
+              bar.style.transition = 'none';
+              bar.style.width = '0';
+              requestAnimationFrame(() => {
+                bar.style.transition = 'width 8s cubic-bezier(0.1, 0.05, 0, 1)';
+                bar.style.width = '85%';
+              });
+            });
+            document.body.addEventListener('htmx:afterRequest', () => {
+              bar.style.transition = 'width 0.2s ease-out';
+              bar.style.width = '100%';
+              timer = setTimeout(() => {
+                bar.style.transition = 'none';
+                bar.style.width = '0';
+              }, 250);
+            });
+          })();
+        </script>
+
         {% block content %} {% endblock %}
       </div>
     </main>

@@ -1160,7 +1160,7 @@ def course_list(request):
     active_filter = request.GET.get('active', '')
     sort = request.GET.get('sort', 'name')
     
-    courses = Course.objects.all().select_related('lecturer').annotate(
+    courses = Course.objects.all().select_related('lecturer__user').annotate(
         enrolled_count=Count('students')
     )
     
@@ -1255,7 +1255,7 @@ def course_detail(request, pk):
             messages.error(request, 'You do not have permission to view this course.')
             return redirect('frontend:dashboard')
 
-    enrollments = CourseEnrollment.objects.filter(course=course).select_related('student')
+    enrollments = CourseEnrollment.objects.filter(course=course).select_related('student__user')
     attendances = Attendance.objects.filter(course=course).select_related('course').prefetch_related('present_students')
     
     context = {
@@ -1533,6 +1533,15 @@ def attendance_take(request):
         except Lecturer.DoesNotExist:
             pass
         
+        # Guard: prevent duplicate active sessions for the same course
+        existing = Attendance.objects.filter(course=course, is_active=True).first()
+        if existing:
+            messages.warning(request, f'An attendance session for {course.name} is already active. End it before starting a new one.')
+            return redirect('frontend:attendance_take')
+
+        # Deactivate any orphaned tokens for this course before creating a new one
+        AttendanceToken.objects.filter(course=course, is_active=True).update(is_active=False)
+
         # Create attendance session
         attendance = Attendance.objects.create(
             course=course,
@@ -1924,10 +1933,15 @@ def manual_mark_present(request, attendance_id, student_id):
             return HttpResponse("Unauthorized", status=403)
         
     student = get_object_or_404(Student, id=student_id)
-    
+
+    # Enrollment check — only students enrolled in this course can be marked
+    if not attendance.course.students.filter(pk=student.pk).exists():
+        messages.error(request, f'{student.name} is not enrolled in {attendance.course.name}.')
+        return redirect('frontend:attendance_detail', pk=attendance_id)
+
     # Add to ManyToMany field
     attendance.present_students.add(student)
-    
+
     return redirect('frontend:attendance_detail', pk=attendance_id)
 
 

@@ -9,8 +9,7 @@ set -e
 echo "🔄 Running migrations..."
 python manage.py migrate --no-input
 
-echo "� Collecting static files..."
-python manage.py collectstatic --no-input
+# collectstatic already ran in build.sh — skip it here to keep startup fast
 # Create superuser if env vars are set (skip if user already exists)
 if [ -n "$DJANGO_SUPERUSER_USERNAME" ]; then
   echo "👤 Ensuring superuser exists..."

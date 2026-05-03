@@ -71,6 +71,7 @@ class Student(models.Model):
         indexes = [
             models.Index(fields=['student_id']),
             models.Index(fields=['programme_of_study']),
+            models.Index(fields=['year']),
         ]
 
     def __str__(self):
