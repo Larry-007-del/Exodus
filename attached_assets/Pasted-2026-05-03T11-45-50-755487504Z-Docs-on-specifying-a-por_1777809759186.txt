@@ -1,0 +1,50 @@
+2026-05-03T11:45:50.755487504Z ==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+2026-05-03T11:45:52.728694844Z 16 objects imported automatically (use -v 2 for details).
+2026-05-03T11:45:52.728714805Z 
+2026-05-03T11:45:52.728720275Z Superuser "Kabuto" already exists, skipping.
+2026-05-03T11:45:54.33576748Z �🔥 Starting Gunicorn...
+2026-05-03T11:46:03.664131333Z [2026-05-03 11:46:03 +0000] [55] [INFO] Starting gunicorn 25.1.0
+2026-05-03T11:46:03.728410901Z [2026-05-03 11:46:03 +0000] [55] [INFO] Listening at: http://0.0.0.0:10000 (55)
+2026-05-03T11:46:03.728544754Z [2026-05-03 11:46:03 +0000] [55] [INFO] Using worker: sync
+2026-05-03T11:46:03.764163387Z [2026-05-03 11:46:03 +0000] [55] [INFO] Control socket listening at /opt/render/project/src/gunicorn.ctl
+2026-05-03T11:46:03.771804484Z [2026-05-03 11:46:03 +0000] [66] [INFO] Booting worker with pid: 66
+2026-05-03T11:46:03.83527972Z [2026-05-03 11:46:03 +0000] [67] [INFO] Booting worker with pid: 67
+2026-05-03T11:46:07.432437175Z 127.0.0.1 - - [03/May/2026:11:46:07 +0000] "HEAD / HTTP/1.1" 301 0 "-" "Go-http-client/1.1"
+2026-05-03T11:46:09.663495314Z ==> Your service is live 🎉
+2026-05-03T11:46:09.861872573Z ==> 
+2026-05-03T11:46:09.864288053Z ==> ///////////////////////////////////////////////////////////
+2026-05-03T11:46:09.866664692Z ==> 
+2026-05-03T11:46:09.869640672Z ==> Available at your primary URL https://exodus-nsji.onrender.com
+2026-05-03T11:46:09.875328966Z ==> 
+2026-05-03T11:46:09.878203183Z ==> ///////////////////////////////////////////////////////////
+2026-05-03T11:46:09.928868992Z 127.0.0.1 - - [03/May/2026:11:46:09 +0000] "GET / HTTP/1.1" 302 0 "-" "Go-http-client/2.0"
+2026-05-03T11:46:13.131216634Z 127.0.0.1 - - [03/May/2026:11:46:13 +0000] "GET /dashboard/ HTTP/1.1" 302 0 "https://exodus-nsji.onrender.com" "Go-http-client/2.0"
+2026-05-03T11:46:13.54503226Z 127.0.0.1 - - [03/May/2026:11:46:13 +0000] "GET /login/?next=/dashboard/ HTTP/1.1" 200 8939 "https://exodus-nsji.onrender.com/dashboard/" "Go-http-client/2.0"
+2026-05-03T11:51:12.250424928Z ==> Detected service running on port 10000
+2026-05-03T11:51:12.46141298Z ==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+2026-05-03T11:54:23.204815734Z 127.0.0.1 - - [03/May/2026:11:54:23 +0000] "POST /logout/ HTTP/1.1" 302 0 "https://exodus-nsji.onrender.com/attendance/history/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:23.486010893Z 127.0.0.1 - - [03/May/2026:11:54:23 +0000] "GET /login/ HTTP/1.1" 200 8928 "https://exodus-nsji.onrender.com/attendance/history/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:23.82005237Z 127.0.0.1 - - [03/May/2026:11:54:23 +0000] "GET /static/css/styles.css HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:24.239856444Z 127.0.0.1 - - [03/May/2026:11:54:24 +0000] "GET /static/js/alpine.min.js HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:27.958825132Z 127.0.0.1 - - [03/May/2026:11:54:27 +0000] "GET /login/ HTTP/1.1" 200 8928 "https://exodus-nsji.onrender.com/attendance/history/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:28.243550616Z 127.0.0.1 - - [03/May/2026:11:54:28 +0000] "GET /static/css/styles.css HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:28.244564754Z 127.0.0.1 - - [03/May/2026:11:54:28 +0000] "GET /static/js/alpine.min.js HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:30.788231732Z 127.0.0.1 - - [03/May/2026:11:54:30 +0000] "GET /login/ HTTP/1.1" 200 8928 "https://exodus-nsji.onrender.com/attendance/history/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:31.048074893Z 127.0.0.1 - - [03/May/2026:11:54:31 +0000] "GET /static/css/styles.css HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:31.05904423Z 127.0.0.1 - - [03/May/2026:11:54:31 +0000] "GET /static/js/alpine.min.js HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:34.744187703Z 127.0.0.1 - - [03/May/2026:11:54:34 +0000] "GET /attendance/history/ HTTP/1.1" 302 0 "https://exodus-nsji.onrender.com/login/?next=/attendance/checkin/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:35.017098938Z 127.0.0.1 - - [03/May/2026:11:54:35 +0000] "GET /login/?next=/attendance/history/ HTTP/1.1" 200 8948 "https://exodus-nsji.onrender.com/login/?next=/attendance/checkin/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:36.763681516Z 127.0.0.1 - - [03/May/2026:11:54:36 +0000] "GET /attendance/checkin/ HTTP/1.1" 302 0 "https://exodus-nsji.onrender.com/login/?next=/attendance/checkin/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:37.007082583Z 127.0.0.1 - - [03/May/2026:11:54:37 +0000] "GET /login/?next=/attendance/checkin/ HTTP/1.1" 200 8948 "https://exodus-nsji.onrender.com/login/?next=/attendance/checkin/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:48.189250437Z 127.0.0.1 - - [03/May/2026:11:54:48 +0000] "GET /login/?next=/dashboard/ HTTP/1.1" 200 8939 "-" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:48.604065566Z 127.0.0.1 - - [03/May/2026:11:54:48 +0000] "GET /static/css/styles.css HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/?next=/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:54:48.654095078Z 127.0.0.1 - - [03/May/2026:11:54:48 +0000] "GET /static/js/alpine.min.js HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/?next=/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:58:01.917933899Z 127.0.0.1 - - [03/May/2026:11:58:01 +0000] "GET /login/?next=/dashboard/ HTTP/1.1" 200 8939 "-" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:58:02.339489277Z 127.0.0.1 - - [03/May/2026:11:58:02 +0000] "GET /static/js/alpine.min.js HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/?next=/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:58:02.341875181Z 127.0.0.1 - - [03/May/2026:11:58:02 +0000] "GET /static/css/styles.css HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/?next=/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:58:03.892871363Z 127.0.0.1 - - [03/May/2026:11:58:03 +0000] "GET /login/?next=/dashboard/ HTTP/1.1" 200 8939 "-" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:58:04.153140227Z 127.0.0.1 - - [03/May/2026:11:58:04 +0000] "GET /static/css/styles.css HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/?next=/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:58:04.306706194Z 127.0.0.1 - - [03/May/2026:11:58:04 +0000] "GET /static/js/alpine.min.js HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/?next=/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:58:09.338096668Z 127.0.0.1 - - [03/May/2026:11:58:09 +0000] "GET /login/?next=/dashboard/ HTTP/1.1" 200 8939 "-" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:58:09.617045205Z 127.0.0.1 - - [03/May/2026:11:58:09 +0000] "GET /static/css/styles.css HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/?next=/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"
+2026-05-03T11:58:09.632838449Z 127.0.0.1 - - [03/May/2026:11:58:09 +0000] "GET /static/js/alpine.min.js HTTP/1.1" 404 3357 "https://exodus-nsji.onrender.com/login/?next=/dashboard/" "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Mobile Safari/537.36"

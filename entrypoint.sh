@@ -3,13 +3,16 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# build.sh handles collectstatic, but migrations must also run at startup
-# in case the build step ran before DATABASE_URL was available.
-
+# Run migrations first (needed if DATABASE_URL was unavailable during build)
 echo "🔄 Running migrations..."
 python manage.py migrate --no-input
 
-# collectstatic already ran in build.sh — skip it here to keep startup fast
+# Always collect static files at startup.
+# staticfiles/ is gitignored and Render does not carry build-generated files
+# into the runtime environment, so this guarantees CSS/JS are always present.
+echo "📦 Collecting static files..."
+python manage.py collectstatic --no-input --clear
+
 # Create superuser if env vars are set (skip if user already exists)
 if [ -n "$DJANGO_SUPERUSER_USERNAME" ]; then
   echo "👤 Ensuring superuser exists..."
@@ -29,7 +32,7 @@ else:
     print(f'Superuser \"{username}\" already exists, skipping.')
 "
 fi
-echo "�🔥 Starting Gunicorn..."
+echo "🔥 Starting Gunicorn..."
 exec gunicorn attendance_system.wsgi:application \
     --bind "0.0.0.0:${PORT:-10000}" \
     --workers 2 \
