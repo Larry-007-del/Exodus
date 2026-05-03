@@ -26,6 +26,7 @@ import pyotp
 import qrcode
 import qrcode.image.svg
 from io import BytesIO
+from django.conf import settings
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -123,6 +124,10 @@ def register_view(request):
         email = request.POST.get('email', '').strip()
         password1 = request.POST.get('password1', '')
         password2 = request.POST.get('password2', '')
+        name = request.POST.get('name', '').strip() or username
+        student_id_input = request.POST.get('student_id', '').strip()
+        programme_of_study = request.POST.get('programme_of_study', '').strip() or None
+        year = request.POST.get('year', '').strip() or None
 
         # Validation
         errors = []
@@ -143,7 +148,7 @@ def register_view(request):
                 messages.error(request, error)
             return render(request, 'frontend/register.html')
 
-        # Create User
+        # Create User (active immediately — no email verification required)
         user = User.objects.create_user(
             username=username,
             email=email,
@@ -151,44 +156,21 @@ def register_view(request):
             first_name=username,
         )
 
-        # Auto-generate student_id (STU + zero-padded pk + random hex for unpredictability)
-        student_id = f'STU{user.pk:05d}{secrets.token_hex(2).upper()}'
+        # Use provided student_id or auto-generate one
+        student_id = student_id_input if student_id_input else f'STU{user.pk:05d}{secrets.token_hex(2).upper()}'
         Student.objects.create(
             user=user,
             student_id=student_id,
-            name=username,
+            name=name,
+            programme_of_study=programme_of_study,
+            year=year,
         )
 
         cache.delete(cache_key)
 
-        # Deactivate until email is verified
-        user.is_active = False
-        user.save()
-
-        # Build and send verification email
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
-        verification_url = request.build_absolute_uri(
-            f'/verify-email/{uid}/{token}/'
-        )
-        send_mail(
-            subject='Verify your Exodus account',
-            message=(
-                f'Hi {username},\n\n'
-                f'Thanks for registering on Exodus. Please verify your email address by clicking the link below:\n\n'
-                f'{verification_url}\n\n'
-                f'This link expires in 3 days.\n\n'
-                f'Your Student ID is: {student_id}\n\n'
-                f'If you did not register for an Exodus account, you can safely ignore this email.\n\n'
-                f'— The Exodus Team'
-            ),
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email],
-            fail_silently=True,
-        )
-
-        messages.success(request, f'Account created! Please check {email} for a verification link to activate your account.')
-        return redirect('frontend:login')
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        messages.success(request, f'Welcome to Exodus, {username}!')
+        return redirect('frontend:dashboard')
 
     return render(request, 'frontend/register.html')
 
