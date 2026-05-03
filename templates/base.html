@@ -168,10 +168,10 @@
 
     <aside
       id="logo-sidebar"
-      class="fixed left-0 top-0 z-40 h-screen w-64 -translate-x-full border-r border-gray-200/50 bg-white/60 backdrop-blur-xl pt-20 transition-transform duration-300 ease-in-out dark:border-gray-700/50 dark:bg-gray-800/60 sm:translate-x-0"
+      class="fixed left-0 top-0 z-40 flex h-screen w-64 -translate-x-full flex-col border-r border-gray-200/50 bg-white/60 backdrop-blur-xl pt-20 transition-transform duration-300 ease-in-out dark:border-gray-700/50 dark:bg-gray-800/60 sm:translate-x-0"
       aria-label="Sidebar"
     >
-      <div class="h-full overflow-y-auto px-3 pb-4">
+      <div class="flex-1 overflow-y-auto px-3 pb-4">
         <ul class="space-y-2 font-medium">
           <!-- Dashboard — all users -->
           <li>
@@ -512,8 +512,8 @@
         {% endif %}
       </div>
 
-      <!-- Sidebar user card (sticky bottom) -->
-      <div class="sticky bottom-0 z-10 border-t border-gray-200/70 bg-white/95 px-3 py-3 backdrop-blur-sm dark:border-gray-700/50 dark:bg-gray-800/95">
+      <!-- Sidebar user card (pinned to bottom of sidebar) -->
+      <div class="shrink-0 border-t border-gray-200/70 bg-white/95 px-3 py-3 backdrop-blur-sm dark:border-gray-700/50 dark:bg-gray-800/95">
         <a
           href="{% url 'frontend:profile' %}"
           class="group flex items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-gray-100 dark:hover:bg-gray-700"
