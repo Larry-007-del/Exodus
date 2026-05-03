@@ -3,13 +3,16 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# build.sh handles collectstatic, but migrations must also run at startup
-# in case the build step ran before DATABASE_URL was available.
+# Migrations run here (not just in build.sh) in case DATABASE_URL was unavailable
+# during the build step. collectstatic also runs here as a safety net so static
+# files are always served correctly even if the build step had issues.
 
 echo "🔄 Running migrations..."
 python manage.py migrate --no-input
 
-# collectstatic already ran in build.sh — skip it here to keep startup fast
+echo "📦 Collecting static files..."
+python manage.py collectstatic --no-input
+
 # Create superuser if env vars are set (skip if user already exists)
 if [ -n "$DJANGO_SUPERUSER_USERNAME" ]; then
   echo "👤 Ensuring superuser exists..."
