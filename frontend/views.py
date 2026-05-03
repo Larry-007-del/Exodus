@@ -141,6 +141,8 @@ def register_view(request):
             errors.append('Username is already taken.')
         if User.objects.filter(email=email).exists():
             errors.append('An account with this email already exists.')
+        if student_id_input and Student.objects.filter(student_id=student_id_input).exists():
+            errors.append('A student with this ID already exists.')
 
         if errors:
             cache.set(cache_key, attempts + 1, 300)
