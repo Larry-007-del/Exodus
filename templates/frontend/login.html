@@ -23,15 +23,15 @@
     <script defer src="{% static 'js/alpine.min.js' %}"></script>
     <!-- Login page always uses dark theme — no sync needed -->
   </head>
-  <body class="flex items-center justify-center min-h-screen bg-gradient-to-br from-brand-600 via-indigo-900 to-purple-900 selection:bg-brand-500 selection:text-white overflow-hidden relative">
+  <body class="min-h-screen bg-gradient-to-br from-brand-600 via-indigo-900 to-purple-900 selection:bg-brand-500 selection:text-white overflow-x-hidden relative">
     
     <!-- Animated background blooms -->
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+    <div class="fixed inset-0 overflow-hidden z-0 pointer-events-none">
       <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-brand-500 blur-[120px] opacity-30 animate-pulse-slow"></div>
       <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-500 blur-[120px] opacity-30 animate-pulse-slow" style="animation-delay: 1.5s;"></div>
     </div>
 
-    <div class="mx-auto flex flex-col items-center justify-center px-6 py-8 w-full max-w-md z-10 animate-fade-in-up">
+    <div class="relative z-10 mx-auto flex min-h-screen flex-col items-center justify-center px-6 py-8 w-full max-w-md animate-fade-in-up">
       <div
         class="w-full rounded-[2.5rem] border border-white/20 bg-white/10 backdrop-blur-xl shadow-2xl p-6 sm:p-10"
       >
