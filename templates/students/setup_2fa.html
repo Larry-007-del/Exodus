@@ -174,142 +174,161 @@
   <!-- ==================== OTP Section ==================== -->
   <div class="rounded-2xl border border-gray-100 bg-white/80 p-6 backdrop-blur-md shadow-xl shadow-brand-500/5 dark:border-gray-700/50 dark:bg-gray-800/80">
     <div class="mb-4 flex items-center">
-      <div
-        class="mr-3 flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-900/30"
-      >
-        <svg
-          class="h-5 w-5 text-purple-600 dark:text-purple-300"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-          ></path>
+      <div class="mr-3 flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 dark:bg-purple-900/30">
+        <svg class="h-5 w-5 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
         </svg>
       </div>
       <div>
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">One-Time Password (OTP)</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-          Use an authenticator app like Google Authenticator
-        </p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">6-digit codes from an authenticator app on your phone</p>
       </div>
     </div>
 
     {% if has_otp %}
-    <!-- OTP is configured -->
-    <div
-      class="mb-4 rounded-xl border border-green-200 bg-green-50/80 p-3 dark:border-green-700 dark:bg-green-900/30"
-    >
+    <!-- OTP already configured -->
+    <div class="mb-4 rounded-xl border border-green-200 bg-green-50/80 p-3 dark:border-green-700 dark:bg-green-900/30">
       <p class="flex items-center text-sm text-green-800 dark:text-green-300">
-        <svg class="mr-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-          <path
-            fill-rule="evenodd"
-            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-            clip-rule="evenodd"
-          ></path>
+        <svg class="mr-2 h-4 w-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
         </svg>
         OTP is enabled and active
       </p>
     </div>
-    <form
-      method="post"
-      action="{% url 'frontend:student_disable_otp' %}"
-      onsubmit="return confirm('Disable OTP authentication? You will need to set it up again.');"
-    >
+    <form method="post" action="{% url 'frontend:student_disable_otp' %}" onsubmit="return confirm('Disable OTP authentication? You will need to set it up again.');">
       {% csrf_token %}
-      <button
-        type="submit"
-        class="w-full rounded-xl bg-red-600 py-3 font-semibold text-white shadow-lg shadow-red-500/20 transition-all hover:-translate-y-0.5 hover:bg-red-700 active:scale-95"
-      >
+      <button type="submit" class="w-full rounded-xl bg-red-600 py-3 font-semibold text-white shadow-lg shadow-red-500/20 transition-all hover:-translate-y-0.5 hover:bg-red-700 active:scale-95">
         Disable OTP
       </button>
     </form>
 
     {% else %}
-    <!-- OTP setup flow -->
+    <!-- Step 1: App recommendations (shown before setup starts) -->
     <template x-if="!otpSetupStarted">
-      <button
-        @click="beginOtpSetup()"
-        :disabled="otpLoading"
-        class="w-full rounded-xl bg-purple-600 py-3 font-semibold text-white shadow-lg shadow-purple-500/20 transition-all hover:-translate-y-0.5 hover:bg-purple-700 active:scale-95 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:translate-y-0 disabled:shadow-none"
-      >
-        <span x-show="!otpLoading">Set Up OTP</span>
-        <span x-show="otpLoading" class="flex items-center justify-center">
-          <svg class="mr-2 h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            ></circle>
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-            ></path>
-          </svg>
-          Generating...
-        </span>
-      </button>
+      <div>
+        <!-- What you need -->
+        <div class="mb-4 rounded-xl border border-purple-100 dark:border-purple-900/40 bg-purple-50/60 dark:bg-purple-900/20 p-4">
+          <p class="mb-2 text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">What you need</p>
+          <p class="mb-3 text-sm text-gray-700 dark:text-gray-300">An authenticator app installed on your phone. Download one of these free options:</p>
+          <div class="space-y-2">
+            <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" target="_blank" rel="noopener"
+              class="flex items-center gap-3 rounded-xl border border-white/60 dark:border-gray-700 bg-white/80 dark:bg-gray-800/60 px-3 py-2.5 text-sm font-medium text-gray-800 dark:text-gray-200 shadow-sm transition-all hover:bg-white dark:hover:bg-gray-700 hover:shadow-md">
+              <span class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white shadow-sm">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#4285F4"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="bold" fill="white">G</text></svg>
+              </span>
+              <div class="min-w-0">
+                <p class="font-semibold">Google Authenticator</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Android &amp; iOS — most widely used</p>
+              </div>
+              <svg class="ml-auto h-4 w-4 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            </a>
+            <a href="https://www.microsoft.com/en-us/security/mobile-authenticator-app" target="_blank" rel="noopener"
+              class="flex items-center gap-3 rounded-xl border border-white/60 dark:border-gray-700 bg-white/80 dark:bg-gray-800/60 px-3 py-2.5 text-sm font-medium text-gray-800 dark:text-gray-200 shadow-sm transition-all hover:bg-white dark:hover:bg-gray-700 hover:shadow-md">
+              <span class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#00A4EF]">
+                <svg class="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="9" height="9"/><rect x="13" y="2" width="9" height="9"/><rect x="2" y="13" width="9" height="9"/><rect x="13" y="13" width="9" height="9"/></svg>
+              </span>
+              <div class="min-w-0">
+                <p class="font-semibold">Microsoft Authenticator</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Android &amp; iOS — also works for Microsoft accounts</p>
+              </div>
+              <svg class="ml-auto h-4 w-4 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            </a>
+            <a href="https://authy.com/download/" target="_blank" rel="noopener"
+              class="flex items-center gap-3 rounded-xl border border-white/60 dark:border-gray-700 bg-white/80 dark:bg-gray-800/60 px-3 py-2.5 text-sm font-medium text-gray-800 dark:text-gray-200 shadow-sm transition-all hover:bg-white dark:hover:bg-gray-700 hover:shadow-md">
+              <span class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#EC1B24]">
+                <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+              </span>
+              <div class="min-w-0">
+                <p class="font-semibold">Authy</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Android, iOS &amp; desktop — backs up your codes</p>
+              </div>
+              <svg class="ml-auto h-4 w-4 flex-shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <button @click="beginOtpSetup()" :disabled="otpLoading"
+          class="w-full rounded-xl bg-purple-600 py-3 font-semibold text-white shadow-lg shadow-purple-500/20 transition-all hover:-translate-y-0.5 hover:bg-purple-700 active:scale-95 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:translate-y-0 disabled:shadow-none">
+          <span x-show="!otpLoading">I have an app — Continue</span>
+          <span x-show="otpLoading" class="flex items-center justify-center">
+            <svg class="mr-2 h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+            Generating...
+          </span>
+        </button>
+      </div>
     </template>
 
+    <!-- Step 2 + 3: QR code, manual key, verification -->
     <template x-if="otpSetupStarted">
       <div>
-        <!-- QR Code -->
-        <div class="mb-4 text-center">
-          <p class="mb-3 text-sm text-gray-600 dark:text-gray-400">
-            Scan this QR code with your authenticator app:
-          </p>
-          <div class="inline-block rounded-lg bg-white dark:bg-gray-800 p-3 shadow-sm" x-html="otpQrSvg"></div>
-        </div>
 
-        <!-- Manual secret -->
-        <div class="mb-4 rounded-lg bg-gray-50 p-3 dark:bg-gray-700">
-          <p class="mb-1 text-xs text-gray-500 dark:text-gray-400">Or enter this key manually:</p>
-          <code
-            class="select-all break-all font-mono text-sm text-gray-900 dark:text-gray-100"
-            x-text="otpSecret"
-          ></code>
-        </div>
+        <!-- Numbered steps -->
+        <ol class="mb-5 space-y-4">
 
-        <!-- Verification input -->
-        <div class="mb-3">
-          <label class="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-            >Enter the 6-digit code from your app to verify:</label
-          >
-          <input
-            type="text"
-            x-model="otpCode"
-            maxlength="6"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white/60 dark:bg-gray-700/50 px-4 py-3 text-center font-mono text-lg backdrop-blur-sm transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 dark:text-white"
-            placeholder="000000"
-            @keyup.enter="verifyOtp()"
-          />
-        </div>
-        <button
-          @click="verifyOtp()"
-          :disabled="otpVerifying || otpCode.length !== 6"
-          class="w-full rounded-xl bg-purple-600 py-3 font-semibold text-white shadow-lg shadow-purple-500/20 transition-all hover:-translate-y-0.5 hover:bg-purple-700 active:scale-95 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:translate-y-0 disabled:shadow-none"
-        >
-          <span x-show="!otpVerifying">Verify & Enable OTP</span>
-          <span x-show="otpVerifying">Verifying...</span>
+          <!-- Step 1 -->
+          <li class="flex gap-3">
+            <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-purple-600 text-xs font-bold text-white">1</span>
+            <div class="pt-0.5">
+              <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Open your authenticator app</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Tap the <strong>+</strong> or <strong>Add account</strong> button inside the app.</p>
+            </div>
+          </li>
+
+          <!-- Step 2 -->
+          <li class="flex gap-3">
+            <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-purple-600 text-xs font-bold text-white">2</span>
+            <div class="pt-0.5 w-full">
+              <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Scan the QR code <span class="font-normal text-gray-500">or enter the key manually</span></p>
+              <!-- QR code -->
+              <div class="my-3 flex justify-center">
+                <div class="inline-block rounded-2xl border border-gray-200 dark:border-gray-600 bg-white p-3 shadow-md" x-html="otpQrSvg" style="max-width:200px"></div>
+              </div>
+              <!-- Manual key with copy button -->
+              <div class="rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/60 p-3">
+                <div class="mb-1 flex items-center justify-between">
+                  <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Manual key</p>
+                  <button type="button" @click="copySecret()"
+                    class="flex items-center gap-1 rounded-lg bg-white dark:bg-gray-600 px-2 py-1 text-xs font-semibold text-gray-600 dark:text-gray-200 shadow-sm transition-all hover:bg-gray-100 dark:hover:bg-gray-500 active:scale-95"
+                    :title="keyCopied ? 'Copied!' : 'Copy to clipboard'">
+                    <template x-if="!keyCopied">
+                      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    </template>
+                    <template x-if="keyCopied">
+                      <svg class="h-3.5 w-3.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    </template>
+                    <span x-text="keyCopied ? 'Copied!' : 'Copy'"></span>
+                  </button>
+                </div>
+                <code class="select-all break-all font-mono text-sm tracking-widest text-gray-900 dark:text-gray-100" x-text="otpSecret"></code>
+              </div>
+              <p class="mt-2 text-xs text-gray-400 dark:text-gray-500">In the app, choose <em>Scan QR code</em> to use the camera, or <em>Enter setup key</em> to type it manually. The account will appear as <strong>Exodus Attendance</strong>.</p>
+            </div>
+          </li>
+
+          <!-- Step 3 -->
+          <li class="flex gap-3">
+            <span class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-purple-600 text-xs font-bold text-white">3</span>
+            <div class="pt-0.5 w-full">
+              <p class="text-sm font-semibold text-gray-800 dark:text-gray-200">Enter the 6-digit code the app shows</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 mb-2">The code refreshes every 30 seconds — enter it while it's still valid.</p>
+              <input type="text" x-model="otpCode" maxlength="6" inputmode="numeric" pattern="[0-9]*"
+                class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white/60 dark:bg-gray-700/50 px-4 py-3 text-center font-mono text-xl tracking-[0.35em] backdrop-blur-sm transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/30 dark:text-white"
+                placeholder="000000" @keyup.enter="verifyOtp()" />
+            </div>
+          </li>
+        </ol>
+
+        <button @click="verifyOtp()" :disabled="otpVerifying || otpCode.length !== 6"
+          class="w-full rounded-xl bg-purple-600 py-3 font-semibold text-white shadow-lg shadow-purple-500/20 transition-all hover:-translate-y-0.5 hover:bg-purple-700 active:scale-95 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:translate-y-0 disabled:shadow-none">
+          <span x-show="!otpVerifying">Verify &amp; Enable OTP</span>
+          <span x-show="otpVerifying" class="flex items-center justify-center">
+            <svg class="mr-2 h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+            Verifying...
+          </span>
         </button>
 
-        <!-- OTP status message -->
         <template x-if="otpMsg">
-          <p
-            class="mt-2 text-center text-sm"
-            :class="otpOk ? 'text-green-600' : 'text-red-600'"
-            x-text="otpMsg"
-          ></p>
+          <p class="mt-3 text-center text-sm font-medium" :class="otpOk ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'" x-text="otpMsg"></p>
         </template>
       </div>
     </template>
@@ -377,6 +396,7 @@
       otpVerifying: false,
       otpMsg: '',
       otpOk: false,
+      keyCopied: false,
 
       // ========== Base64url helpers ==========
       base64urlToBuffer(base64url) {
@@ -527,6 +547,25 @@
           this.otpOk = false;
         } finally {
           this.otpLoading = false;
+        }
+      },
+
+      async copySecret() {
+        try {
+          await navigator.clipboard.writeText(this.otpSecret);
+          this.keyCopied = true;
+          setTimeout(() => { this.keyCopied = false; }, 2000);
+        } catch (e) {
+          // Fallback for browsers that block clipboard without HTTPS
+          const el = document.createElement('textarea');
+          el.value = this.otpSecret;
+          el.style.position = 'fixed'; el.style.opacity = '0';
+          document.body.appendChild(el);
+          el.select();
+          document.execCommand('copy');
+          document.body.removeChild(el);
+          this.keyCopied = true;
+          setTimeout(() => { this.keyCopied = false; }, 2000);
         }
       },
 
