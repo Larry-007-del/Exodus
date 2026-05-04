@@ -33,7 +33,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 
 from attendance.models import Lecturer, Student, Course, Attendance, AttendanceToken, CourseEnrollment, AttendanceStudent, WebAuthnCredential
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from .forms import LecturerForm, StudentForm, CourseForm, StudentUploadForm, CourseEnrollmentUploadForm
 
 
@@ -167,6 +167,9 @@ def register_view(request):
             programme_of_study=programme_of_study,
             year=year,
         )
+
+        student_group, _ = Group.objects.get_or_create(name='Student')
+        user.groups.add(student_group)
 
         cache.delete(cache_key)
 
