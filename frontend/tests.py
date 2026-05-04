@@ -798,6 +798,8 @@ class RegisterViewTest(FrontendViewsTestCase):
         self.assertRedirects(response, reverse('frontend:dashboard'))
         self.assertTrue(User.objects.filter(username='newstu').exists())
         self.assertTrue(Student.objects.filter(user__username='newstu').exists())
+        new_user = User.objects.get(username='newstu')
+        self.assertTrue(new_user.groups.filter(name='Student').exists())
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn('Welcome to Exodus', mail.outbox[0].subject)
 
