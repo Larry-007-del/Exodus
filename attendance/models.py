@@ -43,7 +43,7 @@ class Lecturer(models.Model):
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    student_id = models.CharField(max_length=10, unique=True)
+    student_id = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=100)
     profile_picture = models.ImageField(upload_to='student_pictures/', blank=True, null=True)
     programme_of_study = models.CharField(max_length=255, blank=True, null=True)  # Added field
