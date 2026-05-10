@@ -760,7 +760,11 @@ class AttendanceViewsTest(FrontendViewsTestCase):
         self.assertFalse(expired_attendance.is_active)
         self.assertIsNotNone(expired_attendance.ended_at)
         self.assertFalse(expired_token.is_active)
-        self.assertTrue(Attendance.objects.filter(course=self.course, is_active=True).exclude(pk=expired_attendance.pk).exists())
+        has_new_active_session = Attendance.objects.filter(
+            course=self.course,
+            is_active=True,
+        ).exclude(pk=expired_attendance.pk).exists()
+        self.assertTrue(has_new_active_session)
         self.assertTrue(AttendanceToken.objects.filter(course=self.course, token='NEW123', is_active=True).exists())
 
     def test_attendance_detail_view(self):

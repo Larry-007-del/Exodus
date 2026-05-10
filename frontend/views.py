@@ -1443,6 +1443,7 @@ def _close_expired_attendance_sessions(course=None):
 
     A session is expired when now >= created_at + duration_hours.
     When course is provided, only sessions for that course are checked.
+    Returns the number of sessions that were closed.
     """
     now = timezone.now()
     active_sessions = Attendance.objects.filter(is_active=True).select_related('course')
@@ -1461,11 +1462,6 @@ def _close_expired_attendance_sessions(course=None):
             closed_count += 1
 
     if affected_course_ids:
-        AttendanceToken.objects.filter(
-            course_id__in=affected_course_ids,
-            is_active=True,
-        ).update(is_active=False)
-
         courses_with_active_sessions = set(
             Attendance.objects.filter(
                 course_id__in=affected_course_ids,
@@ -1474,6 +1470,10 @@ def _close_expired_attendance_sessions(course=None):
         )
         courses_to_deactivate = affected_course_ids - courses_with_active_sessions
         if courses_to_deactivate:
+            AttendanceToken.objects.filter(
+                course_id__in=courses_to_deactivate,
+                is_active=True,
+            ).update(is_active=False)
             Course.objects.filter(id__in=courses_to_deactivate).update(is_active=False)
 
     return closed_count
