@@ -1456,12 +1456,16 @@ def _close_expired_attendance_sessions(course=None):
         if now >= expires_at:
             session.is_active = False
             session.ended_at = now
-            session.save(update_fields=['is_active', 'ended_at', 'updated_at'])
-            AttendanceToken.objects.filter(course=session.course, is_active=True).update(is_active=False)
+            session.save(update_fields=['is_active', 'ended_at'])
             affected_course_ids.add(session.course_id)
             closed_count += 1
 
     if affected_course_ids:
+        AttendanceToken.objects.filter(
+            course_id__in=affected_course_ids,
+            is_active=True,
+        ).update(is_active=False)
+
         courses_with_active_sessions = set(
             Attendance.objects.filter(
                 course_id__in=affected_course_ids,
