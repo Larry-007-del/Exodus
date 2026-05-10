@@ -1,3 +1,4 @@
+from django.db.models import Case, IntegerField, Value, When
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, generics, status
 from rest_framework.response import Response
@@ -555,9 +556,30 @@ class SubmitLocationView(generics.GenericAPIView):
         except AttendanceToken.DoesNotExist:
             return api_error('Invalid or expired token', APIErrorCode.INVALID_OR_EXPIRED_TOKEN, status.HTTP_400_BAD_REQUEST)
 
-        attendance = Attendance.objects.filter(course=token.course, date=timezone.localdate()).first()
+        if token.expires_at and token.expires_at <= timezone.now():
+            updated = AttendanceToken.objects.filter(pk=token.pk, is_active=True).update(is_active=False)
+            if updated:
+                token.is_active = False
+            return api_error('Invalid or expired token', APIErrorCode.INVALID_OR_EXPIRED_TOKEN, status.HTTP_400_BAD_REQUEST)
+
+        attendance_queryset = Attendance.objects.filter(course=token.course, is_active=True)
+        attendance = (
+            attendance_queryset.annotate(
+                date_priority=Case(
+                    When(date=timezone.localdate(), then=Value(0)),
+                    default=Value(1),
+                    output_field=IntegerField(),
+                )
+            )
+            .order_by('date_priority', '-created_at')
+            .first()
+        )
 
         if not attendance or not attendance.is_session_valid:
+            # Session expiration invalidates tokens even if their own expiry has not passed yet.
+            updated = AttendanceToken.objects.filter(pk=token.pk, is_active=True).update(is_active=False)
+            if updated:
+                token.is_active = False
             return api_error('This attendance session has expired.', APIErrorCode.SESSION_EXPIRED, status.HTTP_400_BAD_REQUEST)
 
         if attendance.is_within_radius(lat_float, lon_float):
