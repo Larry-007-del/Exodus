@@ -14,8 +14,8 @@ from django.utils import timezone
 
 from attendance.models import (
     Attendance,
-    AttendanceToken,
     AttendanceStudent,
+    AttendanceToken,
     Course,
     CourseEnrollment,
     Lecturer,

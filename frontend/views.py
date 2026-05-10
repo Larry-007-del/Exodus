@@ -1462,11 +1462,13 @@ def attendance_take(request):
         date=timezone.localdate(),
         is_active=True,
     ).select_related('course')
-    lecturer = Lecturer.objects.filter(user=request.user).first()
-    if lecturer:
-        active_attendance = active_attendances.filter(course__lecturer=lecturer).first()
-    elif request.user.is_superuser:
+    lecturer = None
+    if request.user.is_superuser:
         active_attendance = active_attendances.first()
+    else:
+        lecturer = Lecturer.objects.filter(user=request.user).first()
+        if lecturer:
+            active_attendance = active_attendances.filter(course__lecturer=lecturer).first()
 
     if active_attendance:
         # Prefer the newest token if stale active rows exist for the same course.
