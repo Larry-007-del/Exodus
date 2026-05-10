@@ -180,6 +180,12 @@ class CheckinViewTest(FrontendViewsTestCase):
         response = self.client.get(reverse('frontend:checkin'))
         self.assertRedirects(response, reverse('frontend:login') + '?next=/attendance/checkin/')
 
+    def test_checkin_view_preserves_qr_button_label_span_for_state_updates(self):
+        self.client.login(username='teststudent', password='testpassword123')
+        response = self.client.get(reverse('frontend:checkin'))
+        self.assertContains(response, 'id="scan-qr-label"')
+        self.assertContains(response, "const scanQrBtnLabel = document.getElementById('scan-qr-label');")
+
 
 class ProfileViewTest(FrontendViewsTestCase):
     """Tests for profile view"""
