@@ -740,7 +740,7 @@ class AttendanceViewsTest(FrontendViewsTestCase):
             course=self.course,
             token='OLD123',
             is_active=True,
-            expires_at=timezone.now() - timedelta(minutes=5),
+            expires_at=timezone.now() + timedelta(hours=1),
         )
 
         self.client.login(username='testlecturer', password='testpassword123')
