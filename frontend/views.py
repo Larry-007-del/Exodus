@@ -1437,9 +1437,52 @@ def ajax_search_courses(request):
 
 # ==================== Attendance ====================
 
+def _close_expired_attendance_sessions(course=None):
+    """
+    Close expired active attendance sessions and deactivate their active tokens.
+
+    A session is expired when now >= created_at + duration_hours.
+    When course is provided, only sessions for that course are checked.
+    Returns the number of sessions that were closed.
+    """
+    now = timezone.now()
+    active_sessions = Attendance.objects.filter(is_active=True).select_related('course')
+    if course is not None:
+        active_sessions = active_sessions.filter(course=course)
+
+    closed_count = 0
+    affected_course_ids = set()
+    for session in active_sessions:
+        expires_at = session.created_at + timedelta(hours=session.duration_hours)
+        if now >= expires_at:
+            session.is_active = False
+            session.ended_at = now
+            session.save(update_fields=['is_active', 'ended_at'])
+            affected_course_ids.add(session.course_id)
+            closed_count += 1
+
+    if affected_course_ids:
+        courses_with_active_sessions = set(
+            Attendance.objects.filter(
+                course_id__in=affected_course_ids,
+                is_active=True,
+            ).values_list('course_id', flat=True)
+        )
+        courses_to_deactivate = affected_course_ids - courses_with_active_sessions
+        if courses_to_deactivate:
+            AttendanceToken.objects.filter(
+                course_id__in=courses_to_deactivate,
+                is_active=True,
+            ).update(is_active=False)
+            Course.objects.filter(id__in=courses_to_deactivate).update(is_active=False)
+
+    return closed_count
+
+
 @staff_required
 def attendance_index(request):
     """Attendance dashboard (admin/lecturer only)"""
+    _close_expired_attendance_sessions()
     today = timezone.localdate()
     attendances = Attendance.objects.filter(date=today).select_related('course').prefetch_related('present_students')
     active_tokens = AttendanceToken.objects.filter(is_active=True)
@@ -1455,6 +1498,8 @@ def attendance_index(request):
 @staff_required
 def attendance_take(request):
     """Take attendance - generate token (lecturer/admin only)"""
+    _close_expired_attendance_sessions()
+
     # Get active attendance session if it exists
     active_session = None
     active_attendance = None
