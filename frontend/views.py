@@ -1462,17 +1462,17 @@ def attendance_take(request):
         date=timezone.localdate(),
         is_active=True,
     ).select_related('course')
-    try:
-        lecturer = Lecturer.objects.get(user=request.user)
+    lecturer = Lecturer.objects.filter(user=request.user).first()
+    if lecturer:
         active_attendance = active_attendances.filter(course__lecturer=lecturer).first()
-    except Lecturer.DoesNotExist:
-        if request.user.is_superuser:
-            active_attendance = active_attendances.first()
+    elif request.user.is_superuser:
+        active_attendance = active_attendances.first()
 
     if active_attendance:
+        # Prefer the newest token if stale active rows exist for the same course.
         active_session = AttendanceToken.objects.filter(
             course=active_attendance.course,
-            is_active=True
+            is_active=True,
         ).order_by('-generated_at').first()
     
     if request.method == 'POST' and not active_session:
@@ -2566,4 +2566,3 @@ def save_fcm_token(request):
         import logging
         logging.getLogger(__name__).error("save_fcm_token failed for user %s: %s", request.user.pk, exc)
         return JsonResponse({'status': 'error', 'detail': 'Server error.'}, status=500)
-
