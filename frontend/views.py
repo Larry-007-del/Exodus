@@ -1538,7 +1538,7 @@ def attendance_take(request):
     
     if request.method == 'POST' and not active_session:
         course_id = request.POST.get('course')
-        token_value = request.POST.get('token', '').strip()
+        token_value = request.POST.get('token', '').strip().upper()
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
         require_two_factor_auth = request.POST.get('require_two_factor_auth') == 'on'
@@ -1697,14 +1697,14 @@ def end_attendance(request):
 def attendance_mark(request):
     """Mark attendance - student view"""
     if request.method == 'POST':
-        token = request.POST.get('token')
+        token = request.POST.get('token', '').strip().upper()
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
         
         try:
             # First, check if token exists at all (active or not) to give specific errors
             try:
-                att_token = AttendanceToken.objects.get(token=token)
+                att_token = AttendanceToken.objects.get(token__iexact=token)
             except AttendanceToken.DoesNotExist:
                 messages.error(request, 'Invalid token. Please check the code and try again.')
                 return render(request, 'attendance/mark.html')
@@ -1850,11 +1850,11 @@ def attendance_mark(request):
 @login_required
 def session_status_check(request):
     """Lightweight JSON endpoint — lets the student check-in page poll whether a session is still active."""
-    token = request.GET.get('token', '').strip()
+    token = request.GET.get('token', '').strip().upper()
     if not token:
         return JsonResponse({'active': False, 'message': 'No token provided.'})
     try:
-        att_token = AttendanceToken.objects.get(token=token)
+        att_token = AttendanceToken.objects.get(token__iexact=token)
     except AttendanceToken.DoesNotExist:
         return JsonResponse({'active': False, 'message': 'Invalid token.'})
 

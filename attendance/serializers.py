@@ -154,3 +154,6 @@ class SubmitLocationSerializer(serializers.Serializer):
     latitude = serializers.FloatField(min_value=-90, max_value=90)
     longitude = serializers.FloatField(min_value=-180, max_value=180)
     attendance_token = serializers.CharField(max_length=10)
+
+    def validate_attendance_token(self, value):
+        return value.strip().upper()

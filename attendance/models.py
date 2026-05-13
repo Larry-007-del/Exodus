@@ -305,6 +305,9 @@ class AttendanceToken(models.Model):
         return buffer
 
     def save(self, *args, **kwargs):
+        if self.token:
+            self.token = self.token.strip().upper()
+
         if self.generated_at is None:
             self.generated_at = timezone.now()
 
@@ -322,4 +325,3 @@ class AttendanceToken(models.Model):
             self.qr_code = SimpleUploadedFile(filename, qr_buffer.read(), content_type='image/png')
 
         super().save(*args, **kwargs)
-
