@@ -258,7 +258,7 @@ def dashboard(request):
                 total_sessions = Attendance.objects.filter(course__students=student).distinct().count()
                 attended_sessions = AttendanceStudent.objects.filter(
                     student=student
-                ).values('attendance_id').distinct().count()
+                ).values('attendance').distinct().count()
                 if total_sessions > 0:
                     context['attendance_rate'] = round((attended_sessions / total_sessions) * 100)
                 else:
@@ -335,7 +335,7 @@ def profile_view(request):
         total = Attendance.objects.filter(course__students=profile).distinct().count()
         attended = AttendanceStudent.objects.filter(
             student=profile
-        ).values('attendance_id').distinct().count()
+        ).values('attendance').distinct().count()
         stats['total_sessions'] = total
         stats['attended_sessions'] = attended
         stats['attendance_rate'] = round((attended / total) * 100) if total > 0 else 0
@@ -553,7 +553,7 @@ def chart_student_history(request):
         attendance__date__gte=start_date,
         attendance__date__lte=today
     ).values('attendance__date').annotate(
-        sessions=Count('id')
+        sessions=Count('attendance', distinct=True)
     ).order_by('attendance__date')
     
     # We will aggregate by week to keep it clean, or just plot individual days that had attendance
