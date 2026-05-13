@@ -122,7 +122,7 @@ class CourseViewSet(viewsets.ModelViewSet):
             if not hasattr(request.user, 'lecturer') or course.lecturer != request.user.lecturer:
                 return api_error('You do not own this course.', APIErrorCode.COURSE_FORBIDDEN, status.HTTP_403_FORBIDDEN)
         
-        token_value = request.data.get('token')
+        token_value = (request.data.get('token') or '').strip().upper()
         latitude = request.data.get('latitude')
         longitude = request.data.get('longitude')
 
@@ -188,7 +188,7 @@ class CourseViewSet(viewsets.ModelViewSet):
             throttle_classes=[ScopedRateThrottle], throttle_scope='take_attendance')
     def take_attendance(self, request):
         """Allow any authenticated student to submit attendance via token."""
-        token = request.data.get('token')
+        token = (request.data.get('token') or '').strip().upper()
         latitude = request.data.get('latitude')
         longitude = request.data.get('longitude')
 
@@ -205,7 +205,7 @@ class CourseViewSet(viewsets.ModelViewSet):
             return api_error('Invalid GPS coordinates.', APIErrorCode.MISSING_REQUIRED_FIELDS, status.HTTP_400_BAD_REQUEST)
 
         try:
-            attendance_token = AttendanceToken.objects.get(token=token, is_active=True)
+            attendance_token = AttendanceToken.objects.get(token__iexact=token, is_active=True)
             course = attendance_token.course
             student = get_object_or_404(Student, user=request.user)
 
@@ -552,7 +552,7 @@ class SubmitLocationView(generics.GenericAPIView):
         attendance_token = serializer.validated_data['attendance_token']
 
         try:
-            token = AttendanceToken.objects.get(token=attendance_token, is_active=True)
+            token = AttendanceToken.objects.get(token__iexact=attendance_token, is_active=True)
         except AttendanceToken.DoesNotExist:
             return api_error('Invalid or expired token', APIErrorCode.INVALID_OR_EXPIRED_TOKEN, status.HTTP_400_BAD_REQUEST)
 
@@ -690,10 +690,10 @@ class LecturerLocationView(APIView):
         },
     )
     def post(self, request, *args, **kwargs):
-        token_value = request.data.get('token')
+        token_value = (request.data.get('token') or '').strip().upper()
 
         try:
-            token = AttendanceToken.objects.get(token=token_value, is_active=True)
+            token = AttendanceToken.objects.get(token__iexact=token_value, is_active=True)
             course = token.course
             lecturer = course.lecturer
 
