@@ -304,6 +304,7 @@
     {% endif %} {% if is_admin %}
     <a
       href="{% url 'admin:index' %}"
+      hx-boost="false"
       class="flex w-full items-center justify-center gap-2 rounded-xl bg-gray-800 px-4 py-3 text-center text-sm font-semibold text-white shadow-md shadow-gray-500/20 transition-all hover:-translate-y-0.5 hover:bg-gray-900 active:scale-[0.98] sm:justify-start sm:px-5 sm:text-base"
     >
       <svg class="h-4 w-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
