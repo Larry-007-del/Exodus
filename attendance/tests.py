@@ -628,6 +628,27 @@ class AttendanceAPITest(APIAuthTestCase):
         )
         self.assertEqual(response.status_code, 200)
 
+    @override_settings(DEFAULT_FILE_STORAGE='django.core.files.storage.InMemoryStorage')
+    def test_take_attendance_requires_two_factor(self):
+        self.auth_as_user(self.stu_user)
+        from decimal import Decimal
+        Attendance.objects.create(
+            course=self.course,
+            date=timezone.localdate(),
+            is_active=True,
+            lecturer_latitude=Decimal('5.650000'),
+            lecturer_longitude=Decimal('-0.187000'),
+            require_two_factor_auth=True,
+        )
+        AttendanceToken.objects.create(
+            course=self.course, token='TFA001', is_active=True
+        )
+        response = self.client.post(
+            '/api/courses/take_attendance/', {'token': 'TFA001', 'latitude': '5.650000', 'longitude': '-0.187000'},
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.data['code'], 'two_factor_required')
+
     def test_take_attendance_invalid_token(self):
         self.auth_as_user(self.stu_user)
         response = self.client.post(
@@ -707,6 +728,21 @@ class SubmitLocationAPITest(APIAuthTestCase):
                 attendance=self.attendance, student=self.student
             ).exists()
         )
+
+    @override_settings(DEFAULT_FILE_STORAGE='django.core.files.storage.InMemoryStorage')
+    def test_submit_location_requires_two_factor(self):
+        self.auth_as_user(self.stu_user)
+        self.attendance.require_two_factor_auth = True
+        self.attendance.save(update_fields=['require_two_factor_auth'])
+        AttendanceToken.objects.create(
+            course=self.course, token='LOC2FA', is_active=True
+        )
+        response = self.client.post(
+            '/api/submit-location/',
+            {'latitude': '5.650010', 'longitude': '-0.187010', 'attendance_token': 'LOC2FA'},
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.data['code'], 'two_factor_required')
 
     @override_settings(DEFAULT_FILE_STORAGE='django.core.files.storage.InMemoryStorage')
     def test_submit_location_out_of_range(self):
