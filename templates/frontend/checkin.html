@@ -47,6 +47,8 @@
     </h3>
     <form method="post" id="attendance-form" class="flex flex-col items-center">
       {% csrf_token %}
+      <input type="hidden" id="attendance-latitude" name="latitude" />
+      <input type="hidden" id="attendance-longitude" name="longitude" />
       <input
         type="text"
         id="attendance-token"
@@ -140,13 +142,30 @@
   const canvas = document.getElementById('canvas');
   const tokenInput = document.getElementById('attendance-token');
   const form = document.getElementById('attendance-form');
+  const latField = document.getElementById('attendance-latitude');
+  const lngField = document.getElementById('attendance-longitude');
   const gpsStatus = document.getElementById('gps-status');
+  const attendanceMarkUrl = '{% url "frontend:attendance_mark" %}';
 
   let scannerInterval = null;
   let currentStream = null;
   let scanning = false;
   let currentPosition = null;
   let obtainingLocation = false;
+  let sessionRequires2FA = false;
+
+  function setFormCoordinates(position) {
+    if (!position || !latField || !lngField) return;
+    latField.value = position.coords.latitude.toFixed(6);
+    lngField.value = position.coords.longitude.toFixed(6);
+  }
+
+  function submitForTwoFactor() {
+    if (!currentPosition) return;
+    setFormCoordinates(currentPosition);
+    form.setAttribute('action', attendanceMarkUrl);
+    form.submit();
+  }
 
   function stopScanner(message = 'Scan QR Code') {
     scanning = false;
@@ -304,6 +323,7 @@
       (position) => {
         obtainingLocation = false;
         currentPosition = position;
+        setFormCoordinates(position);
         updateStatus(`Strong (Accuracy: ${Math.round(position.coords.accuracy)}m)`);
         
         var lat = position.coords.latitude;
@@ -337,6 +357,7 @@
       const btnText = document.querySelector('button span.font-bold');
       
       btnText.innerText = 'LOCATING...';
+      setFormCoordinates(currentPosition);
       const formData = new FormData(form);
       formData.append('latitude', currentPosition.coords.latitude);
       formData.append('longitude', currentPosition.coords.longitude);
@@ -352,6 +373,10 @@
       })
         .then((response) => response.json())
         .then((data) => {
+          if (data.code === 'two_factor_required') {
+            submitForTwoFactor();
+            return;
+          }
           if (data.status === 'Attendance marked successfully' || data.message === 'Attendance recorded successfully.') {
             btnText.innerText = 'SUCCESS!';
             setTimeout(() => {
@@ -380,6 +405,35 @@
       return;
     }
 
+    if (sessionRequires2FA) {
+        if (currentPosition) {
+            submitForTwoFactor();
+        } else {
+            const btnText = document.querySelector('button span.font-bold');
+            btnText.innerText = 'WAITING FOR GPS...';
+
+            if (obtainingLocation) {
+                alert('Still acquiring initial GPS location. Please ensure you have allowed location permissions.');
+                btnText.innerText = 'CHECK IN';
+            } else {
+                navigator.geolocation.getCurrentPosition(
+                  (position) => {
+                    currentPosition = position;
+                    setFormCoordinates(position);
+                    submitForTwoFactor();
+                  },
+                  (error) => {
+                    console.error('Geolocation Error:', error);
+                    alert('Unable to get location. Please click Retry on the GPS signal monitor and ensure you are outside or near a window.');
+                    btnText.innerText = 'CHECK IN';
+                  },
+                  geolocOptions
+                );
+            }
+        }
+        return;
+    }
+
     if (currentPosition) {
         submitAttendance();
     } else {
@@ -394,6 +448,7 @@
             navigator.geolocation.getCurrentPosition(
               (position) => {
                 currentPosition = position;
+                setFormCoordinates(position);
                 submitAttendance();
               },
               (error) => {
@@ -433,6 +488,7 @@
   function applySessionState(data) {
     if (!data.active) {
       sessionClosed = true;
+      sessionRequires2FA = false;
       sessionClosedMsg.textContent = data.message || '{{ session_ended_title|escapejs }}';
       sessionBanner.classList.remove('hidden');
       if (twofaBanner) twofaBanner.classList.add('hidden');
@@ -440,8 +496,9 @@
       submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
       stopSessionPolling();
     } else {
+      sessionRequires2FA = !!data.require_2fa;
       if (twofaBanner) {
-        data.require_2fa ? twofaBanner.classList.remove('hidden') : twofaBanner.classList.add('hidden');
+        sessionRequires2FA ? twofaBanner.classList.remove('hidden') : twofaBanner.classList.add('hidden');
       }
     }
   }

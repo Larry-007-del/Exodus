@@ -221,6 +221,13 @@ class CourseViewSet(viewsets.ModelViewSet):
             if not attendance or not attendance.is_session_valid:
                 return api_error('This attendance session has expired.', APIErrorCode.SESSION_EXPIRED, status.HTTP_400_BAD_REQUEST)
 
+            if attendance.require_two_factor_auth:
+                return api_error(
+                    'Two-factor authentication required for this session.',
+                    APIErrorCode.TWO_FACTOR_REQUIRED,
+                    status.HTTP_403_FORBIDDEN,
+                )
+
             if not attendance.is_within_radius(latitude, longitude):
                 return api_error('You are outside the classroom boundary.', APIErrorCode.LOCATION_OUT_OF_RANGE, status.HTTP_400_BAD_REQUEST)
             
@@ -531,6 +538,7 @@ class SubmitLocationView(generics.GenericAPIView):
         responses={
             200: OpenApiResponse(response=AttendanceMarkedSerializer, description='Attendance marked successfully.'),
             400: OpenApiResponse(response=APIErrorSerializer, description='Token/coordinates/session validation error.'),
+            403: OpenApiResponse(response=APIErrorSerializer, description='Two-factor authentication required.'),
             429: OpenApiResponse(response=APIErrorSerializer, description='Burst rate limit exceeded.'),
         },
         examples=[
@@ -581,6 +589,13 @@ class SubmitLocationView(generics.GenericAPIView):
             if updated:
                 token.is_active = False
             return api_error('This attendance session has expired.', APIErrorCode.SESSION_EXPIRED, status.HTTP_400_BAD_REQUEST)
+
+        if attendance.require_two_factor_auth:
+            return api_error(
+                'Two-factor authentication required for this session.',
+                APIErrorCode.TWO_FACTOR_REQUIRED,
+                status.HTTP_403_FORBIDDEN,
+            )
 
         if attendance.is_within_radius(lat_float, lon_float):
             user = request.user

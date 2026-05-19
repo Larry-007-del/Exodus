@@ -18,3 +18,4 @@ class APIErrorCode(str, Enum):
     LOCATION_OUT_OF_RANGE = 'location_out_of_range'
     UNAUTHORIZED = 'unauthorized'
     LECTURER_COORDINATES_NOT_SET = 'lecturer_coordinates_not_set'
+    TWO_FACTOR_REQUIRED = 'two_factor_required'
