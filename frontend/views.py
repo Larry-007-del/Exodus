@@ -84,6 +84,7 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             request.session['last_authenticated'] = timezone.now().isoformat()
+            request.session['last_activity'] = timezone.now().isoformat()
             cache.delete(cache_key)  # Reset on successful login
             next_url = request.POST.get('next', '')
             if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
@@ -178,6 +179,7 @@ def register_view(request):
         cache.delete(cache_key)
 
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        request.session['last_activity'] = timezone.now().isoformat()
         messages.success(request, f'Welcome to Exodus, {username}!')
         return redirect('frontend:dashboard')
 

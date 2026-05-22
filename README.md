@@ -325,6 +325,7 @@ Production mode (`DJANGO_DEBUG=False`) automatically enables:
 
 - HTTPS redirect (`SECURE_SSL_REDIRECT`)
 - Secure session and CSRF cookies
+- Automatic logout after inactivity (configurable via `SESSION_INACTIVITY_TIMEOUT_MINUTES`)
 - HSTS headers (1 year, include subdomains, preload)
 - XSS and content-type sniffing protection
 - API rate limiting (10/min anonymous, 1000/day authenticated)

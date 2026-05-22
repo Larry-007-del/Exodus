@@ -123,6 +123,31 @@ class LogoutViewTest(FrontendViewsTestCase):
         self.assertIn('/dashboard/', response.url)
 
 
+class InactivityLogoutMiddlewareTest(FrontendViewsTestCase):
+    """Tests for inactivity logout middleware"""
+
+    @override_settings(SESSION_INACTIVITY_TIMEOUT_MINUTES=30)
+    def test_inactivity_logs_out_user(self):
+        self.client.login(username='testadmin', password='testpassword123')
+        session = self.client.session
+        session['last_activity'] = (timezone.now() - timedelta(minutes=31)).isoformat()
+        session.save()
+
+        response = self.client.get(reverse('frontend:dashboard'), follow=False)
+        self.assertIn(response.status_code, [301, 302])
+        self.assertIn(reverse('frontend:login'), response.url)
+
+    @override_settings(SESSION_INACTIVITY_TIMEOUT_MINUTES=30)
+    def test_recent_activity_keeps_user_logged_in(self):
+        self.client.login(username='testadmin', password='testpassword123')
+        session = self.client.session
+        session['last_activity'] = (timezone.now() - timedelta(minutes=5)).isoformat()
+        session.save()
+
+        response = self.client.get(reverse('frontend:dashboard'))
+        self.assertEqual(response.status_code, 200)
+
+
 class DashboardViewTest(FrontendViewsTestCase):
     """Tests for dashboard view"""
 
