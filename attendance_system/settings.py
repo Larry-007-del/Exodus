@@ -90,6 +90,9 @@ else:
 SESSION_COOKIE_AGE = 86400  # 24 hours (default is 2 weeks)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_HTTPONLY = True
+SESSION_INACTIVITY_TIMEOUT_MINUTES = int(
+    os.environ.get('SESSION_INACTIVITY_TIMEOUT_MINUTES', '30')
+)
 
 # Application definition
 
@@ -185,6 +188,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'attendance_system.middleware.InactivityLogoutMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
