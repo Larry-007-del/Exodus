@@ -1451,6 +1451,28 @@ def ajax_search_courses(request):
 
 # ==================== Attendance ====================
 
+def _close_expired_attendance_sessions():
+    """Close active attendance sessions that have exceeded their duration."""
+    now = timezone.now()
+    active_sessions = Attendance.objects.filter(is_active=True).select_related('course')
+    expired_sessions = [
+        session
+        for session in active_sessions
+        if now >= session.created_at + timedelta(hours=session.duration_hours)
+    ]
+
+    if not expired_sessions:
+        return 0
+
+    for session in expired_sessions:
+        session.is_active = False
+        session.ended_at = now
+        session.save(update_fields=['is_active', 'ended_at', 'updated_at'])
+        AttendanceToken.objects.filter(course=session.course, is_active=True).update(is_active=False)
+
+    return len(expired_sessions)
+
+
 @staff_required
 def attendance_index(request):
     """Attendance dashboard (admin/lecturer only)"""
@@ -2595,5 +2617,4 @@ def save_fcm_token(request):
         import logging
         logging.getLogger(__name__).error("save_fcm_token failed for user %s: %s", request.user.pk, exc)
         return JsonResponse({'status': 'error', 'detail': 'Server error.'}, status=500)
-
 
