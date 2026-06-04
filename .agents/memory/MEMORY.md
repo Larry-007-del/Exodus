@@ -1,0 +1,6 @@
+- [Middleware order](middleware-order.md) — InactivityLogoutMiddleware must be placed AFTER AuthenticationMiddleware or request.user causes 500.
+- [CSS build required](css-build.md) — After any template or tailwind.config.js change, run `npm run build` before restarting. Source is `static/css/tailwind.css`; output is `static/css/styles.css`.
+- [Register flow](register-flow.md) — Registration creates Student immediately, auto-logins (no email verify), adds to 'Student' group. Fields: username, email, password, name, student_id (optional), programme_of_study, year.
+- [Sidebar active states](sidebar-active.md) — Active highlighting is done via JavaScript (end of base.html), not Django template tags. JS reads window.location.pathname and matches against sidebar link hrefs.
+- [Token normalisation](token-normalise.md) — AttendanceToken.token is normalised to uppercase on save; lookups use token__iexact. Ditto attendance_take token_value.
+- [Premium design system](premium-design.md) — Background is `#f7f8fc` / `#0c0f1d` with a radial halo (not blobs). Login is deep navy `#06091a`. See tailwind.config.js for custom shadows and animations.

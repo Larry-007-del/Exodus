@@ -2,8 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Inter font import */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.25); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(99,102,241,0.45); }
+  .dark ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.2); }
+  .dark ::-webkit-scrollbar-thumb:hover { background: rgba(99,102,241,0.4); }
+
+  ::selection { background: rgba(99,102,241,0.2); color: inherit; }
+  .dark ::selection { background: rgba(99,102,241,0.35); color: #fff; }
+}
+
+@layer components {
+  .premium-card {
+    @apply rounded-2xl bg-white/85 backdrop-blur-md border border-gray-200/60 shadow-card transition-all duration-300;
+  }
+  .dark .premium-card {
+    @apply bg-gray-900/70 border-white/[0.07] shadow-none;
+  }
+  .premium-card:hover {
+    @apply -translate-y-0.5 shadow-card-hover;
+  }
+
+  .sidebar-link {
+    @apply group flex items-center rounded-xl px-2.5 py-2 text-[0.8125rem] font-medium text-gray-600 hover:bg-gray-100/80 hover:text-gray-900 transition-all duration-150 dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-gray-100;
+  }
+  .sidebar-link-icon {
+    @apply h-[18px] w-[18px] flex-shrink-0 text-gray-400 transition-colors duration-150 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300;
+  }
+  .sidebar-link.active {
+    @apply bg-brand-50 text-brand-700 font-semibold ring-1 ring-brand-200/60 dark:bg-brand-950/40 dark:text-brand-300 dark:ring-brand-800/40;
+  }
+  .sidebar-link.active .sidebar-link-icon {
+    @apply text-brand-600 dark:text-brand-400;
+  }
+}
 
 /* Global styles */
 body {
