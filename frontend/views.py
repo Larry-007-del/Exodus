@@ -32,8 +32,13 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 
 from attendance.models import Lecturer, Student, Course, Attendance, AttendanceToken, CourseEnrollment, AttendanceStudent, WebAuthnCredential
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
+from django.conf import settings
 from .forms import LecturerForm, StudentForm, CourseForm, StudentUploadForm, CourseEnrollmentUploadForm
+
+SESSION_ENDED_TITLE = 'This attendance session has ended'
+SESSION_ENDED_GUIDANCE = 'Check-in is no longer available. Please contact your lecturer if you expected to check in.'
+SESSION_ENDED_ERROR_MESSAGE = f'{SESSION_ENDED_TITLE}. {SESSION_ENDED_GUIDANCE}'
 
 
 def admin_required(view_func):
@@ -79,6 +84,7 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             request.session['last_authenticated'] = timezone.now().isoformat()
+            request.session['last_activity'] = timezone.now().isoformat()
             cache.delete(cache_key)  # Reset on successful login
             next_url = request.POST.get('next', '')
             if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
@@ -123,6 +129,10 @@ def register_view(request):
         email = request.POST.get('email', '').strip()
         password1 = request.POST.get('password1', '')
         password2 = request.POST.get('password2', '')
+        name = request.POST.get('name', '').strip() or username
+        student_id_input = request.POST.get('student_id', '').strip()
+        programme_of_study = request.POST.get('programme_of_study', '').strip() or None
+        year = request.POST.get('year', '').strip() or None
 
         # Validation
         errors = []
@@ -136,6 +146,8 @@ def register_view(request):
             errors.append('Username is already taken.')
         if User.objects.filter(email=email).exists():
             errors.append('An account with this email already exists.')
+        if student_id_input and Student.objects.filter(student_id=student_id_input).exists():
+            errors.append('A student with this ID already exists.')
 
         if errors:
             cache.set(cache_key, attempts + 1, 300)
@@ -143,7 +155,7 @@ def register_view(request):
                 messages.error(request, error)
             return render(request, 'frontend/register.html')
 
-        # Create User
+        # Create User (active immediately — no email verification required)
         user = User.objects.create_user(
             username=username,
             email=email,
@@ -151,44 +163,25 @@ def register_view(request):
             first_name=username,
         )
 
-        # Auto-generate student_id (STU + zero-padded pk + random hex for unpredictability)
-        student_id = f'STU{user.pk:05d}{secrets.token_hex(2).upper()}'
+        # Use provided student_id or auto-generate one
+        student_id = student_id_input if student_id_input else f'STU{user.pk:05d}{secrets.token_hex(2).upper()}'
         Student.objects.create(
             user=user,
             student_id=student_id,
-            name=username,
+            name=name,
+            programme_of_study=programme_of_study,
+            year=year,
         )
+
+        student_group, _ = Group.objects.get_or_create(name='Student')
+        user.groups.add(student_group)
 
         cache.delete(cache_key)
 
-        # Deactivate until email is verified
-        user.is_active = False
-        user.save()
-
-        # Build and send verification email
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
-        verification_url = request.build_absolute_uri(
-            f'/verify-email/{uid}/{token}/'
-        )
-        send_mail(
-            subject='Verify your Exodus account',
-            message=(
-                f'Hi {username},\n\n'
-                f'Thanks for registering on Exodus. Please verify your email address by clicking the link below:\n\n'
-                f'{verification_url}\n\n'
-                f'This link expires in 3 days.\n\n'
-                f'Your Student ID is: {student_id}\n\n'
-                f'If you did not register for an Exodus account, you can safely ignore this email.\n\n'
-                f'— The Exodus Team'
-            ),
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[email],
-            fail_silently=True,
-        )
-
-        messages.success(request, f'Account created! Please check {email} for a verification link to activate your account.')
-        return redirect('frontend:login')
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        request.session['last_activity'] = timezone.now().isoformat()
+        messages.success(request, f'Welcome to Exodus, {username}!')
+        return redirect('frontend:dashboard')
 
     return render(request, 'frontend/register.html')
 
@@ -269,7 +262,9 @@ def dashboard(request):
 
                 # Compute real attendance rate
                 total_sessions = Attendance.objects.filter(course__students=student).distinct().count()
-                attended_sessions = Attendance.objects.filter(present_students=student).distinct().count()
+                attended_sessions = AttendanceStudent.objects.filter(
+                    student=student
+                ).values('attendance').distinct().count()
                 if total_sessions > 0:
                     context['attendance_rate'] = round((attended_sessions / total_sessions) * 100)
                 else:
@@ -290,7 +285,11 @@ def dashboard(request):
 @login_required
 def checkin_view(request):
     """Check-in page with GPS pulsing button"""
-    return render(request, 'frontend/checkin.html')
+    context = {
+        'session_ended_title': SESSION_ENDED_TITLE,
+        'session_ended_guidance': SESSION_ENDED_GUIDANCE,
+    }
+    return render(request, 'frontend/checkin.html', context)
 
 
 @login_required
@@ -344,7 +343,9 @@ def profile_view(request):
     stats = {}
     if profile_type == 'student':
         total = Attendance.objects.filter(course__students=profile).distinct().count()
-        attended = Attendance.objects.filter(present_students=profile).distinct().count()
+        attended = AttendanceStudent.objects.filter(
+            student=profile
+        ).values('attendance').distinct().count()
         stats['total_sessions'] = total
         stats['attended_sessions'] = attended
         stats['attendance_rate'] = round((attended / total) * 100) if total > 0 else 0
@@ -1469,26 +1470,31 @@ def attendance_index(request):
 def attendance_take(request):
     """Take attendance - generate token (lecturer/admin only)"""
     # Get active attendance session if it exists
+    _close_expired_attendance_sessions()
+
     active_session = None
-    try:
-        lecturer = Lecturer.objects.get(user=request.user)
-        active_attendance = Attendance.objects.filter(
-            course__lecturer=lecturer,
-            date=timezone.localdate(),
-            is_active=True
-        ).first()
-        
-        if active_attendance:
-            active_session = AttendanceToken.objects.filter(
-                course__lecturer=lecturer,
-                is_active=True
-            ).first()
-    except Lecturer.DoesNotExist:
-        pass
+    active_attendance = None
+    active_attendances = Attendance.objects.filter(
+        date=timezone.localdate(),
+        is_active=True,
+    ).select_related('course')
+    if request.user.is_superuser:
+        active_attendance = active_attendances.first()
+    else:
+        lecturer = Lecturer.objects.filter(user=request.user).first()
+        if lecturer:
+            active_attendance = active_attendances.filter(course__lecturer=lecturer).first()
+
+    if active_attendance:
+        # Prefer the newest token if stale active rows exist for the same course.
+        active_session = AttendanceToken.objects.filter(
+            course=active_attendance.course,
+            is_active=True,
+        ).order_by('-generated_at').first()
     
     if request.method == 'POST' and not active_session:
         course_id = request.POST.get('course')
-        token_value = request.POST.get('token', '').strip()
+        token_value = request.POST.get('token', '').strip().upper()
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
         require_two_factor_auth = request.POST.get('require_two_factor_auth') == 'on'
@@ -1647,14 +1653,14 @@ def end_attendance(request):
 def attendance_mark(request):
     """Mark attendance - student view"""
     if request.method == 'POST':
-        token = request.POST.get('token')
+        token = request.POST.get('token', '').strip().upper()
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
         
         try:
             # First, check if token exists at all (active or not) to give specific errors
             try:
-                att_token = AttendanceToken.objects.get(token=token)
+                att_token = AttendanceToken.objects.get(token__iexact=token)
             except AttendanceToken.DoesNotExist:
                 messages.error(request, 'Invalid token. Please check the code and try again.')
                 return render(request, 'attendance/mark.html')
@@ -1668,7 +1674,7 @@ def attendance_mark(request):
                 return render(request, 'attendance/mark.html')
 
             if not att_token.is_active:
-                messages.error(request, 'This attendance session has been closed by the lecturer.')
+                messages.error(request, SESSION_ENDED_ERROR_MESSAGE)
                 return render(request, 'attendance/mark.html')
 
             course = att_token.course
@@ -1687,7 +1693,7 @@ def attendance_mark(request):
                 ).first()
                 
                 if not attendance:
-                    messages.error(request, 'This attendance session has been closed.')
+                    messages.error(request, SESSION_ENDED_ERROR_MESSAGE)
                     return render(request, 'attendance/mark.html')
                 
                 # Check if 2FA is required
@@ -1800,11 +1806,11 @@ def attendance_mark(request):
 @login_required
 def session_status_check(request):
     """Lightweight JSON endpoint — lets the student check-in page poll whether a session is still active."""
-    token = request.GET.get('token', '').strip()
+    token = request.GET.get('token', '').strip().upper()
     if not token:
         return JsonResponse({'active': False, 'message': 'No token provided.'})
     try:
-        att_token = AttendanceToken.objects.get(token=token)
+        att_token = AttendanceToken.objects.get(token__iexact=token)
     except AttendanceToken.DoesNotExist:
         return JsonResponse({'active': False, 'message': 'Invalid token.'})
 
@@ -1812,11 +1818,11 @@ def session_status_check(request):
         return JsonResponse({'active': False, 'message': 'This session has expired.'})
 
     if not att_token.is_active:
-        return JsonResponse({'active': False, 'message': 'This session has been closed by the lecturer.'})
+        return JsonResponse({'active': False, 'message': SESSION_ENDED_TITLE})
 
     attendance = Attendance.objects.filter(course=att_token.course, is_active=True).first()
     if not attendance:
-        return JsonResponse({'active': False, 'message': 'This session has been closed.'})
+        return JsonResponse({'active': False, 'message': SESSION_ENDED_TITLE})
 
     return JsonResponse({'active': True, 'message': 'Session is active.', 'require_2fa': attendance.require_two_factor_auth})
 
@@ -1954,13 +1960,19 @@ def attendance_history(request):
     
     # Base query - restrict based on user role
     if request.user.is_superuser:
-        attendances = Attendance.objects.all().select_related('course').prefetch_related('present_students')
+        attendances = Attendance.objects.all().select_related('course')
     elif hasattr(request.user, 'lecturer'):
-        attendances = Attendance.objects.filter(course__lecturer=request.user.lecturer).select_related('course').prefetch_related('present_students')
+        attendances = Attendance.objects.filter(course__lecturer=request.user.lecturer).select_related('course')
     elif hasattr(request.user, 'student'):
-        attendances = Attendance.objects.filter(present_students=request.user.student).select_related('course').prefetch_related('present_students')
+        attendances = Attendance.objects.filter(
+            attendancestudent__student=request.user.student
+        ).select_related('course').distinct()
     else:
         attendances = Attendance.objects.none()
+
+    attendances = attendances.annotate(
+        present_count=Count('attendancestudent', distinct=True)
+    )
     
     if course_filter:
         attendances = attendances.filter(course_id=course_filter)
@@ -1981,7 +1993,7 @@ def attendance_history(request):
                 att.course.name,
                 att.course.course_code,
                 att.date,
-                att.present_students.count(),
+                att.present_count,
                 'Active' if att.is_active else 'Ended'
             ])
         return response
@@ -2125,13 +2137,19 @@ def reports_export(request):
     
     # Base query - restrict based on user role
     if request.user.is_superuser:
-        attendances = Attendance.objects.all().select_related('course').prefetch_related('present_students')
+        attendances = Attendance.objects.all().select_related('course')
     elif hasattr(request.user, 'lecturer'):
-        attendances = Attendance.objects.filter(course__lecturer=request.user.lecturer).select_related('course').prefetch_related('present_students')
+        attendances = Attendance.objects.filter(course__lecturer=request.user.lecturer).select_related('course')
     elif hasattr(request.user, 'student'):
-        attendances = Attendance.objects.filter(present_students=request.user.student).select_related('course').prefetch_related('present_students')
+        attendances = Attendance.objects.filter(
+            attendancestudent__student=request.user.student
+        ).select_related('course').distinct()
     else:
         attendances = Attendance.objects.none()
+
+    attendances = attendances.annotate(
+        present_count=Count('attendancestudent', distinct=True)
+    )
     
     if course_id:
         attendances = attendances.filter(course_id=course_id)

@@ -6,15 +6,13 @@ set -o errexit
 pip install -r requirements.txt
 
 # 2. Install Node.js Dependencies & Build Frontend Assets
+# Failures here are non-fatal — static source files are already committed to git
 if command -v node &> /dev/null; then
-  npm ci --production=false
-  npm run build
+  npm ci --production=false && npm run build || echo "[WARNING] Node.js build step failed — using committed static assets"
 fi
 
 # 3. Collect Static Files (CSS/JS)
 python manage.py collectstatic --no-input
 
-# 4. Apply Database Migrations
-python manage.py migrate
-
-# Note: Superuser creation is handled in entrypoint.sh (checks if user exists first)
+# Note: Database migrations are handled in entrypoint.sh at runtime,
+# because DATABASE_URL may not be available during the build step.
