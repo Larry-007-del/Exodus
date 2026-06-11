@@ -1606,15 +1606,18 @@ def attendance_take(request):
         # Validate coordinates
         lat = None
         lng = None
-        if latitude and longitude:
-            try:
-                lat = float(latitude)
-                lng = float(longitude)
-                if not (-90 <= lat <= 90) or not (-180 <= lng <= 180):
-                    raise ValueError("Invalid coordinate values")
-            except (ValueError, TypeError):
-                messages.error(request, "Invalid location coordinates. Please refresh your location.")
-                return redirect('frontend:attendance_take')
+        if not latitude or not longitude:
+            messages.error(request, "Location is required to start a session.")
+            return redirect('frontend:attendance_take')
+            
+        try:
+            lat = float(latitude)
+            lng = float(longitude)
+            if not (-90 <= lat <= 90) or not (-180 <= lng <= 180):
+                raise ValueError("Invalid coordinate values")
+        except (ValueError, TypeError):
+            messages.error(request, "Invalid location coordinates. Please refresh your location.")
+            return redirect('frontend:attendance_take')
         
         course = get_object_or_404(Course, pk=course_id)
         
