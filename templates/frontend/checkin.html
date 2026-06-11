@@ -131,8 +131,7 @@
 
 <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
 <script>
-  // Configuration
-  const geolocOptions = { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 };
+  const geolocOptions = { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 };
   
   // Elements
   const scanQrBtn = document.getElementById('scan-qr-btn');
@@ -275,11 +274,12 @@
                           const effectiveRadius = Math.min(50 + currentPosition.coords.accuracy, 150);
                           const distMsg = Math.round(distance) + 'm';
                             
-                            L.circle([lLat, lLng], {color: 'green', fillColor: '#10b981', fillOpacity: 0.1, radius: 50}).addTo(map);
+                            L.circle([lLat, lLng], {color: 'green', fillColor: '#10b981', fillOpacity: 0.1, radius: effectiveRadius}).addTo(map);
                             L.marker([lLat, lLng]).addTo(map).bindPopup('Lecturer').openPopup();
                             
                           if (distance <= effectiveRadius) {
                               updateStatus(`Session Ready. Distance: ${distMsg} (Valid)`, false, false);
+                              submitAttendance();
                           } else {
                               updateStatus(`Session Ready. Distance: ${distMsg} (Too Far!)`, true, true);
                           }
@@ -379,8 +379,8 @@
             submitForTwoFactor();
             return;
           }
-          if (data.status === 'Attendance marked successfully' || data.message === 'Attendance recorded successfully.') {
-            btnText.innerText = 'SUCCESS!';
+          if (data.status === 'Attendance marked successfully' || data.message === 'Attendance recorded successfully.' || data.status === 'Attendance already marked for this session.') {
+            btnText.innerText = data.status === 'Attendance already marked for this session.' ? 'ALREADY MARKED!' : 'SUCCESS!';
             setTimeout(() => {
               btnText.innerText = 'CHECK IN';
               tokenInput.value = '';
