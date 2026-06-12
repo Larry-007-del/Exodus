@@ -272,7 +272,7 @@
                           const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
                           const distance = R * c;
                           const baseRadius = data.radius_meters || 50;
-                          const effectiveRadius = Math.min(baseRadius + currentPosition.coords.accuracy, Math.max(150, baseRadius));
+                          const effectiveRadius = Math.min(baseRadius + currentPosition.coords.accuracy + 150, Math.max(500, baseRadius));
                           const distMsg = Math.round(distance) + 'm';
                             
                             L.circle([lLat, lLng], {color: 'green', fillColor: '#10b981', fillOpacity: 0.1, radius: effectiveRadius}).addTo(map);
@@ -385,10 +385,15 @@
           }
           if (data.status === 'Attendance marked successfully' || data.message === 'Attendance recorded successfully.' || data.status === 'Attendance already marked for this session.') {
             btnText.innerText = data.status === 'Attendance already marked for this session.' ? 'ALREADY MARKED!' : 'SUCCESS!';
+            
+            // Provide prominent feedback and redirect to history page to confirm
+            alert(data.status === 'Attendance already marked for this session.' ? 
+                  'You have already checked in for this session.' : 
+                  'Attendance recorded successfully! Redirecting to your history...');
+            
             setTimeout(() => {
-              btnText.innerText = 'CHECK IN';
-              tokenInput.value = '';
-            }, 2000);
+              window.location.href = "{% url 'frontend:attendance_history' %}";
+            }, 1000);
           } else {
             alert(data.error || 'Failed to mark attendance');
             btnText.innerText = 'CHECK IN';
