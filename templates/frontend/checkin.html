@@ -131,7 +131,7 @@
 
 <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
 <script>
-  const geolocOptions = { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 };
+  const geolocOptions = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
   
   // Elements
   const scanQrBtn = document.getElementById('scan-qr-btn');
@@ -283,6 +283,9 @@
                               submitAttendance();
                           } else {
                               updateStatus(`Session Ready. Distance: ${distMsg} (Too Far!)`, true, true);
+                              if (distance > 1000) {
+                                  alert(`Your reported distance is extremely large (${distMsg}). Your device is likely using a stale cached location or Wi-Fi/IP geolocation instead of actual GPS satellites. Please open Google Maps or Apple Maps, tap the 'My Location' button to force a fresh GPS lock, then try again.`);
+                              }
                           }
                       }
                   })
