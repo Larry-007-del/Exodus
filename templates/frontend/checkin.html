@@ -361,10 +361,13 @@
       btnText.innerText = 'LOCATING...';
       setFormCoordinates(currentPosition);
       const formData = new FormData(form);
-      formData.append('latitude', currentPosition.coords.latitude);
-      formData.append('longitude', currentPosition.coords.longitude);
-      formData.append('accuracy', currentPosition.coords.accuracy);
-      formData.append('attendance_token', formData.get('token'));
+      // Remove stale hidden-field entries before appending fresh GPS values
+      formData.delete('latitude');
+      formData.delete('longitude');
+      formData.set('latitude', currentPosition.coords.latitude);
+      formData.set('longitude', currentPosition.coords.longitude);
+      formData.set('accuracy', currentPosition.coords.accuracy);
+      formData.set('attendance_token', formData.get('token'));
 
       fetch('{% url "submit_location" %}', {
         method: 'POST',

@@ -1,3 +1,4 @@
+import logging
 from django.db.models import Case, IntegerField, Value, When
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, generics, status
@@ -36,6 +37,7 @@ from .serializers import (
 )
 from .error_codes import APIErrorCode
 
+logger = logging.getLogger(__name__)
 
 def api_error(message, code, http_status=status.HTTP_400_BAD_REQUEST, details=None):
     if isinstance(code, Enum):
@@ -606,6 +608,14 @@ class SubmitLocationView(generics.GenericAPIView):
 
         effective_radius = min(attendance.radius_meters + accuracy, max(attendance.radius_meters, 150))
 
+        logger.info(
+            "SubmitLocation: student=%s lat=%.6f lon=%.6f acc=%.1f "
+            "lecturer_lat=%s lecturer_lon=%s radius=%s effective_radius=%.0f",
+            request.user.username, lat_float, lon_float, accuracy,
+            attendance.lecturer_latitude, attendance.lecturer_longitude,
+            attendance.radius_meters, effective_radius,
+        )
+
         if attendance.is_within_radius(lat_float, lon_float, radius_meters=effective_radius):
             user = request.user
             if hasattr(user, 'student'):
@@ -641,6 +651,11 @@ class SubmitLocationView(generics.GenericAPIView):
         distance_km = geodesic(lecturer_location, student_location).kilometers
         distance_meters = distance_km * 1000
         
+        logger.warning(
+            "SubmitLocation OUT OF RANGE: student=%s distance=%.1fm effective_radius=%.0fm",
+            request.user.username, distance_meters, effective_radius,
+        )
+
         return api_error(
             f'Location is out of range. Distance: {distance_meters:.0f}m '
             f'(Max {effective_radius:.0f}m)', 
