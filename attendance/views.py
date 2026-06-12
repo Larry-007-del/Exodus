@@ -232,7 +232,8 @@ class CourseViewSet(viewsets.ModelViewSet):
                     status.HTTP_403_FORBIDDEN,
                 )
 
-            effective_radius = min(attendance.radius_meters + accuracy, max(attendance.radius_meters, 150))
+            # Add 150m indoor drift buffer to account for iOS/Android indoor positioning differences
+            effective_radius = min(attendance.radius_meters + accuracy + 150, max(attendance.radius_meters, 500))
             if not attendance.is_within_radius(latitude, longitude, radius_meters=effective_radius):
                 return api_error('You are outside the classroom boundary.', APIErrorCode.LOCATION_OUT_OF_RANGE, status.HTTP_400_BAD_REQUEST)
             
@@ -606,7 +607,8 @@ class SubmitLocationView(generics.GenericAPIView):
                 status.HTTP_403_FORBIDDEN,
             )
 
-        effective_radius = min(attendance.radius_meters + accuracy, max(attendance.radius_meters, 150))
+        # Add 150m indoor drift buffer to account for iOS/Android indoor positioning differences
+        effective_radius = min(attendance.radius_meters + accuracy + 150, max(attendance.radius_meters, 500))
 
         logger.info(
             "SubmitLocation: student=%s lat=%.6f lon=%.6f acc=%.1f "
