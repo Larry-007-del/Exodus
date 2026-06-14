@@ -2041,21 +2041,22 @@ def manual_mark_present(request, attendance_id, student_id):
     return redirect('frontend:attendance_detail', pk=attendance_id)
 
 @login_required
-def remind_unchecked_students(request, attendance_id):
+def remind_unchecked_students(request, token_id):
     """Trigger push notifications/emails to enrolled students who have not checked in"""
-    attendance = get_object_or_404(Attendance, id=attendance_id)
+    att_token = get_object_or_404(AttendanceToken, id=token_id)
     
+    attendance = Attendance.objects.filter(course=att_token.course, is_active=True).first()
+    if not attendance:
+        messages.error(request, 'Cannot send reminders. No active attendance session found.')
+        return redirect('frontend:attendance_take')
+        
     if not request.user.is_superuser:
         if not hasattr(request.user, 'lecturer') or attendance.course.lecturer != request.user.lecturer:
             return HttpResponse("Unauthorized", status=403)
             
-    if not attendance.is_active:
-        messages.error(request, 'Cannot send reminders for an inactive session.')
-        return redirect('frontend:attendance_take')
-        
     # Queue celery task
     from attendance.tasks import send_reminders_to_unchecked_task
-    send_reminders_to_unchecked_task.delay(attendance.id, attendance.token)
+    send_reminders_to_unchecked_task.delay(attendance.id, att_token.token)
     
     messages.success(request, 'Reminders have been sent to students who have not checked in yet.')
     return redirect('frontend:attendance_take')
