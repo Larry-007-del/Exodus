@@ -69,6 +69,7 @@ urlpatterns = [
     path('attendance/take/', views.attendance_take, name='attendance_take'),
     path('attendance/history/', views.attendance_history, name='attendance_history'),
     path('attendance/mark/', views.attendance_mark, name='attendance_mark'),
+    path('attendance/remind/<int:attendance_id>/', views.remind_unchecked_students, name='remind_unchecked_students'),
     path('attendance/<int:pk>/', views.attendance_detail, name='attendance_detail'),
     path('attendance/<int:attendance_id>/export/', views.export_attendance_csv, name='export_attendance_csv'),
     path('attendance/<int:attendance_id>/mark-present/<int:student_id>/', views.manual_mark_present, name='manual_mark_present'),

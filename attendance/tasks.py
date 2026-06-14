@@ -336,3 +336,20 @@ def close_expired_sessions_task():
     except Exception as exc:
         logger.exception("Failed to run close_expired_sessions: %s", exc)
         raise
+
+@shared_task(
+    bind=True, max_retries=3,
+    autoretry_for=(Exception,),
+    retry_backoff=60, retry_backoff_max=600, retry_jitter=True,
+)
+def send_reminders_to_unchecked_task(self, attendance_id, token):
+    """Send reminders to students who have not checked in."""
+    from .notification_service import send_reminders_to_unchecked
+    try:
+        attendance = Attendance.objects.get(id=attendance_id)
+    except Attendance.DoesNotExist:
+        logger.warning('Attendance %s not found — skipping reminder.', attendance_id)
+        return False
+    send_reminders_to_unchecked(attendance, token)
+    logger.info('Sent manual reminders for attendance %s.', attendance_id)
+    return True
