@@ -329,29 +329,33 @@
     latInput.value = '';
     lngInput.value = '';
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        latInput.value = position.coords.latitude.toFixed(6);
-        lngInput.value = position.coords.longitude.toFixed(6);
-        const radius = document.getElementById('radius_meters');
-        const radiusLabel = radius ? radius.options[radius.selectedIndex].text : '50 m';
-        statusLabel.textContent = 'Location captured. Students must be within ' + radiusLabel + ' to mark attendance.';
-        statusLabel.classList.remove('text-brand-600');
-        statusLabel.classList.add('text-emerald-600');
-        if (submitButton) { submitButton.disabled = false; submitButton.classList.remove('opacity-50', 'cursor-not-allowed'); }
-        const gpsWarn = document.getElementById('gps-required-warning');
-        if (gpsWarn) gpsWarn.classList.add('hidden');
-      },
-      (error) => {
-        const msgs = { [error.PERMISSION_DENIED]: 'Location permission denied. Please enable location services.', [error.POSITION_UNAVAILABLE]: 'Location unavailable. Check your GPS.', [error.TIMEOUT]: 'Location request timed out. Please try again.' };
+    const successHandler = (position) => {
+      latInput.value = position.coords.latitude.toFixed(6);
+      lngInput.value = position.coords.longitude.toFixed(6);
+      const radius = document.getElementById('radius_meters');
+      const radiusLabel = radius ? radius.options[radius.selectedIndex].text : '50 m';
+      statusLabel.textContent = 'Location captured. Students must be within ' + radiusLabel + ' to mark attendance.';
+      statusLabel.classList.remove('text-brand-600');
+      statusLabel.classList.add('text-emerald-600');
+      if (submitButton) { submitButton.disabled = false; submitButton.classList.remove('opacity-50', 'cursor-not-allowed'); }
+      const gpsWarn = document.getElementById('gps-required-warning');
+      if (gpsWarn) gpsWarn.classList.add('hidden');
+    };
+
+    // Try high accuracy first (5 second timeout)
+    navigator.geolocation.getCurrentPosition(successHandler, (err) => {
+      // Fallback to low accuracy (WiFi/Cell tower) if high accuracy fails or times out
+      console.log('High accuracy failed, trying low accuracy...', err);
+      statusLabel.textContent = 'Acquiring general location…';
+      navigator.geolocation.getCurrentPosition(successHandler, (error) => {
+        const msgs = { [error.PERMISSION_DENIED]: 'Location permission denied. Please enable location services.', [error.POSITION_UNAVAILABLE]: 'Location unavailable. Check your GPS or Wi-Fi.', [error.TIMEOUT]: 'Location request timed out completely. Please try again.' };
         statusLabel.textContent = msgs[error.code] || 'Unable to retrieve your location.';
         statusLabel.classList.remove('text-brand-600');
         statusLabel.classList.add('text-red-500');
         latInput.placeholder = 'Failed';
         lngInput.placeholder = 'Failed';
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    );
+      }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 });
+    }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
   }
 </script>
 {% endif %}
