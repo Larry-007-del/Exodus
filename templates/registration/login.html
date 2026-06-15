@@ -195,6 +195,30 @@
               Create a new account
             </a>
           </p>
+
+          <!-- Divider -->
+          <div class="relative mt-4 mb-4">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-300 dark:border-gray-600"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="bg-white px-2 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+                >Mobile App</span
+              >
+            </div>
+          </div>
+
+          <!-- Download APK Button -->
+          <a
+            href="{% static 'apk/exodus.apk' %}"
+            download="ExodusApp.apk"
+            class="flex w-full items-center justify-center space-x-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-semibold text-white shadow hover:bg-gray-800 focus:outline-none dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 transition-all duration-200"
+          >
+            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17.523 15.3414C17.523 15.3414 16.5113 16.2084 15.1873 17.1514C13.8632 18.0945 12.062 19.3414 12 19.3414C11.938 19.3414 10.1368 18.0945 8.81273 17.1514C7.48866 16.2084 6.47699 15.3414 6.47699 15.3414C5.64203 14.619 5.86536 13.916 6.4259 13.916H8.97699V7.91602C8.97699 6.81145 9.87242 5.91602 10.977 5.91602H13.023C14.1276 5.91602 15.023 6.81145 15.023 7.91602V13.916H17.5741C18.1346 13.916 18.358 14.619 17.523 15.3414Z" />
+            </svg>
+            <span>Download Android App</span>
+          </a>
         </div>
       </div>
 
