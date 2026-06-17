@@ -2393,6 +2393,7 @@ from webauthn.helpers.structs import (
     UserVerificationRequirement,
     PublicKeyCredentialDescriptor,
     ResidentKeyRequirement,
+    AuthenticatorAttachment,
 )
 from webauthn.helpers import base64url_to_bytes, bytes_to_base64url
 from django.views.decorators.http import require_POST
@@ -2446,8 +2447,9 @@ def webauthn_register_begin(request):
         user_name=user.username,
         user_display_name=user.get_full_name() or user.username,
         authenticator_selection=AuthenticatorSelectionCriteria(
+            authenticator_attachment=AuthenticatorAttachment.PLATFORM,
             user_verification=UserVerificationRequirement.REQUIRED,
-            resident_key=ResidentKeyRequirement.DISCOURAGED,
+            resident_key=ResidentKeyRequirement.PREFERRED,
         ),
         exclude_credentials=exclude_credentials,
     )
