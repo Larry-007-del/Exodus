@@ -65,6 +65,18 @@
                   alert('Text-to-speech is not supported in this browser.');
               }
             }
+
+            // Automatically start BLE broadcast when the session page is loaded
+            document.addEventListener('DOMContentLoaded', () => {
+              if (window.ExodusNative) {
+                window.ExodusNative.postMessage('startBleBroadcast:{{ active_session.token }}');
+                
+                // Also add a listener to stop broadcast when leaving the page (optional, but good practice)
+                window.addEventListener('beforeunload', () => {
+                  window.ExodusNative.postMessage('stopBleBroadcast');
+                });
+              }
+            });
           </script>
         </div>
       </div>
