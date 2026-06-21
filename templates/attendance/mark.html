@@ -29,6 +29,7 @@
       {% csrf_token %}
       <input type="hidden" name="latitude" id="latitude" />
       <input type="hidden" name="longitude" id="longitude" />
+      <input type="hidden" name="ble_verified" id="bleVerifiedInput" value="false" />
 
       <div>
         <label for="token" class="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-300">Attendance Token</label>
@@ -193,6 +194,8 @@
         const tokenInput = document.querySelector('input[name="token"]');
         if (tokenInput) {
            tokenInput.value = token;
+           const bleVerifiedInput = document.getElementById('bleVerifiedInput');
+           if (bleVerifiedInput) bleVerifiedInput.value = 'true';
            markForm.dispatchEvent(new Event('submit', { cancelable: true }));
         }
       };
@@ -237,6 +240,8 @@
           const tokenInput = document.querySelector('input[name="token"]');
           if (tokenInput) {
              tokenInput.value = detectedToken;
+             const bleVerifiedInput = document.getElementById('bleVerifiedInput');
+             if (bleVerifiedInput) bleVerifiedInput.value = 'true';
              markForm.dispatchEvent(new Event('submit', { cancelable: true }));
           }
         } catch (error) {

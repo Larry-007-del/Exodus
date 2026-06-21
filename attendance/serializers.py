@@ -149,10 +149,11 @@ class LogoutSerializer(serializers.Serializer):
 
 # Submit Location serializer
 class SubmitLocationSerializer(serializers.Serializer):
-    latitude = serializers.FloatField(min_value=-90, max_value=90)
-    longitude = serializers.FloatField(min_value=-180, max_value=180)
+    latitude = serializers.FloatField(min_value=-90, max_value=90, required=False, default=0.0)
+    longitude = serializers.FloatField(min_value=-180, max_value=180, required=False, default=0.0)
     accuracy = serializers.FloatField(required=False, default=0.0)
     attendance_token = serializers.CharField(max_length=10)
+    ble_verified = serializers.BooleanField(required=False, default=False)
 
     def validate_attendance_token(self, value):
         return value.strip().upper()
