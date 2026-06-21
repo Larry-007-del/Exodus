@@ -237,27 +237,20 @@
         optionalServices: ['0000180f-0000-1000-8000-00805f9b34fb']
       });
 
-      // Windows caches BLE device names. It might be "EXODUS_Token" or just "iPhone" / "Desktop".
-      let detectedToken = "";
-      if (device.name && device.name.startsWith('EXODUS_')) {
-          detectedToken = device.name.replace('EXODUS_', '');
+      if (!device.name || !device.name.startsWith('EXODUS_')) {
+          throw new Error("Please select the correct EXODUS beacon.");
       }
 
+      const detectedToken = device.name.replace('EXODUS_', '');
       btnText.innerText = 'Beacon Found!';
       btn.classList.remove('animate-pulse');
       btn.classList.replace('bg-indigo-50', 'bg-emerald-50');
       btn.classList.replace('text-indigo-700', 'text-emerald-700');
 
       if (tokenInput) {
-         if (detectedToken) {
-             tokenInput.value = detectedToken;
-         }
+         tokenInput.value = detectedToken;
          if (bleVerifiedInput) bleVerifiedInput.value = 'true';
-         
-         // If a token is present, we can auto-submit.
-         if (tokenInput.value.length >= 5) {
-             submitAttendance();
-         }
+         submitAttendance(); // directly check and submit
       }
     } catch (error) {
       console.error("Web Bluetooth Error: ", error);
