@@ -1,7 +1,5 @@
-{% extends 'base.html' %} {% block title %}Check In - Exodus{% endblock %} {% block extra_head %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-{% endblock %} {% block content %}
+{% extends 'base.html' %} {% block title %}Check In - Exodus{% endblock %} 
+{% block content %}
 <div class="flex min-h-[60vh] flex-col items-center justify-center">
   <div class="mb-10 text-center">
     <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Mark Attendance</h2>
@@ -10,8 +8,37 @@
     </p>
   </div>
 
+  <!-- BLE Scanners -->
+  <div class="mb-4 flex flex-col items-center gap-3 w-full max-w-xs mx-auto">
+      <button
+        type="button"
+        id="bleScanBtn"
+        style="display: none;"
+        onclick="scanBleBeacon()"
+        class="flex w-full items-center justify-center gap-2 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 px-4 py-3 text-sm font-semibold text-blue-700 dark:text-blue-300 transition-all hover:bg-blue-100 dark:hover:bg-blue-900/40 active:scale-95 shadow-md shadow-blue-500/10"
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path>
+        </svg>
+        <span id="bleScanText">Scan Bluetooth Beacon</span>
+      </button>
+
+      <button
+        type="button"
+        id="webBleScanBtn"
+        style="display: none;"
+        onclick="scanWebBluetooth()"
+        class="flex w-full items-center justify-center gap-2 rounded-xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/20 px-4 py-3 text-sm font-semibold text-indigo-700 dark:text-indigo-300 transition-all hover:bg-indigo-100 dark:hover:bg-indigo-900/40 active:scale-95 shadow-md shadow-indigo-500/10"
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+        </svg>
+        <span id="webBleScanText">Scan via Web Bluetooth</span>
+      </button>
+  </div>
+
   <!-- QR Code Scanner -->
-  <div class="mb-8">
+  <div class="mb-8 flex flex-col items-center">
     <button
       id="scan-qr-btn"
       type="button"
@@ -49,6 +76,7 @@
       {% csrf_token %}
       <input type="hidden" id="attendance-latitude" name="latitude" />
       <input type="hidden" id="attendance-longitude" name="longitude" />
+      <input type="hidden" id="bleVerifiedInput" name="ble_verified" value="false" />
       <input
         type="text"
         id="attendance-token"
@@ -129,6 +157,8 @@
   </div>
 </div>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
 <script>
   const geolocOptions = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
@@ -143,8 +173,93 @@
   const form = document.getElementById('attendance-form');
   const latField = document.getElementById('attendance-latitude');
   const lngField = document.getElementById('attendance-longitude');
+  const bleVerifiedInput = document.getElementById('bleVerifiedInput');
   const gpsStatus = document.getElementById('gps-status');
   const attendanceMarkUrl = '{% url "frontend:attendance_mark" %}';
+
+  // Display correct BLE button based on platform
+  document.addEventListener('DOMContentLoaded', () => {
+      if (window.ExodusNative) {
+        document.getElementById('bleScanBtn').style.display = 'flex';
+      } else if (navigator.bluetooth) {
+        document.getElementById('webBleScanBtn').style.display = 'flex';
+      }
+  });
+
+  // Flutter BLE Scanner Logic
+  window.scanBleBeacon = function() {
+    if (window.ExodusNative) {
+      const btnText = document.getElementById('bleScanText');
+      btnText.innerText = 'Scanning... (10s)';
+      document.getElementById('bleScanBtn').classList.add('animate-pulse', 'opacity-75');
+      window.ExodusNative.postMessage('scanBleBeacon');
+    }
+  };
+
+  window.onFlutterBleDetected = function(token) {
+    document.getElementById('bleScanText').innerText = 'Beacon Found!';
+    document.getElementById('bleScanBtn').classList.remove('animate-pulse', 'opacity-75');
+    document.getElementById('bleScanBtn').classList.replace('bg-blue-50', 'bg-emerald-50');
+    document.getElementById('bleScanBtn').classList.replace('text-blue-700', 'text-emerald-700');
+    
+    if (tokenInput) {
+       tokenInput.value = token;
+       if (bleVerifiedInput) bleVerifiedInput.value = 'true';
+       submitAttendance(); // directly check and submit
+    }
+  };
+
+  window.onFlutterBleTimeout = function() {
+    const btnText = document.getElementById('bleScanText');
+    btnText.innerText = 'No Beacon Found. Try Again.';
+    document.getElementById('bleScanBtn').classList.remove('animate-pulse', 'opacity-75');
+    document.getElementById('bleScanBtn').classList.replace('text-blue-700', 'text-red-500');
+    setTimeout(() => {
+       btnText.innerText = 'Scan Bluetooth Beacon';
+       document.getElementById('bleScanBtn').classList.replace('text-red-500', 'text-blue-700');
+    }, 3000);
+  };
+
+  // Web Bluetooth Scanner Logic (Laptops/PCs)
+  window.scanWebBluetooth = async function() {
+    if (!navigator.bluetooth) {
+      alert("Web Bluetooth is not supported in this browser. Please use Chrome or Edge.");
+      return;
+    }
+    try {
+      const btnText = document.getElementById('webBleScanText');
+      btnText.innerText = 'Select Lecturer Device...';
+      const btn = document.getElementById('webBleScanBtn');
+      btn.classList.add('animate-pulse');
+
+      const device = await navigator.bluetooth.requestDevice({
+        filters: [{ namePrefix: 'EXODUS_' }],
+        optionalServices: ['0000180f-0000-1000-8000-00805f9b34fb']
+      });
+
+      const detectedToken = device.name.replace('EXODUS_', '');
+      btnText.innerText = 'Beacon Found!';
+      btn.classList.remove('animate-pulse');
+      btn.classList.replace('bg-indigo-50', 'bg-emerald-50');
+      btn.classList.replace('text-indigo-700', 'text-emerald-700');
+
+      if (tokenInput) {
+         tokenInput.value = detectedToken;
+         if (bleVerifiedInput) bleVerifiedInput.value = 'true';
+         submitAttendance(); // directly check and submit
+      }
+    } catch (error) {
+      console.error("Web Bluetooth Error: ", error);
+      const btnText = document.getElementById('webBleScanText');
+      btnText.innerText = 'Scan Cancelled/Failed';
+      document.getElementById('webBleScanBtn').classList.remove('animate-pulse');
+      document.getElementById('webBleScanBtn').classList.replace('text-indigo-700', 'text-red-500');
+      setTimeout(() => {
+         btnText.innerText = 'Scan via Web Bluetooth';
+         document.getElementById('webBleScanBtn').classList.replace('text-red-500', 'text-indigo-700');
+      }, 3000);
+    }
+  };
 
   let scannerInterval = null;
   let currentStream = null;
@@ -367,10 +482,13 @@
       // Remove stale hidden-field entries before appending fresh GPS values
       formData.delete('latitude');
       formData.delete('longitude');
-      formData.set('latitude', currentPosition.coords.latitude);
-      formData.set('longitude', currentPosition.coords.longitude);
-      formData.set('accuracy', currentPosition.coords.accuracy);
+      formData.set('latitude', currentPosition ? currentPosition.coords.latitude : '0');
+      formData.set('longitude', currentPosition ? currentPosition.coords.longitude : '0');
+      formData.set('accuracy', currentPosition ? currentPosition.coords.accuracy : '0');
       formData.set('attendance_token', formData.get('token'));
+      if (bleVerifiedInput && bleVerifiedInput.value === 'true') {
+          formData.set('ble_verified', 'true');
+      }
 
       fetch('{% url "submit_location" %}', {
         method: 'POST',
