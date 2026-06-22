@@ -8,6 +8,19 @@
     </p>
   </div>
 
+  <!-- Windows Laptop Warning -->
+  <div id="windows-warning" style="display: none;" class="mb-8 w-full max-w-md rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4 text-amber-800 dark:text-amber-300 shadow-md">
+    <div class="flex items-start gap-3">
+      <svg class="h-6 w-6 flex-shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+      <div>
+        <p class="font-semibold">Using a Windows Laptop?</p>
+        <p class="mt-1 text-sm opacity-90">Laptops often lack precise GPS chips. If your location fails or Bluetooth cannot find the beacon, we strongly recommend using the <strong>Exodus Mobile App</strong> or scanning the <strong>Audio Beacon</strong> below.</p>
+      </div>
+    </div>
+  </div>
+
   <!-- BLE Scanners -->
   <div class="mb-4 flex flex-col items-center gap-3 w-full max-w-xs mx-auto">
       <button
@@ -34,6 +47,19 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
         </svg>
         <span id="webBleScanText">Scan via Web Bluetooth</span>
+      </button>
+
+      <button
+        type="button"
+        id="audioScanBtn"
+        style="display: none;"
+        onclick="scanAudioBeacon()"
+        class="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-semibold text-emerald-700 dark:text-emerald-300 transition-all hover:bg-emerald-100 dark:hover:bg-emerald-900/40 active:scale-95 shadow-md shadow-emerald-500/10"
+      >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path>
+        </svg>
+        <span id="audioScanText">Scan via Audio Beacon</span>
       </button>
   </div>
 
@@ -181,8 +207,11 @@
   (function initBleButtons() {
       if (window.ExodusNative) {
         document.getElementById('bleScanBtn').style.display = 'flex';
-      } else if (navigator.bluetooth) {
-        document.getElementById('webBleScanBtn').style.display = 'flex';
+      } else {
+        if (navigator.bluetooth) {
+          document.getElementById('webBleScanBtn').style.display = 'flex';
+        }
+        document.getElementById('audioScanBtn').style.display = 'flex';
       }
   })();
 
@@ -314,6 +343,106 @@
          btnText.innerText = 'Scan via Web Bluetooth';
          document.getElementById('webBleScanBtn').classList.replace('text-red-500', 'text-indigo-700');
       }, 3000);
+    }
+  };
+
+  window.scanAudioBeacon = async function() {
+    try {
+      const btn = document.getElementById('audioScanBtn');
+      const btnText = document.getElementById('audioScanText');
+      btnText.innerText = 'Listening for Beacon...';
+      btn.classList.add('animate-pulse');
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 2048;
+      source.connect(analyser);
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Float32Array(bufferLength);
+      const sampleRate = audioCtx.sampleRate;
+      
+      // Calculate which bin corresponds to 19000 Hz
+      const targetFrequency = 19000;
+      const binIndex = Math.round(targetFrequency * analyser.fftSize / sampleRate);
+      
+      let consecutiveHits = 0;
+      const requiredHits = 10; // ~1-2 seconds of positive hits
+      
+      const checkAudio = setInterval(() => {
+        analyser.getFloatFrequencyData(dataArray);
+        
+        const targetDb = dataArray[binIndex];
+        const averageDb = dataArray.reduce((acc, val) => acc + val, 0) / bufferLength;
+        
+        // Check if the 19kHz bin is significantly louder than the background noise
+        if (targetDb > -70 && (targetDb - averageDb) > 15) {
+          consecutiveHits++;
+        } else {
+          // Add a small leniency so it doesn't reset instantly on noise
+          consecutiveHits = Math.max(0, consecutiveHits - 1);
+        }
+
+        if (consecutiveHits >= requiredHits) {
+          clearInterval(checkAudio);
+          stream.getTracks().forEach(track => track.stop());
+          audioCtx.close();
+          
+          btnText.innerText = 'Beacon Verified!';
+          btn.classList.remove('animate-pulse');
+          btn.classList.replace('bg-emerald-50', 'bg-green-100');
+          
+          let detectedToken = tokenInput ? tokenInput.value.trim() : "";
+          if (!detectedToken || detectedToken.length < 5) {
+              const userToken = prompt("Audio Beacon detected! Please enter the 6-digit token shown on the lecturer's screen to complete the check-in:");
+              if (!userToken) {
+                  alert("Token is required to complete check in.");
+                  return;
+              }
+              detectedToken = userToken.trim();
+          }
+          
+          if (tokenInput) {
+             tokenInput.value = detectedToken;
+             // Inject the audio_verified input
+             let audioVerifiedInput = document.getElementById('audioVerifiedInput');
+             if (!audioVerifiedInput) {
+                 audioVerifiedInput = document.createElement('input');
+                 audioVerifiedInput.type = 'hidden';
+                 audioVerifiedInput.id = 'audioVerifiedInput';
+                 audioVerifiedInput.name = 'audio_verified';
+                 document.getElementById('attendance-form').appendChild(audioVerifiedInput);
+             }
+             audioVerifiedInput.value = 'true';
+             submitAttendance();
+          }
+        }
+      }, 100);
+
+      // Timeout after 15 seconds
+      setTimeout(() => {
+        if (consecutiveHits < requiredHits) {
+          clearInterval(checkAudio);
+          stream.getTracks().forEach(track => track.stop());
+          if (audioCtx.state !== 'closed') audioCtx.close();
+          btnText.innerText = 'Scan Failed / Timeout';
+          btn.classList.remove('animate-pulse');
+          btn.classList.replace('text-emerald-700', 'text-red-500');
+          setTimeout(() => {
+             btnText.innerText = 'Scan via Audio Beacon';
+             btn.classList.replace('text-red-500', 'text-emerald-700');
+          }, 3000);
+        }
+      }, 15000);
+
+    } catch (err) {
+      console.error("Audio Web API Error: ", err);
+      alert("Microphone access is required to scan the Audio Beacon.");
+      const btnText = document.getElementById('audioScanText');
+      btnText.innerText = 'Microphone Denied';
+      document.getElementById('audioScanBtn').classList.remove('animate-pulse');
     }
   };
 
@@ -742,6 +871,12 @@
       startSessionPolling(t);
     }
   }, 1000);
+
+  // Show Windows Warning
+  if (navigator.userAgent.indexOf("Windows") !== -1 && !/Mobi/i.test(navigator.userAgent)) {
+    const warning = document.getElementById('windows-warning');
+    if (warning) warning.style.display = 'block';
+  }
 </script>
 
 {% endblock %}

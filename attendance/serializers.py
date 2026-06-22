@@ -154,6 +154,7 @@ class SubmitLocationSerializer(serializers.Serializer):
     accuracy = serializers.FloatField(required=False, default=0.0)
     attendance_token = serializers.CharField(max_length=10)
     ble_verified = serializers.BooleanField(required=False, default=False)
+    audio_verified = serializers.BooleanField(required=False, default=False)
 
     def validate_attendance_token(self, value):
         return value.strip().upper()
