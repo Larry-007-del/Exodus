@@ -570,6 +570,7 @@ class SubmitLocationView(generics.GenericAPIView):
         attendance_token = serializer.validated_data['attendance_token']
         ble_verified = serializer.validated_data.get('ble_verified', False)
         audio_verified = serializer.validated_data.get('audio_verified', False)
+        qr_verified = serializer.validated_data.get('qr_verified', False)
 
         try:
             token = AttendanceToken.objects.get(token__iexact=attendance_token, is_active=True)
@@ -614,17 +615,17 @@ class SubmitLocationView(generics.GenericAPIView):
 
         logger.info(
             "SubmitLocation: student=%s lat=%.6f lon=%.6f acc=%.1f "
-            "lecturer_lat=%s lecturer_lon=%s radius=%s effective_radius=%.0f ble_verified=%s audio_verified=%s",
+            "lecturer_lat=%s lecturer_lon=%s radius=%s effective_radius=%.0f ble_verified=%s audio_verified=%s qr_verified=%s",
             request.user.username, lat_float, lon_float, accuracy,
             attendance.lecturer_latitude, attendance.lecturer_longitude,
-            attendance.radius_meters, effective_radius, ble_verified, audio_verified
+            attendance.radius_meters, effective_radius, ble_verified, audio_verified, qr_verified
         )
 
-        is_valid_location = ble_verified or audio_verified or attendance.is_within_radius(lat_float, lon_float, radius_meters=effective_radius)
+        is_valid_location = ble_verified or audio_verified or qr_verified or attendance.is_within_radius(lat_float, lon_float, radius_meters=effective_radius)
 
         if is_valid_location:
             # If BLE or Audio was used, hardcode their coordinates to exactly match the lecturer to force 0m distance in history logs
-            if ble_verified or audio_verified:
+            if ble_verified or audio_verified or qr_verified:
                 lat_float = attendance.lecturer_latitude
                 lon_float = attendance.lecturer_longitude
             user = request.user
