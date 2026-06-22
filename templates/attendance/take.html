@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% block title %}Take Attendance - Exodus{% endblock %} {% block content %}
+{% extends 'base.html' %} {% load static %} {% block title %}Take Attendance - Exodus{% endblock %} {% block content %}
 
 <!-- Page Header -->
 <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -530,8 +530,8 @@
   </div>
 </div>
 
-<!-- Load QRious for client-side QR generation -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+  <!-- Load QRious for client-side QR generation locally to avoid CDN blocking on mobile app -->
+  <script src="{% static 'js/qrious.min.js' %}"></script>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
