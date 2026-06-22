@@ -1,0 +1,29 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>403 Forbidden - Exodus</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+  </head>
+  <body class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black selection:bg-brand-500 selection:text-white flex flex-col items-center justify-center p-6">
+    <div class="text-center w-full max-w-md bg-gray-800/80 backdrop-blur-xl border border-gray-700 p-8 rounded-3xl shadow-2xl">
+      <div class="mx-auto mb-6 inline-flex items-center justify-center h-20 w-20 rounded-full bg-red-500/20 text-red-500 ring-4 ring-red-500/30">
+        <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+        </svg>
+      </div>
+      <h1 class="text-3xl font-extrabold text-white mb-2">Session Expired</h1>
+      <p class="text-gray-400 mb-8">For your security, your session has expired or your request was rejected due to a missing security token. Please try again.</p>
+      
+      <a href="{% url 'frontend:login' %}" class="inline-block w-full rounded-xl bg-brand-600 px-6 py-4 text-center text-sm font-bold text-white shadow-lg shadow-brand-500/20 hover:bg-brand-500 hover:shadow-brand-500/40 transition-all focus:outline-none focus:ring-4 focus:ring-brand-500/50">
+        Return to Login
+      </a>
+    </div>
+  </body>
+</html>

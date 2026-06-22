@@ -285,6 +285,10 @@ def dashboard(request):
 @login_required
 def checkin_view(request):
     """Check-in page with GPS pulsing button"""
+    if hasattr(request.user, 'lecturer') and not hasattr(request.user, 'student'):
+        messages.info(request, "Lecturers cannot check into classes. Please use the dashboard.")
+        return redirect('frontend:dashboard')
+
     context = {
         'session_ended_title': SESSION_ENDED_TITLE,
         'session_ended_guidance': SESSION_ENDED_GUIDANCE,

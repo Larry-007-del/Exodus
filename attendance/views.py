@@ -548,7 +548,7 @@ class GenerateRotatingQRView(views.APIView):
         try:
             token_obj = AttendanceToken.objects.get(token__iexact=token_str, is_active=True)
             # Ensure the requesting user is the lecturer for this course
-            if token_obj.course.lecturer != request.user:
+            if token_obj.course.lecturer.user != request.user:
                 return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
 
             payload = TimestampSigner().sign(token_obj.token)

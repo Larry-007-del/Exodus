@@ -42,3 +42,29 @@ class InactivityLogoutMiddleware:
             request.session['last_activity'] = now.isoformat()
 
         return self.get_response(request)
+
+
+class HTMXRedirectMiddleware:
+    """
+    If a view or middleware returns a 302 redirect to the login page on an HTMX request,
+    change it to a 200 OK with the HX-Redirect header to force a full-page reload on the client side.
+    This prevents the login page from being injected into the middle of the dashboard (faded color bug).
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        if request.headers.get('HX-Request') == 'true':
+            if response.status_code == 302:
+                location = response.get('Location', '')
+                # If redirecting to the login page
+                if '/login/' in location:
+                    from django.http import HttpResponse
+                    htmx_response = HttpResponse(status=200)
+                    htmx_response['HX-Redirect'] = location
+                    return htmx_response
+
+        return response

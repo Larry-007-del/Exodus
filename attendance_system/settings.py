@@ -190,6 +190,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'attendance_system.middleware.InactivityLogoutMiddleware',
+    'attendance_system.middleware.HTMXRedirectMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 

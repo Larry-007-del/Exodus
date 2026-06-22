@@ -61,6 +61,22 @@
           <p class="mt-2 text-center text-xs text-gray-400">Students must enter this token to mark their attendance.</p>
           <script>
             function readTokenAloud(token) {
+              // Pause QR rotation for 60 seconds to allow manual entry without distractions
+              if (window.qrIntervalId) {
+                  clearInterval(window.qrIntervalId);
+                  window.qrIntervalId = null;
+                  const btn = document.querySelector('button[title="Read Token Aloud"]');
+                  if (btn) btn.classList.add('text-red-500', 'animate-pulse');
+                  
+                  setTimeout(() => {
+                      if (window.updateQR) {
+                          window.updateQR();
+                          window.qrIntervalId = setInterval(window.updateQR, 10000);
+                      }
+                      if (btn) btn.classList.remove('text-red-500', 'animate-pulse');
+                  }, 60000); // 60 seconds
+              }
+
               if (window.ExodusNative) {
                   // Use native Flutter TTS bridge for the APK
                   window.ExodusNative.postMessage('speakToken:' + token);
@@ -532,7 +548,8 @@
         // Initial load
         updateQR();
         // Rotate every 10 seconds
-        setInterval(updateQR, 10000);
+        window.updateQR = updateQR;
+        window.qrIntervalId = setInterval(updateQR, 10000);
     }
     {% endif %}
   });
