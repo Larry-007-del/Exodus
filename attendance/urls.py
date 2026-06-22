@@ -23,6 +23,7 @@ urlpatterns = [
     path('student-attendance-history/', views.StudentAttendanceHistoryView.as_view(), name='student_attendance_history'),
     path('lecturer-attendance-history/', views.LecturerAttendanceHistoryView.as_view(), name='lecturer_attendance_history'),
     path('lecturer-location/', views.LecturerLocationView.as_view(), name='lecturer_location'),
+    path('rotating-qr-payload/', views.GenerateRotatingQRView.as_view(), name='generate_rotating_qr'),
     
     # WebAuthn Fingerprint endpoints
     path('webauthn/register/begin/', webauthn_views.register_begin, name='webauthn_register_begin'),

@@ -121,8 +121,15 @@
       <!-- Right: QR code -->
       <div class="flex flex-col items-center justify-center rounded-2xl border border-gray-100 dark:border-gray-700 bg-white/40 dark:bg-gray-700/30 p-6 backdrop-blur-sm">
         <span class="mb-4 block text-xs font-bold uppercase tracking-wider text-gray-400">Scan QR Code</span>
-        <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 shadow-md">
-          <img src="{{ active_session.qr_code.url }}" alt="QR Code" class="h-48 w-48 object-contain" />
+        <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 shadow-md" style="min-height: 200px; min-width: 200px; display: flex; align-items: center; justify-content: center;">
+          <!-- Using a canvas instead of a static image for dynamic rotating QR codes -->
+          <canvas id="qr-canvas" class="h-48 w-48 object-contain"></canvas>
+          <div id="qr-loading" class="absolute hidden">
+             <svg class="h-8 w-8 animate-spin text-brand-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+             </svg>
+          </div>
         </div>
         
         <div class="mt-6 w-full text-center border-t border-gray-200 dark:border-gray-700 pt-5">
@@ -489,5 +496,46 @@
     </div>
   </div>
 </div>
+
+<!-- Load QRious for client-side QR generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    {% if active_session %}
+    const token = "{{ active_session.token }}";
+    const qrCanvas = document.getElementById('qr-canvas');
+    const qrLoading = document.getElementById('qr-loading');
+    
+    if (qrCanvas) {
+        // Initialize QRious
+        const qr = new QRious({
+          element: qrCanvas,
+          size: 250,
+          value: 'loading...',
+          background: 'white',
+          foreground: 'black',
+          level: 'H'
+        });
+
+        function updateQR() {
+          fetch(`{% url 'generate_rotating_qr' %}?token=${token}`)
+            .then(response => response.json())
+            .then(data => {
+              if (data.payload) {
+                qr.value = data.payload;
+              }
+            })
+            .catch(err => console.error('Error fetching rotating QR:', err));
+        }
+
+        // Initial load
+        updateQR();
+        // Rotate every 10 seconds
+        setInterval(updateQR, 10000);
+    }
+    {% endif %}
+  });
+</script>
 
 {% endblock %}

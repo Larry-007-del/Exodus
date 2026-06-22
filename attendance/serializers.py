@@ -156,6 +156,7 @@ class SubmitLocationSerializer(serializers.Serializer):
     ble_verified = serializers.BooleanField(required=False, default=False)
     audio_verified = serializers.BooleanField(required=False, default=False)
     qr_verified = serializers.BooleanField(required=False, default=False)
+    qr_payload = serializers.CharField(required=False, allow_blank=True, default='')
 
     def validate_attendance_token(self, value):
         return value.strip().upper()

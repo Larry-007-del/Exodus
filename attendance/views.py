@@ -1,7 +1,7 @@
 import logging
 from django.db.models import Case, IntegerField, Value, When
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, generics, status
+from rest_framework import viewsets, generics, status, views
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, BasePermission
@@ -12,6 +12,7 @@ from django.utils import timezone
 from django.http import HttpResponse
 from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
+from django.core.signing import TimestampSigner, SignatureExpired, BadSignature
 import csv
 from openpyxl import Workbook
 from collections import defaultdict
@@ -534,6 +535,27 @@ class LogoutView(generics.GenericAPIView):
         logout(request)
         return Response(status=status.HTTP_205_RESET_CONTENT)
 
+class GenerateRotatingQRView(views.APIView):
+    """
+    Generates a time-signed payload for rotating QR codes.
+    Only accessible to the lecturer of the active session.
+    """
+    def get(self, request, *args, **kwargs):
+        token_str = request.GET.get('token')
+        if not token_str:
+            return Response({'error': 'Token required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            token_obj = AttendanceToken.objects.get(token__iexact=token_str, is_active=True)
+            # Ensure the requesting user is the lecturer for this course
+            if token_obj.course.lecturer != request.user:
+                return Response({'error': 'Unauthorized'}, status=status.HTTP_403_FORBIDDEN)
+
+            payload = TimestampSigner().sign(token_obj.token)
+            return Response({'payload': f'exodus_qr:{payload}'}, status=status.HTTP_200_OK)
+        except AttendanceToken.DoesNotExist:
+            return Response({'error': 'Invalid or expired session'}, status=status.HTTP_404_NOT_FOUND)
+
 # Location-based Attendance View
 
 class SubmitLocationView(generics.GenericAPIView):
@@ -571,6 +593,20 @@ class SubmitLocationView(generics.GenericAPIView):
         ble_verified = serializer.validated_data.get('ble_verified', False)
         audio_verified = serializer.validated_data.get('audio_verified', False)
         qr_verified = serializer.validated_data.get('qr_verified', False)
+        qr_payload = serializer.validated_data.get('qr_payload', '')
+
+        if qr_payload:
+            try:
+                # Unsign with a max_age of 20 seconds
+                extracted_token = TimestampSigner().unsign(qr_payload, max_age=20)
+                if extracted_token == attendance_token:
+                    qr_verified = True
+                else:
+                    return api_error('Invalid QR code data.', APIErrorCode.INVALID_OR_EXPIRED_TOKEN, status.HTTP_400_BAD_REQUEST)
+            except SignatureExpired:
+                return api_error('QR Code expired. Please scan the current code on the screen.', APIErrorCode.INVALID_OR_EXPIRED_TOKEN, status.HTTP_400_BAD_REQUEST)
+            except BadSignature:
+                return api_error('Invalid QR code.', APIErrorCode.INVALID_OR_EXPIRED_TOKEN, status.HTTP_400_BAD_REQUEST)
 
         try:
             token = AttendanceToken.objects.get(token__iexact=attendance_token, is_active=True)

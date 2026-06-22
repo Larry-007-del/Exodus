@@ -104,6 +104,7 @@
       <input type="hidden" id="attendance-longitude" name="longitude" />
       <input type="hidden" id="bleVerifiedInput" name="ble_verified" value="false" />
       <input type="hidden" id="qrVerifiedInput" name="qr_verified" value="false" />
+      <input type="hidden" id="qrPayloadInput" name="qr_payload" value="" />
       <input
         type="text"
         id="attendance-token"
@@ -560,7 +561,17 @@
                 // Stop scanning and apply token
                 stopScanner();
 
-                const token = qrCode.data.replace('attendance_token:', '').trim();
+                let token = qrCode.data.trim();
+                const qrPayloadInput = document.getElementById('qrPayloadInput');
+                
+                if (token.startsWith('exodus_qr:')) {
+                    const payload = token.replace('exodus_qr:', '');
+                    if (qrPayloadInput) qrPayloadInput.value = payload;
+                    token = payload.split(':')[0]; // The actual token is the first part of the signed string
+                } else {
+                    token = token.replace('attendance_token:', '');
+                }
+
                 tokenInput.value = token;
                 
                 // QR code scan = physical proximity proof. Set qr_verified and submit directly.
@@ -655,6 +666,10 @@
       if (qrVerifiedInput && qrVerifiedInput.value === 'true') {
           formData.set('qr_verified', 'true');
       }
+      const qrPayloadInput = document.getElementById('qrPayloadInput');
+      if (qrPayloadInput && qrPayloadInput.value) {
+          formData.set('qr_payload', qrPayloadInput.value);
+      }
 
       fetch('{% url "submit_location" %}', {
         method: 'POST',
@@ -682,7 +697,18 @@
               window.location.href = "{% url 'frontend:attendance_history' %}";
             }, 1000);
           } else {
-            alert(data.error || 'Failed to mark attendance');
+            btnText.innerText = 'FAILED';
+            if (data.error && data.error.includes("QR Code expired")) {
+                alert(data.error);
+                // Clear the payload so they have to scan again
+                const qrPayloadInput = document.getElementById('qrPayloadInput');
+                if (qrPayloadInput) qrPayloadInput.value = "";
+                const qrVerifiedInput = document.getElementById('qrVerifiedInput');
+                if (qrVerifiedInput) qrVerifiedInput.value = "false";
+                updateStatus("QR Code expired. Try scanning again.", true, true);
+            } else {
+                updateStatus(`Error: ${data.error || 'Check-in failed'}`, true, true);
+            }
             btnText.innerText = 'CHECK IN';
           }
         })
