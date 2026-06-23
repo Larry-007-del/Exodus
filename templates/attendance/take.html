@@ -543,43 +543,56 @@
 
 
 
-<script>
-  (function() {
-    {% if active_session %}
-    const token = "{{ active_session.token }}";
-    const qrCanvas = document.getElementById('qr-canvas');
-    const qrLoading = document.getElementById('qr-loading');
-    
-    if (qrCanvas) {
-        // Initialize QRious
-        const qr = new QRious({
-          element: qrCanvas,
-          size: 250,
-          value: 'loading...',
-          background: 'white',
-          foreground: 'black',
-          level: 'H'
-        });
+  <!-- Load QRious locally -->
+  <script src="{% static 'js/qrious.min.js' %}"></script>
 
-        function updateQR() {
-          fetch(`{% url 'generate_rotating_qr' %}?token=${token}`)
-            .then(response => response.json())
-            .then(data => {
-              if (data.payload) {
-                qr.value = data.payload;
-              }
-            })
-            .catch(err => console.error('Error fetching rotating QR:', err));
-        }
+  <script>
+    (function() {
+      {% if active_session %}
+      const token = "{{ active_session.token }}";
+      
+      function initQR() {
+          if (typeof QRious === 'undefined') {
+              setTimeout(initQR, 50);
+              return;
+          }
+          
+          const qrCanvas = document.getElementById('qr-canvas');
+          const qrLoading = document.getElementById('qr-loading');
+          
+          if (!qrCanvas) return;
+          
+          // Initialize QRious
+          const qr = new QRious({
+            element: qrCanvas,
+            size: 250,
+            value: 'loading...',
+            background: 'white',
+            foreground: 'black',
+            level: 'H'
+          });
 
-        // Initial load
-        updateQR();
-        // Rotate every 10 seconds
-        window.updateQR = updateQR;
-        window.qrIntervalId = setInterval(updateQR, 10000);
-    }
-    {% endif %}
-  })();
-</script>
+          function updateQR() {
+            fetch(`{% url 'generate_rotating_qr' %}?token=${token}`)
+              .then(response => response.json())
+              .then(data => {
+                if (data.payload) {
+                  qr.value = data.payload;
+                }
+              })
+              .catch(err => console.error('Error fetching rotating QR:', err));
+          }
+
+          // Initial load
+          updateQR();
+          // Rotate every 10 seconds
+          window.updateQR = updateQR;
+          window.qrIntervalId = setInterval(updateQR, 10000);
+      }
+      
+      initQR();
+      {% endif %}
+    })();
+  </script>
 
 {% endblock %}
