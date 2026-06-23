@@ -51,7 +51,7 @@ class StudentForm(forms.ModelForm):
         
         # Set default values if not provided
         if not self.instance.pk:  # New instance
-            self.fields['notification_preference'].initial = 'both'
+            self.fields['notification_preference'].initial = 'email'
             self.fields['is_notifications_enabled'].initial = True
     
     def clean_year(self):

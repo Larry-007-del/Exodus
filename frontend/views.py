@@ -1074,7 +1074,7 @@ def student_edit(request, pk):
         student.programme_of_study = request.POST.get('programme_of_study')
         student.year = request.POST.get('year')
         student.phone_number = request.POST.get('phone_number')
-        student.notification_preference = request.POST.get('notification_preference', 'both')
+        student.notification_preference = request.POST.get('notification_preference', 'email')
         student.is_notifications_enabled = request.POST.get('is_notifications_enabled') == 'on'
         
         if 'profile_picture' in request.FILES:

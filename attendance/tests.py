@@ -96,20 +96,16 @@ class StudentModelTest(TestCase):
         self.assertEqual(self.student.get_full_name(), 'Jane Doe (ST001)')
 
     def test_default_notification_preference(self):
-        self.assertEqual(self.student.notification_preference, 'both')
+        self.assertEqual(self.student.notification_preference, 'email')
         self.assertTrue(self.student.is_notifications_enabled)
-
-    def test_should_send_email_notifications_both(self):
-        self.student.notification_preference = 'both'
-        self.assertTrue(self.student.should_send_email_notifications())
 
     def test_should_send_email_notifications_email_only(self):
         self.student.notification_preference = 'email'
         self.assertTrue(self.student.should_send_email_notifications())
 
-    def test_should_not_send_email_notifications_sms_only(self):
+    def test_should_send_email_notifications_legacy_sms(self):
         self.student.notification_preference = 'sms'
-        self.assertFalse(self.student.should_send_email_notifications())
+        self.assertTrue(self.student.should_send_email_notifications())
 
     def test_should_not_send_email_notifications_none(self):
         self.student.notification_preference = 'none'
@@ -117,21 +113,21 @@ class StudentModelTest(TestCase):
 
     def test_should_not_send_email_when_disabled(self):
         self.student.is_notifications_enabled = False
-        self.student.notification_preference = 'both'
+        self.student.notification_preference = 'email'
         self.assertFalse(self.student.should_send_email_notifications())
 
     def test_should_send_sms_notifications_with_phone(self):
-        self.student.notification_preference = 'sms'
+        self.student.notification_preference = 'email'
         self.student.phone_number = '+233241234567'
-        self.assertTrue(self.student.should_send_sms_notifications())
+        self.assertFalse(self.student.should_send_sms_notifications())
 
     def test_should_not_send_sms_without_phone(self):
-        self.student.notification_preference = 'sms'
+        self.student.notification_preference = 'email'
         self.student.phone_number = ''
         self.assertFalse(self.student.should_send_sms_notifications())
 
     def test_should_not_send_sms_none_phone(self):
-        self.student.notification_preference = 'sms'
+        self.student.notification_preference = 'email'
         self.student.phone_number = None
         self.assertFalse(self.student.should_send_sms_notifications())
 
@@ -149,7 +145,7 @@ class StudentAdminCreationFormTest(TestCase):
             'name': 'Admin Student One',
             'programme_of_study': 'Computer Science',
             'year': '2',
-            'notification_preference': 'both',
+            'notification_preference': 'email',
             'is_notifications_enabled': True,
         })
         self.assertFalse(form.is_valid())
@@ -165,7 +161,7 @@ class StudentAdminCreationFormTest(TestCase):
             'name': 'Admin Student Two',
             'programme_of_study': 'Computer Science',
             'year': '3',
-            'notification_preference': 'both',
+            'notification_preference': 'email',
             'is_notifications_enabled': True,
         })
         self.assertTrue(form.is_valid(), form.errors)
