@@ -57,15 +57,13 @@ class Student(models.Model):
     fcm_token = models.CharField(max_length=255, blank=True, null=True, help_text="Firebase Notification Token")
     
     NOTIFICATION_CHOICES = [
-        ('email', 'Email'),
-        ('sms', 'SMS'),
-        ('both', 'Both Email and SMS'),
+        ('email', 'Email Only'),
         ('none', 'None')
     ]
     notification_preference = models.CharField(
         max_length=10,
         choices=NOTIFICATION_CHOICES,
-        default='both'
+        default='email'
     )
     is_notifications_enabled = models.BooleanField(default=True)
 
@@ -84,11 +82,12 @@ class Student(models.Model):
 
     def should_send_email_notifications(self):
         """Check if student should receive email notifications"""
-        return self.is_notifications_enabled and (self.notification_preference in ['email', 'both'])
+        # We treat 'both' or 'sms' as 'email' historically to ensure legacy users still get emails
+        return self.is_notifications_enabled and self.notification_preference != 'none'
 
     def should_send_sms_notifications(self):
         """Check if student should receive SMS notifications"""
-        return self.is_notifications_enabled and (self.notification_preference in ['sms', 'both']) and self.phone_number
+        return False
 
 
 class WebAuthnCredential(models.Model):
