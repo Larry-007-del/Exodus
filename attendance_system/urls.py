@@ -7,6 +7,7 @@ from django.views.decorators.cache import cache_control
 from django.db import connection
 from django.core.cache import cache
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from django.views.generic import TemplateView
 
 # Custom admin index template (extends Jazzmin's with stats widget)
 admin.site.index_template = 'admin/exodus_index.html'
@@ -59,6 +60,9 @@ urlpatterns = [
 
     # Health check
     path('health/', health_view, name='health'),
+
+    # Service Worker
+    path('sw.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='sw.js'),
 
     # Django Admin Obfuscation (Prevents vulnerability scanners)
     path('exodus-manage/', admin.site.urls),

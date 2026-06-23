@@ -714,8 +714,23 @@
         })
         .catch((error) => {
           console.error('Error:', error);
-          alert('Network error. Please try again.');
-          btnText.innerText = 'CHECK IN';
+          if (!navigator.onLine || error.name === 'TypeError' || error.message.includes('Network') || error.message.includes('fetch')) {
+             const payload = Object.fromEntries(formData.entries());
+             payload.offline_timestamp = new Date().toISOString();
+             let queue = JSON.parse(localStorage.getItem('offlineCheckins') || '[]');
+             queue.push(payload);
+             localStorage.setItem('offlineCheckins', JSON.stringify(queue));
+             
+             btnText.innerText = 'SAVED OFFLINE';
+             alert('You are offline! Your check-in was securely saved to your device and will automatically sync when you reconnect to the internet.');
+             
+             setTimeout(() => {
+               window.location.href = "{% url 'frontend:attendance_history' %}";
+             }, 2000);
+          } else {
+            alert('An error occurred. Please try again.');
+            btnText.innerText = 'CHECK IN';
+          }
         });
   }
 

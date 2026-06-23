@@ -573,6 +573,10 @@
           });
 
           function updateQR() {
+            if (!navigator.onLine) {
+                console.log("Offline mode. Pausing QR rotation.");
+                return;
+            }
             fetch(`{% url 'generate_rotating_qr' %}?token=${token}`)
               .then(response => {
                 if (response.status === 404 || response.status === 403) {
@@ -588,6 +592,9 @@
               })
               .catch(err => {
                 console.error('Error fetching rotating QR:', err);
+                if (!navigator.onLine || err.message.includes('fetch') || err.message.includes('Network')) {
+                    if (window.showToast) window.showToast("Internet disconnected! QR rotation paused. Students can still check in using the 6-character token on the board.", "warning");
+                }
               });
           }
 

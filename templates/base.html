@@ -758,5 +758,50 @@
         NProgress.done();
       });
     </script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('Service Worker registered!', reg.scope))
+            .catch(err => console.error('Service Worker registration failed:', err));
+        });
+      }
+      
+      // Offline Background Sync
+      window.addEventListener('online', () => {
+          const queue = JSON.parse(localStorage.getItem('offlineCheckins') || '[]');
+          if (queue.length > 0) {
+              console.log('Online! Syncing ' + queue.length + ' offline check-ins...');
+              window.showToast('Internet restored! Syncing offline check-ins...', 'info');
+              
+              queue.forEach((payload, index) => {
+                  const formData = new FormData();
+                  for (const key in payload) {
+                      formData.append(key, payload[key]);
+                  }
+                  
+                  fetch('/api/submit-location/', {
+                      method: 'POST',
+                      headers: {
+                          'X-CSRFToken': payload['csrfmiddlewaretoken'] || '',
+                          Accept: 'application/json',
+                      },
+                      body: formData
+                  }).then(res => res.json()).then(data => {
+                      if (data.status === 'Attendance marked successfully' || data.message === 'Attendance recorded successfully.' || data.status === 'Attendance already marked for this session.') {
+                          window.showToast('Offline check-in synced successfully!', 'success');
+                          let currentQueue = JSON.parse(localStorage.getItem('offlineCheckins') || '[]');
+                          currentQueue = currentQueue.filter(item => item.offline_timestamp !== payload.offline_timestamp);
+                          localStorage.setItem('offlineCheckins', JSON.stringify(currentQueue));
+                      } else {
+                          window.showToast('Failed to sync offline check-in: ' + (data.error || 'Unknown error'), 'error');
+                      }
+                  }).catch(err => console.error('Failed to sync check-in:', err));
+              });
+          }
+      });
+    </script>
   </body>
 </html>
