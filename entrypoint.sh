@@ -29,10 +29,10 @@ else:
 "
 fi
 : "${PORT:=10000}"
-WORKERS="${WEB_CONCURRENCY:-2}"
+WORKERS="${WEB_CONCURRENCY:-1}"
 
 echo "🚀 Starting Celery worker in the background..."
-celery -A attendance_system worker -B -l info --concurrency=2 &
+celery -A attendance_system worker -B -l info --concurrency=1 &
 
 echo "🔥 Starting Gunicorn on port ${PORT} with ${WORKERS} workers..."
 exec gunicorn attendance_system.wsgi:application \
