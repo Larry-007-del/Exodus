@@ -574,13 +574,21 @@
 
           function updateQR() {
             fetch(`{% url 'generate_rotating_qr' %}?token=${token}`)
-              .then(response => response.json())
+              .then(response => {
+                if (response.status === 404 || response.status === 403) {
+                   clearInterval(window.qrIntervalId);
+                   console.log("Session ended or invalid. Stopping QR rotation.");
+                }
+                return response.json();
+              })
               .then(data => {
                 if (data.payload) {
                   qr.value = data.payload;
                 }
               })
-              .catch(err => console.error('Error fetching rotating QR:', err));
+              .catch(err => {
+                console.error('Error fetching rotating QR:', err);
+              });
           }
 
           // Initial load
