@@ -163,7 +163,7 @@
       <p class="text-xs text-gray-400 mt-0.5">Download attendance records</p>
     </div>
     <div class="p-5">
-      <form method="get" action="{% url 'frontend:reports_export' %}" class="space-y-4">
+      <form method="get" action="{% url 'frontend:reports_export' %}" class="space-y-4" hx-disable target="_blank">
         <div>
           <label for="course" class="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">Course</label>
           <select name="course" id="course" class="w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700 px-3 py-2.5 text-sm text-gray-800 dark:text-gray-200 transition-all focus:border-brand-500 focus:ring-1 focus:ring-brand-500">

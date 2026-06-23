@@ -2284,12 +2284,12 @@ def reports_export(request):
         response = HttpResponse(
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
-        response['Content-Disposition'] = 'attachment; filename=attendance_report.xlsx'
+        response['Content-Disposition'] = 'attachment; filename="attendance_report.xlsx"'
         wb.save(response)
         return response
     else:
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename=attendance_report.csv'
+        response['Content-Disposition'] = 'attachment; filename="attendance_report.csv"'
         
         writer = csv.writer(response)
         writer.writerow(['Course', 'Date', 'Present Count', 'Active', 'Created At'])
