@@ -1168,9 +1168,14 @@ def course_list(request):
     active_filter = request.GET.get('active', '')
     sort = request.GET.get('sort', 'name')
     
-    courses = Course.objects.all().select_related('lecturer__user').annotate(
-        enrolled_count=Count('students')
-    )
+    if request.user.is_superuser:
+        courses = Course.objects.all().select_related('lecturer__user').annotate(
+            enrolled_count=Count('students')
+        )
+    else:
+        courses = Course.objects.filter(lecturer=request.user.lecturer).select_related('lecturer__user').annotate(
+            enrolled_count=Count('students')
+        )
     
     if query:
         courses = courses.filter(
@@ -1239,7 +1244,10 @@ def course_create(request):
                     messages.error(request, f'{field.replace("_", " ").title()}: {error}')
     
     # GET request or validation error: render form
-    lecturers = Lecturer.objects.select_related('user').all()
+    if request.user.is_superuser:
+        lecturers = Lecturer.objects.select_related('user').all()
+    else:
+        lecturers = Lecturer.objects.filter(user=request.user).select_related('user')
     students = Student.objects.select_related('user').all()
     context = {
         'lecturers': lecturers,
