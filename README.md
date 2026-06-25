@@ -1,6 +1,6 @@
-# Exodus — University Attendance System
+# Exodus — Hybrid/Headless Attendance Engine
 
-A full-stack Django web application for managing university attendance with GPS-based verification, QR code check-ins, two-factor authentication, role-based dashboards, and real-time notifications.
+A hybrid/headless attendance engine built-in REST API and companion web dashboard for managing university attendance with GPS-based verification, QR code check-ins, two-factor authentication, role-based dashboards, and real-time notifications.
 
 [![CI](https://github.com/Larry-007-del/Exodus/actions/workflows/ci.yml/badge.svg)](https://github.com/Larry-007-del/Exodus/actions/workflows/ci.yml)
 
